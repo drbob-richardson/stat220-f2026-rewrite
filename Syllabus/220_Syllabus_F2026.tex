@@ -1,0 +1,289 @@
+% Stat 220 syllabus, Fall 2026.
+% Source file. Edit this, then compile with:
+%     pdflatex 220_Syllabus_F2026.tex
+% Structure adapted from the F2025 syllabus (F2026/Syllabus/220_Syllabus.tex),
+% which is kept unchanged for reference.
+
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[pdftex]{graphicx}
+\usepackage{multirow}
+\usepackage{setspace}
+\usepackage{enumitem}
+\pagestyle{plain}
+\setlength\parindent{0pt}
+\usepackage{hyperref}
+
+\begin{document}
+
+% ---------------------------------------------------------------- course info
+\begin{tabular}{ l l }
+  \multirow{3}{*}{} & \LARGE Stat 220 \\
+  & \LARGE Statistical Modeling for Data Science \\
+  & \LARGE Fall 2026, MWF 9:00--9:50, 1102 JKB \\
+\end{tabular}
+\vspace{8mm}
+
+\begin{tabular}{ l l }
+  \multirow{6}{*}{} & \large Professor: Robert Richardson \\
+  & \hspace{5mm} \large email: richardson@stat.byu.edu \\
+  & \hspace{5mm} \large Office: 2186 WVB \\
+  & \hspace{5mm} \large Open Zoom Room: 8014223736 \\
+  & \hspace{5mm} \large Office Hours: TBD \\
+  & \hspace{5mm} \large 801-422-3736 \\
+\end{tabular}
+\vspace{5mm}
+
+\begin{tabular}{ l l }
+  \multirow{2}{*}{} & \large TAs: TBD \\
+  & \hspace{5mm} \large Names, emails, and office hours will be posted on Learning Suite. \\
+\end{tabular}
+\vspace{5mm}
+
+% ------------------------------------------------------------- course details
+\section*{Course Details}
+
+\textbf{\large Course Description:}
+
+This course is about what you can actually conclude from data, and what you cannot.
+
+Computation is cheap and getting cheaper. Anyone can fit a model in three lines. The skill worth
+having is the judgment that turns a number into a claim you can defend: knowing what a method
+assumes, what happens when those assumptions break, and how to tell a real signal from a
+coincidence that looks like one.
+
+So each unit does two things. It builds a piece of the statistical toolkit, and then it spends
+just as much time on how that piece fails. You will fit models in this class. The harder question,
+and the one we keep returning to, is whether the model has earned the conclusion you want to draw
+from it.
+
+Most students here are studying computer science rather than statistics or mathematics. The course
+is demanding, but very little is assumed. Concepts get built up rather than asserted, and the code
+companions let you watch a mechanism move instead of taking it on faith.
+
+~
+
+\textbf{Prerequisite(s):} Stat 121 or Stat 201; CS 110 or CS 111
+
+~
+
+\textbf{\large Texts:} No textbook is required.
+
+\begin{itemize}[topsep=2pt,itemsep=1pt]
+\item (Optional) \textbf{Foundations of Statistics for Data Scientists: With R and Python} by
+  Alan Agresti and Maria Kateri. This is the closest published book to the course. I will point
+  you to sections of it for further study. Its examples are in R, but there is a Python supplement
+  at \url{https://stat4ds.rwth-aachen.de/pdf/DS_Python_webAppendix.pdf} and data sets at
+  \url{https://stat4ds.rwth-aachen.de/data/}.
+\item (Optional) \textbf{Weapons of Math Destruction} by Cathy O'Neil. A pointed, sometimes
+  overstated look at how models get used and misused on real people. Worth reading. It is no
+  longer tied to a graded assignment.
+\end{itemize}
+
+~
+
+\textbf{Course Management:} Learning Suite
+
+% ------------------------------------------------------------------- software
+\subsection*{Software}
+
+We use Python. In class I will use interactive Python notebooks in
+\url{https://colab.research.google.com}, which has tradeoffs we will talk about. Your homework can
+be completed in any editor or IDE you like. A summary of useful Python commands is at
+\url{https://www.pythoncheatsheet.org}.
+
+Course material is on GitHub at \url{https://github.com/drbob-richardson/stat220}. Please make
+sure you have a GitHub account, since you will link it to your name in the first homework.
+
+% --------------------------------------------------------------------- topics
+\section*{What We Will Cover}
+
+The course runs in twelve units of roughly three class periods each. The order below is the
+starting plan. I may adjust the sequence as we go, and I will announce dates for each unit and
+each homework in class and on Learning Suite.
+
+\begin{itemize}[topsep=2pt,itemsep=2pt]
+\item \textbf{Statistical Inference in the Wild.} Signal against noise, standard error, the
+  $t$-statistic, $p$-values, the two kinds of error, power, confidence intervals, practical versus
+  statistical significance, and the assumptions holding all of it up.
+\item \textbf{Regression as Reasoning.} The line, least squares, and what a slope does and does
+  not tell you. Inference on a slope, categorical predictors, multiple regression, confounding.
+\item \textbf{Building and Trusting a Model.} Many predictors, interactions, collinearity.
+  Overfitting, cross-validation, and data leakage. Trees, regularization, variable importance.
+\item \textbf{Prediction and Its Uncertainty.} The four layers of prediction error. Prediction
+  intervals versus confidence intervals. Extrapolation, regression to the mean, and what happens
+  when the world shifts under a model.
+\item \textbf{Causal Thinking.} Counterfactuals and randomization. Telling a confounder from a
+  collider from a mediator, and why controlling for the wrong one makes things worse.
+  Quasi-experiments and difference-in-differences.
+\item \textbf{Where the Data Comes From.} Population, sampling frame, and sampling designs.
+  Missing data and the mechanisms behind it. Measurement, proxies, and provenance.
+\item \textbf{Probability: Randomness, Conditioning, and Bayes.} The rules, independence, and
+  what correlated failure does to a system. Conditioning, Bayes' rule, and base rates.
+\item \textbf{Random Variables and Distributions.} Random variables, expectation, variance, and
+  the common distributions, chosen by reasoning about how the data was generated.
+\item \textbf{The Normal Distribution and the Central Limit Theorem.} Densities, the normal,
+  $z$-scores. The CLT, the standard error, and how large $n$ actually has to be. Where it fails:
+  skew, heavy tails, dependence.
+\item \textbf{Estimation, Likelihood, and the Bootstrap.} Estimators, bias and variance,
+  shrinkage. Likelihood and what its curvature tells you. The bootstrap and the situations where
+  it quietly breaks.
+\item \textbf{Categorical Outcomes.} Proportions and rates, absolute versus relative risk.
+  Two-way tables, chi-square, Simpson's paradox, logistic regression. Evaluating a classifier:
+  thresholds, costs, and calibration.
+\item \textbf{Bayesian Reasoning and Decisions.} Updating, and the roles of prior, likelihood,
+  and posterior. Choosing priors and testing their influence. Credible intervals, expected loss,
+  and the value of information.
+\end{itemize}
+
+% ---------------------------------------------------------------------- grades
+\section*{Grade Information}
+
+\subsection*{Grade Distribution}
+\begin{tabular}{ l l }
+Homework & 35\% \\
+Midterm Exam & 30\% \\
+Final Exam & 35\%
+\end{tabular}
+
+\subsection*{Homework}
+
+There is one homework per unit, posted as an incomplete Python notebook. You complete the
+questions and upload the finished notebook to Learning Suite.
+
+\textbf{Homework is due at 5:00 PM on the day it is due.} Due dates are announced in class and
+posted on Learning Suite. No late work is accepted.
+
+Each homework opens with a simulated data set built so the principle from that unit is visible on
+purpose, and where you can check your answer against the truth because you know what generated the
+data. It then moves to a real data set and a real question, where nobody knows the truth and the
+last part of the problem is usually deciding what can and cannot be said.
+
+Homework is graded on correctness. You may work with other people, but each of you writes your own
+answers.
+
+\subsection*{Exams}
+
+Both exams are taken in the \textbf{BYU Testing Center}. Both are closed book and closed computer.
+Bring a pencil.
+
+\begin{itemize}[topsep=2pt,itemsep=1pt]
+\item \textbf{Midterm: October 19 to October 22.}
+\item \textbf{Final: during finals week, December 12 to December 17.}
+\end{itemize}
+
+Check \url{https://testing.byu.edu} for hours and for the last time you can start an exam. The
+Testing Center is busiest on the final day of any exam window, so do not plan around the last
+hour.
+
+The exams are not about software or arithmetic. Every question is a scenario: here is a situation,
+here is what somebody concluded, and you say whether the conclusion holds, what would have to be
+true for it to hold, or what you would need to know next. Nothing requires a calculation that will
+not fit in a margin. This is the same kind of thinking the in-class activities and the last part
+of each homework problem are training.
+
+% ------------------------------------------------------------------------- AI
+\section*{AI Usage Statement}
+
+I am in the camp of professors who think AI is remarkable and that you should be using it. This
+class is a good place to learn where tools like ChatGPT help and where they quietly mislead you.
+Debugging with an LLM is far easier than what came before, and I would rather you got good at it
+here.
+
+You may use AI on the homework. What you cannot do is skip the understanding, because both exams
+are paper and pencil in the Testing Center with no AI and no computer. If you have leaned on a
+model to produce answers you could not reconstruct yourself, the exams will show it. To pass this
+course you have to demonstrate the reasoning on your own.
+
+\subsection*{When Working In Class}
+\begin{enumerate}[topsep=2pt,itemsep=1pt]
+\item Look at the course materials and your notes first.
+\item If you are stuck, ask a neighbor, a TA, or me.
+\item After that, use AI or Google. Use them to understand how you would solve the problem, not
+  to be handed the answer.
+\end{enumerate}
+
+\subsection*{When Working At Home}
+\begin{enumerate}[topsep=2pt,itemsep=1pt]
+\item Start with the course notes and materials.
+\item If you are still stuck, use Google or an AI tool, or ask on Discord. Both are fine. AI is a
+  guide, not a substitute.
+\end{enumerate}
+
+\subsection*{Acceptable Uses of AI}
+\begin{itemize}[topsep=2pt,itemsep=1pt]
+\item Brainstorming approaches to a problem.
+\item Clarifying a concept you do not understand.
+\item Debugging code and checking syntax.
+\item Exploring code style and better practice.
+\item Reviewing a statistical method and when it applies.
+\end{itemize}
+
+\subsection*{Prohibited Uses of AI}
+\begin{itemize}[topsep=2pt,itemsep=1pt]
+\item Submitting AI-generated work as your own without editing or understanding it.
+\item Using AI to solve a problem for you instead of working through it.
+\item Relying on AI so heavily that you cannot reason on paper when the exam comes.
+\end{itemize}
+
+\subsection*{Guidelines}
+\begin{itemize}[topsep=2pt,itemsep=1pt]
+\item Verify and edit AI output for accuracy and clarity.
+\item Be able to explain any code or answer you submit.
+\item Cite AI contributions if they significantly shaped your work.
+\item Remember that the exams are AI-free. If you over-rely on AI now, you will struggle then.
+\end{itemize}
+
+\subsection*{Consequences}
+
+Misuse of AI in violation of this policy will be treated as a breach of BYU's academic integrity
+standards and may result in grade penalties or further disciplinary action.
+
+% ---------------------------------------------------------------- boilerplate
+\section*{Statements on honor code, harassment, and accessibility:}
+
+\textbf{\large Honor Code:}
+In keeping with the principles of the BYU Honor Code, students are expected to be honest in all of
+their academic work. Academic honesty means, most fundamentally, that any work you present as your
+own must in fact be your own work and not that of another. Violations of this principle may result
+in a failing grade in the course and additional disciplinary action by the university. Students are
+also expected to adhere to the Dress and Grooming Standards. Adherence demonstrates respect for
+yourself and others and ensures an effective learning and working environment. It is the
+university's expectation, and my own expectation in class, that each student will abide by all
+Honor Code standards. Please call the Honor Code Office at 422-2847 if you have questions about
+those standards.
+
+\textbf{\large Sexual Harassment:}
+Title IX of the Education Amendments of 1972 prohibits sex discrimination against any participant
+in an educational program or activity that receives federal funds. The act is intended to eliminate
+sex discrimination in education and pertains to admissions, academic and athletic programs, and
+university-sponsored activities. Title IX also prohibits sexual harassment of students by
+university employees, other students, and visitors to campus. If you encounter sexual harassment or
+gender-based discrimination, please talk to your professor or contact one of the following: the
+Title IX Coordinator at 801-422-2130; the Honor Code Office at 801-422-2847; the Equal Employment
+Office at 801-422-5895; or Ethics Point at \url{http://www.ethicspoint.com}, or 1-888-238-1062
+(24-hours).
+
+\textbf{\large Student Disability:}
+Brigham Young University is committed to providing a working and learning atmosphere that
+reasonably accommodates qualified persons with disabilities. If you have any disability which may
+impair your ability to complete this course successfully, please contact the University
+Accessibility Center (UAC), 2170 WSC or 422-2767. Reasonable academic accommodations are reviewed
+for all students who have qualified, documented disabilities. The UAC can also assess students for
+learning, attention, and emotional concerns. Services are coordinated with the student and
+instructor by the UAC. If you need assistance or if you feel you have been unlawfully discriminated
+against on the basis of disability, you may seek resolution through established grievance policy
+and procedures by contacting the Equal Employment Office at 422-5895, D-285 ASB.
+
+\textbf{\large Mental Health Services:}
+Barriers to learning are created by stress, anxiety, family and relationship concerns, and personal
+crises. If stressful life events or mental health concerns are inhibiting your ability to
+participate in daily activities or leading to diminished academic performance, please contact the
+BYU Counseling and Psychological Services (CAPS; 1500 WSC, 801-422-3035, \url{caps.byu.edu}). CAPS
+provides individual, couples and group counseling to students. These services are confidential and
+are provided by the university at no added cost to you. Professional psychologists and counselors
+who specialize in helping college students are available 24-hours a day to assist students in
+crisis; if you have an emergency during non-business hours (5pm-8am), please contact BYU Police
+Dispatch (801-422-2222) who will put you in touch with a counselor.
+
+\end{document}
