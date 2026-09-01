@@ -124,6 +124,70 @@ why?''
 % ======================================================================
 \section{Activity}
 % ======================================================================
+\begin{frame}{Live experiment: the magic feather}
+\begin{livedemo}{10 volunteers, 2 rounds}
+\begin{enumerate}\small
+  \item Ten volunteers, one bottle each, about a third full. That fill flips best.
+  \item \textbf{Round 1.} Ten flips each, all at once. Count the ones that land upright. Every
+        score goes on the board next to a name.
+  \item I take the \textbf{bottom three} scorers, give them a short pep talk and a magic feather,
+        and send them back.
+  \item \textbf{Round 2.} Everyone flips ten more times. All ten scores go on the board again.
+\end{enumerate}
+\end{livedemo}
+\vspace{0.2em}
+{\tiny\textit{Materials: 10 bottles, a third full. Time: 12 minutes. Write round 1 on the board
+before round 2 starts. Score it live with \texttt{tools/bottle\_flip.py}.}}
+\centering
+\small Before round 2: does anyone want to predict what the feather does?
+\end{frame}
+
+\begin{frame}{Read the board before you explain it}
+Two columns of numbers are now on the board. Three questions, in this order.
+\begin{enumerate}
+  \item \textbf{What did the coached three do?} Compare their round 2 to their round 1.
+  \item \textbf{What did the top three do?} They got no pep talk, no feather, and no attention.
+        They are the comparison group, and they are the whole point.
+  \item \textbf{What did the middle four do?}
+\end{enumerate}
+\begin{trap}{the objection to raise yourself}
+The bottom three started near zero, so they had more room to go up than down. That is a real
+criticism of the comparison. It is also exactly why we look at the top three, who had room in
+both directions and nobody coaching them.
+\end{trap}
+\end{frame}
+
+\begin{frame}{Two things that are true whatever the bottles did}
+\begin{principle}{regression to the mean}
+When you pick people out on an extreme score, some of what made that score extreme was skill and
+some was luck. Skill shows up again next time. Luck does not. So a group selected at either end
+drifts back toward the middle on its own, with nothing done to it and nobody helping.
+\end{principle}
+\begin{principle}{a predictor can be real and still be circumstantial}
+``Received the pep talk'' would predict improvement here. It would sit in a regression with a
+positive coefficient and a small $p$-value. It would still not be doing anything. It predicts
+because of \emph{how the group was chosen}, not because of what was done to them.
+\end{principle}
+\centering\small
+The rest of this unit is about telling those two apart in data where nobody knows the answer.
+\end{frame}
+
+\begin{frame}{Where the word ``regression'' comes from}
+\begin{itemize}
+  \item Francis Galton, 1886, measuring the heights of parents and their grown children.
+  \item Tall parents had tall children, but on average \textbf{closer to the middle} than the
+        parents were. Same for short parents in the other direction.
+  \item He called it \emph{regression toward mediocrity}, and that phrase is why the technique
+        this entire unit is about is called \textbf{regression}.
+\end{itemize}
+\begin{principle}{what Galton nearly got wrong}
+He first read it as a force pulling humanity toward the average. It is not a force. It is what
+happens to any measurement that is part skill and part luck, which is nearly all of them.
+\end{principle}
+\centering\small
+You just ran his experiment with water bottles.
+\end{frame}
+
 \begin{frame}{Live experiment: guess the correlation}
 \begin{livedemo}{a quick contest}
 Below are four scatterplots, A through D. For each one, \textbf{write down your guess} for the
