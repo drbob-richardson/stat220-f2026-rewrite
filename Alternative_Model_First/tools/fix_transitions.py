@@ -40,7 +40,7 @@ then we use it, and we flag the places it would let us down.
 
 """
 
-patch("Unit_01_Inference_in_the_Wild",
+patch("Unit_01_Inference",
  [("Where we go next", r"""\begin{frame}{Where we go next}
 \begin{itemize}
   \item You now have the template: an estimate, its standard error, and the discipline to ask what

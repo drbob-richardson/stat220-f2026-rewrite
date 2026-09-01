@@ -21,7 +21,7 @@ against is that a few things get used before they are earned. Both are addressed
 
 | # | Unit | Was | Why here |
 |---|------|-----|----------|
-| 1 | Statistical Inference in the Wild | 1 | Unchanged. Sets the habits and hands you the template (estimate minus null, over its standard error) that everything else reuses. |
+| 1 | Statistical Inference | 1 | Unchanged. Sets the habits and hands you the template (estimate minus null, over its standard error) that everything else reuses. |
 | 2 | Regression as Reasoning | 5 | The template again, with a slope in place of a difference. Needs nothing from probability. |
 | 3 | Building and Trusting a Model | 6 | Many predictors, overfitting, cross-validation, regularization. Purely empirical, no distribution theory required. |
 | 4 | Prediction and Its Uncertainty | 7 | Intervals built from held-out residuals rather than from formulas, which is why this works before the CLT. |

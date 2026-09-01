@@ -38,7 +38,7 @@ unit, not a timetable.
 
 | # | Unit | Opens with | Then | Closes with |
 |---|------|-------|-------|-------|
-| 1 | Statistical Inference in the Wild | signal vs noise, SE, the $t$-statistic | $p$-values, tests, errors, power | CIs, practical significance, assumptions |
+| 1 | Statistical Inference | signal vs noise, SE, the $t$-statistic | $p$-values, tests, errors, power | CIs, practical significance, assumptions |
 | 2 | Probability and Random Variables | rules, independence, correlated failure | conditioning, Bayes, base rates | random variables, expectation, variance |
 | 3 | The Normal Distribution and the CLT | density, normal, $z$-scores | the CLT, SE, how big $n$ must be | skew, heavy tails, dependence |
 | 4 | Estimation and the Bootstrap | estimators, bias/variance, shrinkage | likelihood and its curvature | the bootstrap and its failures |

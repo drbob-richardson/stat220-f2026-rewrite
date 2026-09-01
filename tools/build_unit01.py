@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Unit 1 --- Statistical Inference in the Wild: code companion + homework."""
+"""Unit 1 --- Statistical Inference: code companion + homework."""
 from nblib import CodeNB, HW
 
 # =====================================================================
 # CODE COMPANION
 # =====================================================================
-nb = CodeNB(1, "Statistical Inference in the Wild",
+nb = CodeNB(1, "Statistical Inference",
             "Five short simulations behind the slides: what 'just guessing' looks like, where the "
             "standard error comes from, what p-values do under the null, what power buys you, and "
             "the two ways a t-test quietly lies to you.")
@@ -206,7 +206,7 @@ nb.write("Code_Unit01_Inference.ipynb")
 # =====================================================================
 # HOMEWORK
 # =====================================================================
-hw = HW(1, "Statistical Inference in the Wild",
+hw = HW(1, "Statistical Inference",
         """Answer each problem in the cell(s) provided. Replace *Your answer* with your response
 for written parts, and put code in the empty code cells.
 

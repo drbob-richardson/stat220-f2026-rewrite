@@ -11,7 +11,7 @@ NEW = Path(__file__).resolve().parents[1]
 REMAP = {1: 1, 5: 2, 6: 3, 7: 4, 9: 5, 11: 6, 2: 7, 3: 9, 4: 10, 8: 11, 10: 12, 12: 99}
 
 MOVES = [                       # (old stem, new stem)
- ("Unit_01_Inference_in_the_Wild",            "Unit_01_Inference_in_the_Wild"),
+ ("Unit_01_Inference",            "Unit_01_Inference"),
  ("Unit_05_Regression_as_Reasoning",          "Unit_02_Regression_as_Reasoning"),
  ("Unit_06_Building_and_Trusting_a_Model",    "Unit_03_Building_and_Trusting_a_Model"),
  ("Unit_07_Prediction_and_Its_Uncertainty",   "Unit_04_Prediction_and_Its_Uncertainty"),

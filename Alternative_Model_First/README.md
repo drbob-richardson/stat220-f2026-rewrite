@@ -10,7 +10,7 @@ The reasoning behind this order is in `../Course_Rewrite/ALTERNATIVE_ORDER_model
 
 | # | Unit | Frames | Was |
 |---|------|--------|-----|
-| 1 | Statistical Inference in the Wild | 54 | 1 |
+| 1 | Statistical Inference | 54 | 1 |
 | 2 | Regression as Reasoning | 44 | 5 |
 | 3 | Building and Trusting a Model | 51 | 6 |
 | 4 | Prediction and Its Uncertainty | 37 | 7 |

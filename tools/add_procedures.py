@@ -12,7 +12,7 @@ from pathlib import Path
 SLIDES = Path(__file__).resolve().parents[1] / "Slides"
 
 UNITS = {
-"Unit_01_Inference_in_the_Wild": dict(
+"Unit_01_Inference": dict(
   proc_title="Running a two-group comparison, start to finish",
   steps=[
     r"\textbf{Write down $\Hzero$, $\Hone$, and $\alpha$ before you look.} One-sided or two-sided is decided here, not later.",
