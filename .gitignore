@@ -37,3 +37,6 @@ __pycache__/
 .DS_Store
 .tmp.drivedownload/
 .tmp.driveupload/
+
+# compile.sh output
+*.buildlog

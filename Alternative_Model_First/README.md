@@ -65,3 +65,28 @@ for the two review/exam days and the flex days, along with the scenario cards.
 Same decks, same figures, same homework and code companions, same conventions, same voice rules.
 `Exams/` is copied here as well, and because the question banks are named by topic rather than by
 unit number they work with either ordering.
+
+---
+
+## Unit 13, optional: Choosing a Model
+
+`Slides/Unit_13_Choosing_a_Model.tex` (37 pages) and
+`Notebooks/Code_Unit13_Choosing_a_Model.ipynb`.
+
+Not part of the 12-unit calendar. It sits most naturally after Unit 4, once regression,
+model building, and prediction are all in hand and the four questions have each been
+answered for linear regression exactly once.
+
+The unit answers the question the other twelve leave open: when a more complicated model
+earns its keep. Unit 3 teaches how to *detect* the right complexity with cross-validation,
+but never says what *determines* it, and "bias-variance" appears once in the whole course.
+This unit names the tradeoff, shows what moves the optimum, and turns model choice into
+something a student can say out loud in order.
+
+It deliberately forward-references logistic regression (Unit 11) and count models
+(Units 7 and 8) rather than teaching them, so it works at slot 5 without needing
+probability first.
+
+Figures come from `tools/make_unit13_slide_figs.py` and are computed, not drawn. The
+central one simulates a fixed true curve and varies only the sample size: the best
+polynomial degree moves 3, 5, 8 as n goes 20, 50, 300.
