@@ -270,6 +270,25 @@ Suppose a fit on housing data gives
 \end{columns}
 \end{frame}
 
+\begin{frame}{How much did the line actually explain?}
+Before the line, your best guess for any case was $\bar{y}$, and the spread around it is the
+\textbf{total variation}. After the line, what is left over is the residuals.
+\[
+R^2 \;=\; 1 - \frac{\text{variation left in the residuals}}{\text{total variation in } y}
+\]
+\begin{itemize}\small
+  \item $R^2 = 0$: the line did no better than just guessing $\bar{y}$ every time.
+  \item $R^2 = 1$: every point sits exactly on the line.
+  \item With one predictor, $R^2$ is the square of the \textbf{correlation} $r$, which runs from
+        $-1$ to $+1$ and keeps the direction that squaring throws away.
+\end{itemize}
+\begin{principle}{three questions, three numbers}
+The \textbf{slope} says how much $y$ moves. The \textbf{$p$-value} says whether the slope could be
+nothing. $R^2$ says how tightly the points hug the line. Knowing one tells you almost nothing
+about the other two.
+\end{principle}
+\end{frame}
+
 \begin{frame}{A slope is an answer to a question}
 \begin{itemize}
   \item ``Does price go up with size?'' The slope answers it, with a sign and a magnitude.
@@ -435,6 +454,33 @@ A dummy shifts the line. An \textbf{interaction} (a $\text{group}\times x$ term)
 We'll go deeper on interactions in Part 3.
 \end{column}
 \end{columns}
+\end{frame}
+
+\begin{frame}{The interaction model, written out}
+\[
+\hat{y} \;=\; b_0 + b_1 x + b_2\,G + b_3\,(G \times x),
+\qquad G = 0 \text{ or } 1
+\]
+Put in each value of $G$ and the two lines fall out:
+\begin{center}\small
+\begin{tabular}{lccc}
+\toprule
+\textbf{Group} & \textbf{Model becomes} & \textbf{Intercept} & \textbf{Slope} \\
+\midrule
+$G = 0$ & $b_0 + b_1 x$ & $b_0$ & $b_1$ \\
+$G = 1$ & $(b_0 + b_2) + (b_1 + b_3)\,x$ & $b_0 + b_2$ & $b_1 + b_3$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+\begin{itemize}\small
+  \item $b_2$ is the gap in \emph{intercept}. $b_3$ is the gap in \emph{slope}.
+  \item Testing $b_3 = 0$ is exactly the question ``does the effect of $x$ depend on the group?''
+\end{itemize}
+\begin{trap}{$b_1$ quietly changes meaning}
+With the interaction in the model, $b_1$ is no longer ``the effect of $x$.'' It is the effect of
+$x$ \textbf{in the group coded 0}. Quoting it as the overall slope is the usual way this model
+gets misread.
+\end{trap}
 \end{frame}
 
 \begin{frame}{Your turn \#2}
