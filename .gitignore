@@ -2,21 +2,16 @@
 # NOT FOR A PUBLIC REPO
 # ---------------------------------------------------------------------------
 # Exams/ holds the closed-book question banks WITH ANSWER SKETCHES. This
-# repository is public: students can read anything committed here, and GitHub
-# keeps deleted content in the history and in search caches. Leave this line
-# alone. To share the banks with a TA, send the PDFs directly or use a private
-# folder on Drive.
+# repository is public. Leave this line alone. Practice/ is different: those
+# are the student-facing multiple-choice study questions and are committed.
 Exams/
 
-# Superseded 15-module version of the course, kept on Drive only so nobody
-# teaches from it by accident.
+# Superseded 15-module version, kept on Drive only.
 Archive_Modules/
 
 # ---------------------------------------------------------------------------
 # Build artifacts
 # ---------------------------------------------------------------------------
-# LaTeX intermediates. The .tex is the source and the .pdf is committed so
-# TAs can read the decks without a LaTeX install.
 *.aux
 *.log
 *.nav
@@ -27,16 +22,10 @@ Archive_Modules/
 *.fls
 *.fdb_latexmk
 *.synctex.gz
-
-# Python
+*.buildlog
 __pycache__/
 *.pyc
 .ipynb_checkpoints/
-
-# macOS and Google Drive
 .DS_Store
 .tmp.drivedownload/
 .tmp.driveupload/
-
-# compile.sh output
-*.buildlog

@@ -23,7 +23,7 @@ from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import KFold, cross_val_score
 
 OUT = Path(__file__).resolve().parents[1] / "Slides"
-DATA = Path(__file__).resolve().parents[3] / "data"
+DATA = Path(__file__).resolve().parents[2] / "data"
 OUT.mkdir(parents=True, exist_ok=True)
 
 plt.rcParams.update({"font.size": 10, "axes.spines.top": False, "axes.spines.right": False})

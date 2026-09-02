@@ -200,38 +200,6 @@ nb.md("The p-value is nowhere near 0.05, but look at that interval before you sa
       "from a large drop to a large increase. That is an *inconclusive* result, not a negative "
       "one, and the honest report says so.")
 
-
-nb.section(
-    "7f. Skewed data: the same comparison, three ways",
-    "Rent is badly right-skewed. The homework asks you to run the comparison on the raw "
-    "values, on the log, and after dropping the most extreme 1 percent. Here is each one, "
-    "and what each is actually estimating.",
-)
-nb.code("""
-rent = pd.read_csv("https://richardson.byu.edu/220/rent.csv").dropna()
-f = rent.loc[rent.FurnishingStatus == "Furnished", "Rent"]
-u = rent.loc[rent.FurnishingStatus == "Unfurnished", "Rent"]
-
-# (1) raw: estimates the difference in MEAN rent, in rupees
-t1 = stats.ttest_ind(f, u, equal_var=False)
-print(f"raw      diff of means = {f.mean() - u.mean():10,.0f}   p = {t1.pvalue:.2e}")
-
-# (2) log: estimates the difference in mean LOG rent, which back-transforms to a RATIO
-lf, lu = np.log(f), np.log(u)
-t2 = stats.ttest_ind(lf, lu, equal_var=False)
-print(f"log      ratio of typical rents = {np.exp(lf.mean() - lu.mean()):6.2f}x   p = {t2.pvalue:.2e}")
-
-# (3) trimmed: estimates the difference in mean rent AMONG TYPICAL LISTINGS
-cut = rent.Rent.quantile(0.99)
-ft, ut = f[f <= cut], u[u <= cut]
-t3 = stats.ttest_ind(ft, ut, equal_var=False)
-print(f"trimmed  diff of means = {ft.mean() - ut.mean():10,.0f}   p = {t3.pvalue:.2e}"
-      f"   (dropped {(rent.Rent > cut).sum()} listings above {cut:,.0f})")
-""")
-nb.md("Three different estimands, not three attempts at one number. The raw answer is in rupees, "
-      "the log answer is a multiplier, and the trimmed answer is about typical listings rather "
-      "than all of them. Decide which question you were asked before you pick one.")
-
 nb.write("Code_Unit01_Inference.ipynb")
 
 
@@ -330,7 +298,7 @@ assumption of the $t$-test is under strain here, and does the sample size rescue
 hw.part("b", """Redo the Problem 3a comparison three ways, all of them $t$-tests: on the raw
 `Rent`, on $\\log(\\text{Rent})$, and on the raw rents after dropping the most extreme 1% of
 listings. Report all three and explain what each one is actually estimating, and why they do not
-answer quite the same question. (We get a fourth and better way, the bootstrap, in Unit 10.)""")
+answer quite the same question. (We get a fourth and better way, the bootstrap, in Unit 4.)""")
 hw.part("c", """Now the `bikes` data. Compute the lag-1 autocorrelation of `Count` across the
 year (`bikes["Count"].autocorr(1)`). Report it and explain what it means about the independence
 assumption behind Problem 2.""")
