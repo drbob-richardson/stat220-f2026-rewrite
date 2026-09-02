@@ -369,7 +369,7 @@ t \;=\; \frac{\xbar_A - \xbar_B}{\se(\xbar_A - \xbar_B)},
 \qquad
 \se(\xbar_A - \xbar_B) \;=\; \sqrt{\frac{s_A^2}{n_A} + \frac{s_B^2}{n_B}} \quad\text{(Welch)} .
 \]
-Welch's df comes from a formula nobody memorizes; let the software report it. Student's pooled
+Welch's df comes from a formula nobody memorizes, so let the software report it. Student's pooled
 version assumes equal variances and is the special case, not the default.
 \begin{center}
 \begin{tabular}{p{0.26\textwidth} p{0.26\textwidth} p{0.32\textwidth}}
@@ -807,6 +807,34 @@ Different spreads, different group sizes
 The other three leave fingerprints in a plot. Dependence does not. Only knowing how the data was
 collected tells you.
 \end{trap}
+\end{frame}
+
+
+\begin{frame}{Skewed data: three honest options, three different answers}
+Rent, income, and revenue are all right-skewed. Three ways to run the comparison, and they are
+not three attempts at the same number.
+\begin{center}\footnotesize
+\begin{tabular}{p{0.24\textwidth} p{0.34\textwidth} p{0.32\textwidth}}
+\toprule
+\textbf{What you do} & \textbf{What you are estimating} & \textbf{What it costs} \\
+\midrule
+$t$-test on the raw values
+& The difference in \textbf{mean} rent, in dollars.
+& The mean is dragged by a few extreme listings, and at small $n$ the $p$-value is not
+  trustworthy. \\[1pt]
+$t$-test on $\log(\text{rent})$
+& The difference in mean \emph{log} rent, which back-transforms to a \textbf{ratio}, not dollars.
+& If someone asked ``how many more dollars,'' you did not answer it. \\[1pt]
+$t$-test dropping the extreme 1\%
+& The difference in mean rent \textbf{among typical listings}.
+& You changed the population, and must say so. \\
+\bottomrule
+\end{tabular}
+\end{center}
+\begin{principle}{pick the target before you pick the fix}
+All three are defensible and answer different questions. The mistake is running all three and
+reporting whichever gave the smallest $p$-value.
+\end{principle}
 \end{frame}
 
 \begin{frame}{A checklist for any result you're handed}
