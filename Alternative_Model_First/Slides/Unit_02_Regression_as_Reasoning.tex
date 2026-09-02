@@ -606,6 +606,51 @@ was hiding in the first version.''
 \end{practice}
 \end{frame}
 
+\begin{frame}{A coefficient that flips, on 392 real cars}
+\textbf{The workflow.} You are modeling fuel economy. You start with how long a car takes to
+reach 60 mph.
+\begin{center}\small
+\begin{tabular}{lccc}
+\toprule
+\textbf{Model} & \textbf{acceleration} & \textbf{horsepower} & \textbf{$R^2$} \\
+\midrule
+\texttt{mpg $\sim$ acceleration} & $\mathbf{+1.198}$ \tiny($p=2\times10^{-18}$) & & 0.18 \\
+\texttt{mpg $\sim$ acceleration + horsepower} & $\mathbf{-0.610}$ \tiny($p=6\times10^{-7}$) & $-0.188$ & 0.63 \\
+\bottomrule
+\end{tabular}
+\end{center}
+\begin{itemize}\small
+  \item Alone, slower cars get \emph{better} mileage: $+1.2$ mpg per extra second. Sensible.
+  \item Then a colleague says you have to control for engine power. Obviously right.
+  \item You add horsepower, and acceleration \textbf{flips to $-0.61$}.
+\end{itemize}
+\centering\small
+Both coefficients are overwhelmingly significant. Neither model is broken, and this is not noise.
+\end{frame}
+
+\begin{frame}{Why it flipped, in one line of algebra}
+Leave out a variable and its influence does not disappear. It rides in on whatever you kept:
+\[
+\underbrace{b_{\text{acc}}^{\,\text{alone}}}_{+1.198}
+\;=\;
+\underbrace{b_{\text{acc}}^{\,\text{full}}}_{-0.610}
+\;+\;
+\underbrace{b_{\text{hp}}}_{-0.188}\times\underbrace{\delta}_{-9.616}
+\]
+\vspace{-0.3em}
+\begin{itemize}\small
+  \item $\delta$ is the omitted variable regressed on the one you kept: each extra second to
+        60 mph goes with $9.6$ fewer horsepower. Each horsepower costs $0.188$ mpg.
+  \item Two negatives multiply to a bias of $\mathbf{+1.807}$, three times the real $-0.610$,
+        so it does not shrink the coefficient, it overturns it. Drop horsepower and it returns.
+\end{itemize}
+\begin{principle}{both are right, about different questions}
+Across \emph{all} cars, do slower ones get better mileage? Yes, they have small engines. Among
+cars of the \emph{same} horsepower? No: still sluggish at fixed power means heavy, and weight
+burns fuel.
+\end{principle}
+\end{frame}
+
 \begin{frame}{Correlation is not causation, stated precisely}
 \begin{itemize}
   \item A regression slope is a \textbf{description}: how $y$ moves with $x$ in this data.
@@ -657,7 +702,7 @@ do parking units just happen to be bigger?'' Walk the six steps:
 \begin{llmcheck}{we asked an LLM to interpret a regression}
 \textbf{We told it:} ``Here is a regression of salary on years of education, from survey data.
 Interpret it.''\\[4pt]
-\textbf{It answered:} ``Each extra year of education \emph{causes} about \$4{,}200 more salary,
+\textbf{It answered:} ``Each extra year of education causes about \$4{,}200 more salary,
 so requiring more schooling would raise incomes.''
 \end{llmcheck}
 \vspace{0.2em}
