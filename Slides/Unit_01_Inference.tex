@@ -625,21 +625,14 @@ $p=0.04$ really says.
 \section{Hypothesis tests}
 % ======================================================================
 \begin{frame}{The hypothesis-testing setup}
-\begin{itemize}
+\begin{itemize}\small
   \item \textbf{Null $\Hzero$:} the boring default, like ``no difference'' or ``slope is 0.''
   \item \textbf{Alternative $\Hone$:} what you'd act on, one-sided or two-sided.
-  \item \textbf{Level $\alpha$:} the false-alarm risk you accept before seeing data (often 0.05,
-        which is a convention, not a law).
+  \item \textbf{Level $\alpha$:} the false-alarm risk you accept before seeing data, often 0.05,
+        which is a convention and not a law.
   \item \textbf{Decision:} reject $\Hzero$ if $p < \alpha$.
 \end{itemize}
-\begin{principle}{the courtroom analogy}
-$\Hzero$ is ``presumed innocent.'' We either find enough evidence to convict (reject) or we
-don't. Failing to convict is not the same as proving innocence.
-\end{principle}
-\end{frame}
-
-\begin{frame}{Two ways to be wrong}
-\begin{center}
+\begin{center}\small
 \begin{tabular}{l|cc}
 \toprule
  & \textbf{$\Hzero$ true} & \textbf{$\Hone$ true} \\
@@ -649,15 +642,13 @@ don't. Failing to convict is not the same as proving innocence.
 \bottomrule
 \end{tabular}
 \end{center}
-\vspace{0.6em}
-\begin{itemize}
-  \item \textbf{Type I (false positive):} you ship a change that does nothing.
-  \item \textbf{Type II (false negative):} you kill a good idea.
-  \item $\alpha$ controls Type I by design. Type II is governed by \textbf{power}.
-\end{itemize}
+\begin{principle}{what each error costs}
+Type I: you ship a change that does nothing. Type II: you kill a good idea. You choose $\alpha$
+outright. Type II is governed by power, which you do not choose directly.
+\end{principle}
 \end{frame}
 
-\begin{frame}{Power: the most under-taught idea}
+\begin{frame}{Power}
 \begin{principle}{definition}
 \textbf{Power} $= 1-\beta = \Pr(\text{reject } \Hzero \mid \Hone \text{ true})$: the chance your
 test \emph{catches} an effect that is really there.
@@ -685,7 +676,7 @@ Do you agree? What's the first question you ask?
 \end{yourturn}
 \end{frame}
 
-\begin{frame}{Scenario 3: a non-significant result}
+\begin{frame}{Your turn \#3: answer}
 \textbf{Answer to Your turn \#3: no.} ``Not detected'' is not the same as ``not there.''
 \begin{itemize}
   \item With $n=10$ the study is badly underpowered: it probably couldn't detect even a large,
@@ -912,7 +903,7 @@ is then telling you about your denominator, not about the world.
 \end{itemize}
 \begin{practice}{how to answer this}
 ``I don't trust this $p$ yet. With $n=18$ and a heavy tail, one observation may be doing all the
-work. I'd show the result with and without the outlier, and with a robust method.''
+work. I'd show it three ways: raw, with that observation dropped, and on the log scale.''
 \end{practice}
 \end{frame}
 
@@ -959,50 +950,9 @@ choice, Welch vs.\ Student and paired vs.\ unpaired, changes the answer more tha
   \item Worshiping 0.05 as a cliff instead of reading $p$ as continuous evidence.
 \end{itemize}
 \end{trap}
-\end{frame}
-
-\begin{frame}{Ten questions to be able to answer}
-Not to recite. To reason through, out loud, in a couple of sentences each.
-\begin{enumerate}\small
-  \item Define a $p$-value in one clear sentence, then name three things it is \emph{not}.
-  \item 2 million users, a $0.03\%$ lift, $p<10^{-6}$. Ship it?
-  \item A result comes back at $p=0.06$. What do you tell a stakeholder?
-  \item Your experiment was not significant. Does that mean no effect? How would you check?
-  \item You tested twenty features and one was significant. How excited should you be?
-  \item Two groups, very different sizes and variances. Which test, and why?
-  \item A teammate stops the test the moment $p$ drops below $0.05$. What breaks?
-  \item You pooled 400{,}000 sessions across two cities and got $t=31$. Impressed?
-  \item When would you rather report a confidence interval than a $p$-value?
-  \item A study with 15 observations reports a significant effect. Do you trust its \emph{size}?
-\end{enumerate}
-\end{frame}
-
-\begin{frame}{Mastery checklist}
-You have this unit when you can, from memory:
-\begin{itemize}
-  \item explain why every estimate has a sampling distribution and an SE
-  \item write any test as $(\text{estimate}-\text{null})/\se$ and interpret each part
-  \item say precisely what a $t$-statistic, $p$-value, and CI mean, and what they don't
-  \item lay out the Type I / Type II / power trade-off and what moves each
-  \item separate statistical from practical significance on the spot
-  \item name the $t$-test's assumptions in order of fragility, and what to do when each fails
-  \item run the six-point checklist on a fresh result and reach a defensible decision
-\end{itemize}
-\end{frame}
-
-\begin{frame}{A mental model for ``what does this statistic mean?''}
-\begin{principle}{the reusable answer structure}
-\begin{enumerate}
-  \item \textbf{Name the template:} ``this is (estimate $-$ null) over its SE.''
-  \item \textbf{Decompose:} is it a real effect, a huge $n$, or tiny noise?
-  \item \textbf{Quantify:} ask for the effect size and the confidence interval.
-  \item \textbf{Interrogate the design:} independence, outliers, variance, multiplicity, peeking.
-  \item \textbf{Decide:} translate it into costs and a recommendation.
-\end{enumerate}
-\end{principle}
-\vspace{0.2em}
-\centering
-That's how you turn a scary number into a calm, confident answer.
+\centering\small
+Sixteen practice questions on exactly these, with worked answers, are in
+\texttt{Practice\_Inference.pdf}.
 \end{frame}
 
 \begin{frame}{What you should be able to do with software}
