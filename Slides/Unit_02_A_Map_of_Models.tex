@@ -170,20 +170,39 @@ before you have thought about anything else.
 \begin{center}\footnotesize
 \begin{tabular}{L{0.15\textwidth} L{0.21\textwidth} L{0.26\textwidth} L{0.24\textwidth}}
 \toprule
-\textbf{$y$ is} & \textbf{Example} & \textbf{Probability model} & \textbf{Algorithmic} \\
+\textbf{$y$ is} & \textbf{Example} & \textbf{Probability model} & \textbf{Trees, forests, boosting} \\
 \midrule
-a number & mpg, rent, revenue & linear regression & trees, forests, boosting \\
-yes or no & churn, default, click & logistic regression & classification trees and forests \\
-a count or rate & tickets per hour & Poisson, negative binomial & boosting on counts \\
-a category & which of four plans & multinomial logistic & classification models \\
+a number & mpg, rent, revenue & linear regression & same three, regression mode \\
+yes or no & churn, default, click & logistic regression & same three, classification mode \\
+a count or rate & tickets per hour & Poisson, negative binomial & same three, on counts \\
+a category & which of four plans & multinomial logistic & same three, multi-class \\
 time to an event & months until churn & survival models & specialized versions \\
 \bottomrule
 \end{tabular}
 \end{center}
 \begin{trap}{forcing the wrong type}
-Run an ordinary linear regression on a yes/no outcome and it will produce numbers. Some will be
-predicted probabilities above 1 or below 0, which should tell you what happened.
+Run a linear regression on a yes/no outcome and it produces numbers. Some will be predicted
+probabilities above 1 or below 0, which should tell you what happened.
 \end{trap}
+\end{frame}
+
+\begin{frame}{Two filters, doing different jobs}
+Notice what the right-hand column of that table just did. It repeated itself.
+\begin{center}\small
+\begin{tabular}{L{0.30\textwidth} L{0.28\textwidth} L{0.30\textwidth}}
+\toprule
+ & \textbf{Probability models} & \textbf{Trees, forests, boosting} \\
+\midrule
+Does the type of $y$ narrow it? & yes, down to one & no, they all have a version for every type \\
+So what rules it out? & the type of $y$ & \textbf{the job}, never the outcome \\
+\bottomrule
+\end{tabular}
+\end{center}
+\begin{principle}{the outcome never rules out a forest}
+Linear regression genuinely cannot take a count, and logistic genuinely cannot take a number. A
+forest will run on any of them. So when you decide against one, the reason is always that
+somebody needs to read a number out of the model, and a forest has none to give.
+\end{principle}
 \end{frame}
 
 \begin{frame}{Linear regression}
@@ -248,7 +267,8 @@ predicted probabilities above 1 or below 0, which should tell you what happened.
         a human can follow.
   \item No distribution is named anywhere, so there is nothing here to test.
 \end{itemize}
-\centering\small \textbf{Costs you:} move a few rows and the splits can land somewhere else entirely.
+\centering\small \textbf{Any $y$:} the same algorithm splits on a number, a yes/no, or a count.\\
+\textbf{Costs you:} move a few rows and the splits can land somewhere else entirely.
 \end{frame}
 
 \begin{frame}{Random forest}
@@ -263,6 +283,7 @@ predicted probabilities above 1 or below 0, which should tell you what happened.
         idea.
   \item Solid predictions with almost no tuning.
 \end{itemize}
+\textbf{Any $y$:} regression mode or classification mode, same idea.\\[3pt]
 \textbf{Costs you:} there is no line to read any more, and no coefficient to report.
 \end{column}
 \end{columns}
@@ -279,6 +300,7 @@ predicted probabilities above 1 or below 0, which should tell you what happened.
   \item One tree is a crude step. Ten is closer. Two hundred traces the shape.
   \item Usually the most accurate thing you can fit to a table of numbers.
 \end{itemize}
+\textbf{Any $y$:} numbers, yes/no, counts, categories.\\[3pt]
 \textbf{Costs you:} several hyperparameters that matter, and it will overfit if you let it.
 \end{column}
 \end{columns}
@@ -451,7 +473,7 @@ Deploy & the simplest thing that clears the bar & does it still work in a year
 \end{frame}
 
 \begin{frame}{Your turn \#1: which model, and why}
-\begin{yourturn}{name the type of $y$ first, then the family}
+\begin{yourturn}{two questions for each one}
 \begin{enumerate}\small
   \item A hospital wants to know which of 60 measurements taken at intake are worth continuing to
         collect.
@@ -460,24 +482,33 @@ Deploy & the simplest thing that clears the bar & does it still work in a year
   \item A support team wants to know how many tickets will arrive each hour tomorrow.
 \end{enumerate}
 \end{yourturn}
-Two of these have the same type of $y$ and call for different models anyway. Find them.
+\vspace{0.2em}
+For each: \textbf{(a)} what would you fit, and \textbf{(b)} a random forest would run on all four
+of these. Would you want it here, and what would it cost you?
 \end{frame}
 
 \begin{frame}{Your turn \#1: answer}
-\small
-\begin{enumerate}
-  \item \textbf{Screening.} The lasso. The job is cutting 60 down to a handful, and that is what
-        a penalty is for. Report a shortlist, not effects.
-  \item \textbf{Yes or no.} Logistic regression, or boosting if nobody needs to read it. The ask
-        is a \emph{probability}, and somebody still chooses the cutoff for acting on it.
-  \item \textbf{A number, but the real problem is causal.} Linear regression with the bus lane as
-        the predictor of interest. Whether the lane was the only thing that changed is Unit 6.
-  \item \textbf{A count.} Poisson regression. Force hourly tickets into an ordinary linear model
-        and it will happily predict negative tickets at 3 a.m.
-\end{enumerate}
-\begin{principle}{}
-Items 2 and 3 share nothing. Items 1 and 3 could both end up as a regression, for completely
-different reasons.
+\begin{center}\scriptsize
+\begin{tabular}{L{0.04\textwidth} L{0.17\textwidth} L{0.26\textwidth} L{0.36\textwidth}}
+\toprule
+ & \textbf{$y$ is} & \textbf{What I would fit} & \textbf{A forest would run. Why not use it?} \\
+\midrule
+1 & whatever they track & the lasso, to screen
+  & importances split credit between correlated measurements, and you need a list you can
+    defend \\
+2 & yes or no & logistic, \emph{or} a forest
+  & you might well want it. Forest if nobody reads it, logistic if you must explain a decline
+    to a customer \\
+3 & a number & regression with the bus lane as the predictor of interest
+  & the ask is the size of one effect with a range on it, and a forest has no such number \\
+4 & a count & Poisson regression
+  & a forest predicts counts fine. Poisson gives you a rate you can interpret and extrapolate \\
+\bottomrule
+\end{tabular}
+\end{center}
+\begin{principle}{the outcome never decided this}
+A forest runs on all four. What ruled it in or out was whether anyone needs to read a number out
+of the model.
 \end{principle}
 \end{frame}
 
