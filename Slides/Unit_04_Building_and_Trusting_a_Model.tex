@@ -17,6 +17,8 @@
 \usepackage{amsmath, amssymb, amsfonts}
 \usepackage{graphicx}
 \usepackage{booktabs}
+% more air between table rows, they run together otherwise
+\renewcommand{\arraystretch}{1.2}
 \usepackage{array}
 \newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
 \usepackage{bm}
@@ -749,6 +751,7 @@ Nobody is asking you to memorize syntax. You are expected to know \emph{which} p
 question calls for, what to hand it, and what the output means. With an AI assistant open, you
 should be able to produce any of these and defend the result.
 \begin{center}\footnotesize
+\renewcommand{\arraystretch}{1.05}%
 \begin{tabular}{p{0.44\textwidth} p{0.46\textwidth}}
 \toprule
 \textbf{You should be able to} & \textbf{What you would reach for} \\

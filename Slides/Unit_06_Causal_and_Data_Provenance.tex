@@ -25,6 +25,8 @@
 \usepackage{amsmath, amssymb, amsfonts}
 \usepackage{graphicx}
 \usepackage{booktabs}
+% more air between table rows, they run together otherwise
+\renewcommand{\arraystretch}{1.2}
 \usepackage{array}
 \newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
 \usepackage{bm}
@@ -276,6 +278,7 @@ Two minutes with a diagram prevents a month of arguing about a coefficient.
 You have now met the collider: conditioning on a common consequence of two variables makes them
 look related when they are not. That mechanism has other names depending on who got filtered out.
 \begin{center}\small
+\renewcommand{\arraystretch}{1.05}%
 \begin{tabular}{L{0.24\textwidth} L{0.32\textwidth} L{0.34\textwidth}}
 \toprule
 \textbf{Name} & \textbf{What got filtered} & \textbf{The pattern it plants} \\
@@ -504,7 +507,8 @@ your entire analysis quietly changed populations.
 
 \begin{frame}{Weighting: the partial repair}
 When your sample's composition is wrong but you \emph{know} the true composition, you can reweight.
-\begin{center}\small
+\begin{center}\footnotesize
+\renewcommand{\arraystretch}{1.05}%
 \begin{tabular}{lccc}
 \toprule
 \textbf{Age group} & \textbf{\% of population} & \textbf{\% of respondents} & \textbf{weight} \\
@@ -633,6 +637,7 @@ So the first thing to check is whether the two lines were parallel \emph{before}
 \begin{frame}{Difference in differences, with the actual arithmetic}
 A chain raises pay in its \textbf{Ohio} stores in July and leaves \textbf{Indiana} alone.
 \begin{center}\small
+\renewcommand{\arraystretch}{1.05}%
 \begin{tabular}{lccc}
 \toprule
  & \textbf{before} & \textbf{after} & \textbf{change} \\
@@ -814,6 +819,7 @@ Nobody is asking you to memorize syntax. You are expected to know \emph{which} p
 question calls for, what to hand it, and what the output means. With an AI assistant open, you
 should be able to produce any of these and defend the result.
 \begin{center}\footnotesize
+\renewcommand{\arraystretch}{1.05}%
 \begin{tabular}{p{0.44\textwidth} p{0.46\textwidth}}
 \toprule
 \textbf{You should be able to} & \textbf{What you would reach for} \\

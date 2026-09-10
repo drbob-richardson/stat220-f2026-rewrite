@@ -18,6 +18,8 @@
 \usepackage{amsmath, amssymb, amsfonts}
 \usepackage{graphicx}
 \usepackage{booktabs}
+% more air between table rows, they run together otherwise
+\renewcommand{\arraystretch}{1.2}
 \usepackage{bm}
 \usepackage{hyperref}
 
@@ -388,7 +390,8 @@ three that cannot be answered on its own.
 \end{frame}
 
 \begin{frame}{When the outcome is a number}
-\begin{center}\small
+\begin{center}\footnotesize
+\renewcommand{\arraystretch}{1.05}%
 \begin{tabular}{p{0.26\textwidth} p{0.30\textwidth} p{0.34\textwidth}}
 \toprule
 \textbf{Reach for} & \textbf{When} & \textbf{What it costs you} \\

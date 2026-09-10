@@ -17,6 +17,8 @@
 \usepackage{amsmath, amssymb, amsfonts}
 \usepackage{graphicx}
 \usepackage{booktabs}
+% more air between table rows, they run together otherwise
+\renewcommand{\arraystretch}{1.2}
 \usepackage{bm}
 \usepackage{hyperref}
 
@@ -375,6 +377,7 @@ Choose the summary from what someone will \emph{do} with it, then bootstrap what
 
 \begin{frame}{Three ways to get a standard error}
 \begin{center}\small
+\renewcommand{\arraystretch}{1.05}%
 \begin{tabular}{p{0.24\textwidth} p{0.34\textwidth} p{0.32\textwidth}}
 \toprule
 \textbf{Method} & \textbf{How} & \textbf{Use it when} \\

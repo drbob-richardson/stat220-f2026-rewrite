@@ -17,6 +17,8 @@
 \usepackage{amsmath, amssymb, amsfonts}
 \usepackage{graphicx}
 \usepackage{booktabs}
+% more air between table rows, they run together otherwise
+\renewcommand{\arraystretch}{1.2}
 \usepackage{bm}
 \usepackage{hyperref}
 
@@ -239,6 +241,7 @@ Shop B: $4.5 \rightarrow 4.50$ (you can barely see a change).%
 \begin{frame}{The point estimate is the easy part}
 Three ways to report the same A/B test:
 \begin{center}\small
+\renewcommand{\arraystretch}{1.05}%
 \begin{tabular}{p{0.30\textwidth} p{0.60\textwidth}}
 \toprule
 ``Lift was 2.1\%.'' & A number. Says nothing about whether it is real or how far off it
@@ -362,6 +365,7 @@ t \;=\; \frac{\xbar_A - \xbar_B}{\se(\xbar_A - \xbar_B)},
 Welch's df comes from a formula nobody memorizes, so let the software report it. Student's pooled
 version assumes equal variances and is the special case, not the default.
 \begin{center}
+\renewcommand{\arraystretch}{1.05}%
 \begin{tabular}{p{0.26\textwidth} p{0.26\textwidth} p{0.32\textwidth}}
 \toprule
 \textbf{Alternative} & \textbf{Reject $\Hzero$ when} & \textbf{$p$-value} \\
@@ -749,6 +753,7 @@ last the shape of the raw data.
 \begin{frame}{What each failure actually does to you}
 \begin{center}
 \footnotesize
+\renewcommand{\arraystretch}{1.05}%
 \begin{tabular}{p{0.25\textwidth} p{0.30\textwidth} p{0.33\textwidth}}
 \toprule
 \textbf{What went wrong} & \textbf{Why it hurts} & \textbf{What you see} \\
@@ -780,6 +785,7 @@ collected tells you.
 Rent, income, and revenue are all right-skewed. Three ways to run the comparison, and they are
 not three attempts at the same number.
 \begin{center}\footnotesize
+\renewcommand{\arraystretch}{1.05}%
 \begin{tabular}{p{0.24\textwidth} p{0.34\textwidth} p{0.32\textwidth}}
 \toprule
 \textbf{What you do} & \textbf{What you are estimating} & \textbf{What it costs} \\

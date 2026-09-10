@@ -15,6 +15,8 @@
 \usepackage{amsmath, amssymb, amsfonts}
 \usepackage{graphicx}
 \usepackage{booktabs}
+% more air between table rows, they run together otherwise
+\renewcommand{\arraystretch}{1.2}
 \usepackage{array}
 \newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
 \usepackage{bm}
@@ -168,22 +170,19 @@ before you have thought about anything else.
 
 \begin{frame}{What each type of $y$ points to}
 \begin{center}\footnotesize
+\renewcommand{\arraystretch}{1.05}%
 \begin{tabular}{L{0.15\textwidth} L{0.21\textwidth} L{0.26\textwidth} L{0.24\textwidth}}
 \toprule
-\textbf{$y$ is} & \textbf{Example} & \textbf{Probability model} & \textbf{Trees, forests, boosting} \\
+\textbf{$y$ is} & \textbf{Example} & \textbf{Probability model} & \textbf{Non-probability model} \\
 \midrule
-a number & mpg, rent, revenue & linear regression & in regression mode \\
-yes or no & churn, default, click & logistic regression & in classification mode \\
-a count or rate & tickets per hour & Poisson, negative binomial & on counts \\
-a category & which of four plans & multinomial logistic & in multi-class mode \\
-time to an event & months until churn & survival models & specialized versions \\
+a number & mpg, rent, revenue & linear regression & trees, forests, or boosting \\
+yes or no & churn, default, click & logistic regression & trees, forests, or boosting \\
+a count or rate & tickets per hour & Poisson, negative binomial & trees, forests, or boosting \\
+a category & which of four plans & multinomial logistic & trees, forests, or boosting \\
+time to an event & months until churn & survival models & trees, forests, or boosting \\
 \bottomrule
 \end{tabular}
 \end{center}
-\vspace{-0.3em}
-\centering\small
-Read the last column down. It is the \textbf{same three families every row}, and only the mode
-changes.
 \begin{trap}{forcing the wrong type}
 Run a linear regression on a yes/no outcome and it produces numbers. Some will be predicted
 probabilities above 1 or below 0, which should tell you what happened.
@@ -195,7 +194,7 @@ Notice what the right-hand column of that table just did. It repeated itself.
 \begin{center}\small
 \begin{tabular}{L{0.30\textwidth} L{0.28\textwidth} L{0.30\textwidth}}
 \toprule
- & \textbf{Probability models} & \textbf{Trees, forests, boosting} \\
+ & \textbf{Probability models} & \textbf{Non-probability models} \\
 \midrule
 Does the type of $y$ narrow it? & yes, down to one & no, they all have a version for every type \\
 So what rules it out? & the type of $y$ & \textbf{the job}, never the outcome \\
@@ -345,6 +344,7 @@ somebody needs to read a number out of the model, and a forest has none to give.
 
 \begin{frame}{The menu, on one page}
 \begin{center}\footnotesize
+\renewcommand{\arraystretch}{1.05}%
 \begin{tabular}{L{0.22\textwidth} L{0.14\textwidth} L{0.23\textwidth} L{0.25\textwidth}}
 \toprule
 \textbf{Model} & \textbf{Names a distribution} & \textbf{$f$ is} & \textbf{Reach for it when} \\
