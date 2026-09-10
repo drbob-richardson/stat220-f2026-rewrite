@@ -188,7 +188,7 @@ of the raw relationship was weight, relabeled.
 \end{frame}
 
 
-\begin{frame}{Colliders: the problem nobody warns you about}
+\begin{frame}{Colliders}
 \begin{itemize}
   \item A \textbf{collider} is caused by both variables. Conditioning on it creates an association
         where none existed, exactly as the dice demonstrated.
@@ -205,7 +205,7 @@ makes your estimate worse in a direction you cannot sign.
 \end{frame}
 
 
-\begin{frame}{Mediators: controlling away the thing you wanted to measure}
+\begin{frame}{Mediators}
 \begin{itemize}
   \item A \textbf{mediator} sits on the causal path: training raises skill, skill raises sales.
   \item If you regress sales on training \emph{controlling for skill}, you have removed the very
@@ -326,7 +326,7 @@ Before you interpret any relationship, ask who got into the dataset, and what it
 \end{frame}
 
 
-\begin{frame}{Survivorship bias: the most famous example}
+\begin{frame}{Survivorship bias}
 \begin{center}
 \includegraphics[width=0.84\textwidth]{fig_m14_survivorship.pdf}
 \end{center}
@@ -339,7 +339,7 @@ did not return.
 \end{frame}
 
 
-\begin{frame}{Nonresponse: the modern polling problem}
+\begin{frame}{Nonresponse}
 \begin{columns}[c]
 \begin{column}{0.58\textwidth}
 \centering
@@ -361,7 +361,7 @@ ways you did not record.}
 \end{frame}
 
 
-\begin{frame}{Two famous failures worth remembering}
+\begin{frame}{Two famous failures}
 \begin{itemize}
   \item \textbf{1936:} the \emph{Literary Digest} mailed 10 million ballots and got 2.4 million
         back, predicting a Landon landslide. Roosevelt won 46 states. The frame came from car and
@@ -376,7 +376,7 @@ Sampling error shrinks with $n$. Sampling bias does not shrink at all.
 \end{frame}
 
 
-\begin{frame}{The big-data paradox, quantified}
+\begin{frame}{The big-data paradox}
 \begin{columns}[c]
 \begin{column}{0.58\textwidth}
 \centering
@@ -415,7 +415,7 @@ the real frame is often enough to spot the problem.
 \end{frame}
 
 
-\begin{frame}{Four designs worth knowing}
+\begin{frame}{Four sampling designs}
 \begin{itemize}
   \item \textbf{Simple random sample:} everyone equally likely. The benchmark.
   \item \textbf{Stratified:} split into groups (region, plan tier), sample within each. More
@@ -426,7 +426,7 @@ the real frame is often enough to spot the problem.
 \end{itemize}
 \begin{trap}{cluster samples analyzed as if they were random}
 Surveying 20 stores with 50 customers each is not 1{,}000 independent observations. Treating it as
-such is the standard-error error from the CLT module, at scale.
+such is the standard-error error from Unit 9, at scale.
 \end{trap}
 \end{frame}
 
@@ -505,7 +505,7 @@ your entire analysis quietly changed populations.
 \end{frame}
 
 
-\begin{frame}{Weighting: the partial repair}
+\begin{frame}{Weighting}
 When your sample's composition is wrong but you \emph{know} the true composition, you can reweight.
 \begin{center}\footnotesize
 \renewcommand{\arraystretch}{1.05}%
@@ -596,7 +596,7 @@ not a bug you can regularize away.
 
 \section{Quasi-experiments}
 
-\begin{frame}{The realistic situation}
+\begin{frame}{When you cannot randomize}
 Often you cannot randomize: it is unethical, illegal, too slow, or the change already happened.
 Four workhorse designs, each buying credibility with an assumption:
 \begin{itemize}
@@ -680,7 +680,7 @@ substitute for it.
 \end{frame}
 
 
-\begin{frame}{Natural experiments worth knowing}
+\begin{frame}{Natural experiments}
 \begin{itemize}
   \item \textbf{John Snow, 1854:} two water companies served interleaved houses on the same London
         streets, one drawing from sewage-contaminated water. The houses were otherwise alike, so
@@ -730,7 +730,7 @@ a guess into an estimate.
 
 \section{LLM check}
 
-\begin{frame}{LLM check: mistake or not?}
+\begin{frame}{LLM check: mistake or not? (1 of 2)}
 \begin{llmcheck}{we asked an LLM about a feature launch}
 \textbf{We told it:} ``Customers who use our new dashboard renew at 91\%, others at 68\%. What is
 the effect of the dashboard on renewal?''\\[4pt]
@@ -748,7 +748,7 @@ variables are colliders and mediators, and controlling for them adds bias.
 \end{frame}
 
 
-\begin{frame}{LLM check: mistake or not?}
+\begin{frame}{LLM check: mistake or not? (2 of 2)}
 \begin{llmcheck}{we asked an LLM about sample size}
 \textbf{We told it:} ``Our survey of app users got 40,000 responses out of 2 million invitations.
 Is that enough to represent our user base?''\\[4pt]
@@ -783,7 +783,7 @@ result more dangerous, not more trustworthy.
 \end{frame}
 
 
-\begin{frame}{The audit to run before you model anything}
+\begin{frame}{An audit to run first}
 \small
 \begin{enumerate}
   \item \textbf{Name the population} the decision concerns, and the frame the rows actually came from.

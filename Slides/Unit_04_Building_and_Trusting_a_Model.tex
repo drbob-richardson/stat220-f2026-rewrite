@@ -80,14 +80,14 @@ A model that fits your data perfectly has told you nothing except what your data
 \end{principle}
 \end{frame}
 
-\begin{frame}{The tension in every model you build}
+\begin{frame}{The tension in every model}
 \begin{itemize}
   \item A model has one real job: do well on data it \textbf{hasn't seen}.
   \item But we only ever fit it on data it \emph{has} seen. So a model can score well for two
         very different reasons: it learned the real signal, or it memorized the noise.
-  \item Almost everything in this module is about telling those two apart.
+  \item Almost everything in this unit is about telling those two apart.
 \end{itemize}
-\begin{practice}{the shape of this module}
+\begin{practice}{the shape of this unit}
 ``Your R² jumped from 0.6 to 0.95 when you added more variables. Is it a better model?''
 \end{practice}
 \end{frame}
@@ -118,21 +118,21 @@ A model that fits your data perfectly has told you nothing except what your data
 \end{columns}
 \end{frame}
 
-\begin{frame}{First, let's ``verify'' on the same 10 people}
+\begin{frame}{Checking a model on its own training data}
 \begin{itemize}
-  \item We feed each of our 10 volunteers' heights back into the line and compare the predicted
-        shoe size to their real one.
+  \item Feed the same rows the line was built from back into it, and compare each predicted
+        value to the real one.
   \item The predictions are great. The errors are small. $R^2$ looks high.
   \item So the model is excellent. Are we done?
 \end{itemize}
 \vspace{0.4em}
 \onslide<2->{%
 \begin{trap}{that was grading your own homework}
-Of course it fits those 10. We \emph{built} the line on them. Checking a model on its own
-training data tells you almost nothing about how it will do on someone new.
+Of course it fits those rows. The line was \emph{built} on them. Checking a model on its own
+training data tells you almost nothing about how it will do on a new case.
 \end{trap}}
 \end{frame}
-\begin{frame}{The honest test: people we held out}
+\begin{frame}{The honest test: rows held out}
 \begin{columns}[c]
 \begin{column}{0.62\textwidth}
 \centering
@@ -140,11 +140,11 @@ training data tells you almost nothing about how it will do on someone new.
 \end{column}
 \begin{column}{0.38\textwidth}
 \small
-Now bring up \textbf{2 new volunteers} (the orange diamonds) who were \emph{not} used to fit
-the line. Predict their shoe size, then check.
+Now take \textbf{2 cases} (the orange diamonds) that were \emph{not} used to fit the line.
+Predict them, then check.
 \vspace{0.4em}
 
-The error on \emph{those} people is the number that counts. That is the whole idea of a
+The error on \emph{those} is the number that counts. That is the whole idea of a
 \textbf{train/test split}: fit on some data, judge on data the model never saw.
 \end{column}
 \end{columns}
@@ -164,7 +164,7 @@ The coefficients are not judged one at a time in isolation. Each is reported \em
 others in the room. Change the lineup and the coefficients change.
 \end{principle}
 \end{frame}
-\begin{frame}{Interactions: when the effect of $x$ depends on something else}
+\begin{frame}{Interactions}
 \begin{columns}[c]
 \begin{column}{0.56\textwidth}
 \centering
@@ -182,7 +182,7 @@ Add them when you have a real reason to think the effect differs, not just to ra
 \end{column}
 \end{columns}
 \end{frame}
-\begin{frame}{Transformations: when straight lines don't fit}
+\begin{frame}{Transformations}
 \begin{columns}[c]
 \begin{column}{0.62\textwidth}
 \centering
@@ -223,7 +223,7 @@ Pick the transformation that matches the shape \emph{and} gives an interpretatio
 out loud. A better fit you can't explain is rarely worth it.
 \end{principle}
 \end{frame}
-\begin{frame}{Multicollinearity: predictors that say the same thing}
+\begin{frame}{Multicollinearity}
 \begin{itemize}
   \item When two predictors are highly correlated (say, square footage and number of rooms),
         the model can't tell which one deserves the credit.
@@ -253,7 +253,7 @@ twin and it springs back to life. Insignificant is not the same as unimportant.
 % ======================================================================
 \section{Honest evaluation}
 % ======================================================================
-\begin{frame}{Overfitting: learning the noise}
+\begin{frame}{Overfitting}
 \begin{columns}[c]
 \begin{column}{0.56\textwidth}
 \centering
@@ -269,7 +269,7 @@ do worse than the boring straight line.
 \end{column}
 \end{columns}
 \end{frame}
-\begin{frame}{Why $R^2$ alone will mislead you}
+\begin{frame}{Why $R^2$ alone misleads}
 \begin{itemize}
   \item Adding any predictor, even pure random noise, can only make in-sample $R^2$ go
         \textbf{up} or stay the same. It never goes down.
@@ -369,7 +369,7 @@ curve we simulated.
 Neither curve has a minimum. Only the sum does.}
 \end{frame}
 
-\begin{frame}{Can you afford the truth?}
+\begin{frame}{How much complexity you can afford}
 \begin{columns}[c]
 \begin{column}{0.58\textwidth}
 \centering
@@ -555,7 +555,7 @@ If the variables were chosen by looking at the data, do not report their $p$-val
 were. Report out-of-sample performance instead, or validate on fresh data.
 \end{trap}
 \end{frame}
-\begin{frame}{Regularization: shrink instead of choose}
+\begin{frame}{Regularization}
 \begin{itemize}
   \item Instead of keeping or dropping variables, penalize large coefficients and let the fit
         balance accuracy against size.
@@ -565,7 +565,7 @@ were. Report out-of-sample performance instead, or validate on fresh data.
   \item The penalty strength is chosen by cross-validation, not by taste.
 \end{itemize}
 \begin{principle}{this is the bias-variance trade you already know}
-Regularization is the shrinkage from the estimation module, applied to a whole vector of
+Regularization is the shrinkage idea from Unit 10, applied to a whole vector of
 coefficients. A little bias, a lot less variance.
 \end{principle}
 \end{frame}
@@ -594,7 +594,7 @@ That last point is a warning: ``the lasso dropped it'' does not mean ``it does n
         rewriting the whole tree.
   \item \textbf{Random forests} average many trees, each fit to a resample of the data and a random
         subset of features. Averaging kills the variance, exactly as in the pooling picture from
-        the expectation module.
+        Unit 8.
   \item \textbf{Boosting} instead fits trees in sequence, each one correcting the previous errors.
         It is usually the strongest option on tabular data, and the easiest to overfit.
 \end{itemize}
@@ -644,7 +644,7 @@ With a neighbor: which do you ship, and what would change your answer?
 The deployment context, not the leaderboard, chooses the model.
 \end{principle}
 \end{frame}
-\begin{frame}{Predict vs.\ explain: pick one on purpose}
+\begin{frame}{Predict or explain}
 \begin{columns}[T]
 \begin{column}{0.5\textwidth}
 \textbf{Predicting}

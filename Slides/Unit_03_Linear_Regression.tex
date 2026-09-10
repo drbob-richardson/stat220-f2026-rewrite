@@ -81,7 +81,7 @@ to reading a slope.
 \end{principle}
 \end{frame}
 
-\begin{frame}{Why regression runs data science}
+\begin{frame}{Why regression matters}
 \begin{itemize}
   \item It does \textbf{two jobs at once}: it \emph{predicts} ($\hat{y}$ for a new case) and it
         \emph{explains} (how $y$ relates to each $x$).
@@ -90,7 +90,7 @@ to reading a slope.
   \item And the interesting questions aren't about the formula. They're about which variables
         belong in the model, and what a coefficient really means once they're there.
 \end{itemize}
-\begin{practice}{the shape of this module}
+\begin{practice}{the shape of this unit}
 ``You added a variable and another coefficient flipped sign. Which number do you believe, and
 why?''
 \end{practice}
@@ -126,34 +126,18 @@ why?''
 % ======================================================================
 \section{Activity}
 % ======================================================================
-\begin{frame}{Read the board before you explain it}
-Two columns of numbers are now on the board. Three questions, in this order.
-\begin{enumerate}
-  \item \textbf{What did the coached three do?} Compare their round 2 to their round 1.
-  \item \textbf{What did the top three do?} They got no pep talk, no feather, and no attention.
-        They are the comparison group, and they are the whole point.
-  \item \textbf{What did the middle four do?}
-\end{enumerate}
-\begin{trap}{the objection to raise yourself}
-The bottom three started near zero, so they had more room to go up than down. That is a real
-criticism of the comparison. It is also exactly why we look at the top three, who had room in
-both directions and nobody coaching them.
-\end{trap}
-\end{frame}
-
-\begin{frame}{Two things that are true whatever the bottles did}
-\begin{principle}{regression to the mean}
-When you pick people out on an extreme score, some of what made that score extreme was skill and
-some was luck. Skill shows up again next time. Luck does not. So a group selected at either end
-drifts back toward the middle on its own, with nothing done to it and nobody helping.
+\begin{frame}{Regression to the mean}
+\begin{principle}{selecting on an extreme score}
+When you pick a group out because it scored at one end, some of what put it there was skill and
+some was luck. Skill shows up again next time. Luck does not. So the group drifts back toward the
+middle on its own, with nothing done to it and nobody helping.
 \end{principle}
 \begin{principle}{a predictor can be real and still be circumstantial}
-``Received the pep talk'' would predict improvement here. It would sit in a regression with a
-positive coefficient and a small $p$-value. It would still not be doing anything. It predicts
-because of \emph{how the group was chosen}, not because of what was done to them.
+Suppose the low scorers get an intervention and improve. ``Received the intervention'' would sit
+in a regression with a positive coefficient and a small $p$-value, and it would still not be doing
+anything. It predicts because of \emph{how the group was chosen}, not because of what was done to
+them.
 \end{principle}
-\centering\small
-The rest of this unit is about telling those two apart in data where nobody knows the answer.
 \end{frame}
 
 \begin{frame}{Where the word ``regression'' comes from}
@@ -168,11 +152,9 @@ The rest of this unit is about telling those two apart in data where nobody know
 He first read it as a force pulling humanity toward the average. It is not a force. It is what
 happens to any measurement that is part skill and part luck, which is nearly all of them.
 \end{principle}
-\centering\small
-You just ran his experiment with water bottles.
 \end{frame}
 
-\begin{frame}{The arc of an analysis: from question to answer}
+\begin{frame}{The arc of an analysis}
 Almost every regression analysis follows the same order, and the order matters more than the
 syntax:
 \begin{enumerate}
@@ -211,7 +193,7 @@ That single number $b_1$ is usually the thing you actually care about.
 \end{columns}
 \end{frame}
 
-\begin{frame}{Reading the slope and intercept (mind the units)}
+\begin{frame}{Reading the slope and intercept}
 \begin{itemize}
   \item A slope always carries units: ``\emph{units of $y$} per one \emph{unit of $x$}.''
   \item ``$b_1 = 1.7$'' is meaningless until you say ``1.7 \emph{inches of height} per one
@@ -282,7 +264,7 @@ about the other two.
 \end{principle}
 \end{frame}
 
-\begin{frame}{A slope is an answer to a question}
+\begin{frame}{What a slope answers}
 \begin{itemize}
   \item ``Does price go up with size?'' The slope answers it, with a sign and a magnitude.
   \item ``How much more do customers spend per extra email?'' The slope answers it.
@@ -352,7 +334,7 @@ the relationship is large or useful. That's a separate question.''
 \end{practice}
 \end{frame}
 
-\begin{frame}{The same traps come back}
+\begin{frame}{The traps from Unit 1, again}
 \begin{itemize}
   \item With enough rows, a slope of essentially zero can still be ``highly significant.''
         Significance is partly a statement about your sample size.
@@ -522,7 +504,7 @@ answers to \emph{different questions}. Neither is ``the truth'' on its own.
 \end{principle}
 \end{frame}
 
-\begin{frame}{Confounding: a lurking variable pulls the strings}
+\begin{frame}{Confounding}
 \begin{itemize}
   \item A \textbf{confounder} is a third variable that drives both $x$ and $y$.
   \item It can manufacture a relationship that isn't really about $x$ at all, or hide one that
@@ -550,7 +532,7 @@ Now we split people by \textbf{age group} and look \emph{within} each one. Vote:
 \end{yourturn}
 \end{frame}
 
-\begin{frame}{The reveal: same data, opposite story}
+\begin{frame}{Your turn \#3: answer}
 \begin{columns}[c]
 \begin{column}{0.66\textwidth}
 \centering
@@ -570,7 +552,7 @@ This sign flip is \textbf{Simpson's paradox}. Age was the confounder all along.
 \end{columns}
 \end{frame}
 
-\begin{frame}{Adding a predictor: sometimes a fix, sometimes a wound}
+\begin{frame}{Adding a predictor}
 \begin{itemize}
   \item Adding a \textbf{confounder} (like age above) removes bias. The slope you get after
         controlling for it answers a cleaner question.
@@ -599,7 +581,7 @@ was hiding in the first version.''
 \end{practice}
 \end{frame}
 
-\begin{frame}{A coefficient that flips, on 392 real cars}
+\begin{frame}{A coefficient that flips}
 \textbf{The workflow.} You are modeling fuel economy. You start with how long a car takes to
 reach 60 mph.
 \begin{center}\small
@@ -621,7 +603,7 @@ reach 60 mph.
 Both coefficients are overwhelmingly significant. Neither model is broken, and this is not noise.
 \end{frame}
 
-\begin{frame}{Why it flipped, in one line of algebra}
+\begin{frame}{Why it flipped}
 Leave out a variable and its influence does not disappear. It rides in on whatever you kept:
 \[
 \underbrace{b_{\text{acc}}^{\,\text{alone}}}_{+1.198}
