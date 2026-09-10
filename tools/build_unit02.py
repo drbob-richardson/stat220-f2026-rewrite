@@ -194,72 +194,94 @@ nb.write("Code_Unit02_Map_of_Models.ipynb")
 # HOMEWORK
 # =====================================================================
 hw = HW(2, "A Map of Models",
-        """The first problem is a simulation where you set the truth, so you can check whether each
-model recovers it. The rest use real data, where nobody knows the truth and the last question is
-what you are entitled to say.
-
-Load these once at the top:
+        """Everything here uses one dataset, `campus_cafe.csv`: 700 days at a campus coffee shop.
+It is not one of the datasets from the code companion, so you are reading a new table for the
+first time, which is the normal situation.
 
 ```python
-cars  = pd.read_csv("https://richardson.byu.edu/220/cars.csv").dropna()
-bikes = pd.read_csv("https://richardson.byu.edu/220/bikes.csv").dropna()
-rent  = pd.read_csv("https://richardson.byu.edu/220/rent.csv").dropna()
-```""")
+import pandas as pd, numpy as np
+import statsmodels.api as sm, statsmodels.formula.api as smf
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.model_selection import KFold, cross_val_score, train_test_split
 
-hw.problem(1, """*Simulation lab: what each kind of model can recover.* You control the truth here.""")
-hw.part("a", "Simulate 400 rows where `y = 3 + 2*x1 - 1*x2 + noise`, with `x1` and `x2` "
-             "independent standard normals and noise standard deviation 2. Fit a linear "
-             "regression and report the three coefficients with their confidence intervals. "
-             "Do the intervals cover the true values?")
-hw.part("b", "Fit a random forest to the same data and report its importances. Can you recover "
-             "the true coefficient on `x1` from them? Explain in two sentences why or why not.")
-hw.part("c", "Now make the truth genuinely nonlinear: `y = 3*sin(2*x1) + x2 + noise`. Refit both "
-             "and compare error on 200 held-out rows. Which wins, and what did the winner give up?")
+cafe = pd.read_csv("https://drbob-richardson.github.io/stat220/F2026/data/campus_cafe.csv")
+cafe.head()
+```
 
-hw.problem(2, """*The type of y picks the model.* Three outcomes, three families.""")
-hw.part("a", "Using `cars`, fit `mpg ~ weight` with an ordinary regression and report the slope "
-             "with its units.")
-hw.part("b", "Create `efficient = (mpg > 30)` and fit a logistic regression on `weight`. Report "
-             "the range of its fitted probabilities.")
-hw.part("c", "Now fit an ordinary linear regression to `efficient ~ weight`. Report how many of "
-             "its predicted values fall outside 0 to 1, and say in one sentence what that tells "
-             "you.")
-hw.part("d", "Using `bikes`, fit a Poisson regression of `Count` on `Temperature`. Report the "
-             "coefficient and explain in one sentence why its predictions can never go negative.")
-hw.part("e", "Fit a random forest to each of the three outcomes above. Did the outcome type stop "
-             "you in any case? Answer in two sentences.", kind="markdown")
+| column | what it is |
+|---|---|
+| `day_of_week` | Mon through Fri |
+| `temp_f` | outside temperature that day |
+| `exam_week` | 1 during finals and midterms, 0 otherwise |
+| `promo` | 1 if a discount ran that day |
+| `foot_traffic` | people who walked past the shop |
+| `drinks_sold` | drinks sold that day |
+| `revenue` | dollars taken that day |
+| `sold_out` | 1 if they ran out of a main item |
 
-hw.problem(3, """*Comparing two models honestly.* Use `cars`, predicting `mpg` from all six
-numeric predictors.""")
-hw.part("a", "Fit three nested linear models: `weight`, then `+ horsepower`, then "
-             "`+ model_year`. Report the AIC of each and say which you would keep.")
-hw.part("b", "Score a linear regression and a depth-10 tree with 5-fold cross-validation, "
-             "reusing one `KFold` object. Report training MSE and cross-validated MSE for both.")
-hw.part("c", "The depth-10 tree has by far the lower training error. Explain in two to three "
-             "sentences why that is not evidence it is the better model.", kind="markdown")
-hw.part("d", "Can you compute an AIC for the tree? Say why or why not in one sentence.",
-        kind="markdown")
+The first problem needs no computer at all.""")
 
-hw.problem(4, """*The five steps on one model.* Use `cars`. Hold out 25% before you start.""")
-hw.part("a", "**Fit.** Fit a regression tree of depth 4 on the training rows. Report its "
-             "training MSE and, in one sentence, say why that number is not evidence the "
-             "model is good.")
-hw.part("b", "**Fit and predict.** Fit at your chosen depth and predict for one held-out car. "
-             "Report the prediction.")
-hw.part("c", "**Put a range on it.** Take the model's errors on the held-out cars, compute the "
-             "5th and 95th percentiles, and attach them to your prediction. Did the interval "
-             "contain the true value?")
-hw.part("d", "**Compare.** Score your tree and a linear regression on the same folds. Which "
-             "would you ship, and why?", kind="markdown")
+hw.problem(1, """*Reading a situation.* No code. Two or three sentences each.""")
+hw.part("a", "The owner wants to know how many drinks to prepare for tomorrow, given the "
+             "forecast temperature. Name the type of `y`, name the model family you would fit, "
+             "and say why in one sentence.", kind="markdown")
+hw.part("b", "The owner wants to know whether running a promotion actually raises revenue, "
+             "because she is deciding whether to keep doing it. Name the type of `y` and the "
+             "family, and say what makes this a different job from part a.", kind="markdown")
+hw.part("c", "A student suggests fitting a random forest for part b. A forest would run on that "
+             "data without complaining. Say whether you would use it, and what it would cost "
+             "you.", kind="markdown")
+hw.part("d", "The owner asks for the chance they run out of an item on a given day. Name the "
+             "type of `y` and the family. What is the output of that model, and what still has "
+             "to be decided before anyone can act on it?", kind="markdown")
 
-hw.problem(5, """*What can and cannot be said.* Written answers, no new computation.""")
-hw.part("a", "A colleague reports that the forest had the lowest cross-validated error and "
-             "concludes that weight is the biggest driver of fuel economy. Give two separate "
-             "reasons that conclusion is not supported.", kind="markdown")
-hw.part("b", "You need to tell a regulator how much an extra 500 pounds costs in fuel economy. "
-             "Which of the models you fitted can answer that, and which cannot?", kind="markdown")
-hw.part("c", "Across this assignment you used coefficients, importances, AIC, and cross-"
-             "validated error. For each, write one sentence on the question it answers.",
-        kind="markdown")
+hw.problem(2, """*The type of `y` picks the model.* Three outcomes in this one table.""")
+hw.part("a", "Fit a linear regression of `revenue` on `drinks_sold` and `exam_week`. Report the "
+             "coefficient on `drinks_sold` with its units, in a full sentence.")
+hw.part("b", "Fit a Poisson regression of `drinks_sold` on `temp_f`, `exam_week` and `promo`. "
+             "Report the coefficient on `temp_f`, and say in one sentence why this model can "
+             "never predict a negative number of drinks.")
+hw.part("c", "Fit a logistic regression of `sold_out` on `drinks_sold`. Report the smallest and "
+             "largest fitted probability.")
+hw.part("d", "Now fit an ordinary linear regression to `sold_out ~ drinks_sold`. Count how many "
+             "of its predicted values fall outside 0 to 1, and say in one sentence what that "
+             "tells you about forcing the wrong model onto an outcome.")
+
+hw.problem(3, """*What each kind of model hands back.* Predicting `revenue`.""")
+hw.part("a", "Fit a linear regression of `revenue` on `drinks_sold`, `exam_week`, `promo` and "
+             "`temp_f`. Print the coefficient table and report the 95% confidence interval for "
+             "`exam_week`.")
+hw.part("b", "Fit a random forest on the same four predictors. Report its feature importances.")
+hw.part("c", "For each of these four, say whether you can get it from the regression, from the "
+             "forest, from both, or from neither: a $p$-value, a confidence interval for a "
+             "coefficient, an AIC, an error on data the model never saw.", kind="markdown")
+hw.part("d", "In two to three sentences, explain why the missing ones are missing. Use the word "
+             "distribution.", kind="markdown")
+
+hw.problem(4, """*Is model A better than model B?* Same rows, same measure, both times.""")
+hw.part("a", "Fit three nested linear models for `revenue`: `drinks_sold`, then "
+             "`+ exam_week`, then `+ promo`. Report the AIC of each.")
+hw.part("b", "One of those additions makes AIC go up rather than down. Say which, and explain "
+             "in one sentence what that means.", kind="markdown")
+hw.part("c", "Now score the four-predictor regression from Problem 3 against the random forest "
+             "using 5-fold cross-validation. Build one `KFold` object and pass the same one to "
+             "both. Report each model's mean squared error.")
+hw.part("d", "You now have AIC values and cross-validated errors. Explain in two sentences why "
+             "you cannot settle the regression-versus-forest question with AIC.", kind="markdown")
+
+hw.problem(5, """*One prediction, with a range on it.*""")
+hw.part("a", "Split the data with `train_test_split(..., test_size=0.25, random_state=1)`. Fit "
+             "the four-predictor linear regression on the training rows only.")
+hw.part("b", "Predict `revenue` for the first held-out day and report the number.")
+hw.part("c", "Collect the model's errors on all the held-out days, take the 5th and 95th "
+             "percentiles, and attach them to your prediction from part b. Did your interval "
+             "contain that day's actual revenue?")
+hw.part("d", "The owner asks for one number and no range. Write the one sentence you would say "
+             "to her instead, using your numbers from parts b and c.", kind="markdown")
+hw.part("e", "Look back at your two answers about `exam_week`. The forest gave it an "
+             "importance near the bottom of the four predictors. The regression gave it a "
+             "coefficient whose 95% interval was several dollars a day, comfortably away from "
+             "zero. Explain how both of those can be true at once, and say which number you "
+             "would take to the owner.", kind="markdown")
 
 hw.write("Stat_220_HW_Unit02_Map_of_Models.ipynb")
