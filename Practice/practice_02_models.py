@@ -49,20 +49,20 @@ and how the job you were given narrows the choice. No computer needed.""",
  1,
  "A parameter comes out of fitting. A hyperparameter you set before fitting, and no amount of "
  "fitting will discover it. Depth, the lasso penalty, and $k$ in nearest neighbours are all "
- "choices. The honest way to make them is cross-validation on folds fixed in advance, not trying "
- "values until the result looks agreeable."),
+ "choices you make before the data gets a say. How to make them without fooling yourself is "
+ "Unit 4."),
 
-("A listings site shows an estimated rent on every apartment page. Which interval belongs next to "
- "that number?",
- ["A confidence interval, because it is the standard thing to report.",
-  "A prediction interval, because the user is asking about one specific apartment.",
-  "Either one, they are the same width in large samples.",
-  "Neither, intervals confuse users."],
+("A hospital dataset has a yes/no outcome. Which of these does that fact rule out?",
+ ["Random forests, since they are built for numeric outcomes.",
+  "Linear regression, because it cannot keep its predictions between 0 and 1.",
+  "Gradient boosting, which only works on counts.",
+  "Nothing. Every model can handle any outcome type."],
  1,
- "A confidence interval covers the average rent for apartments like this one, and it keeps "
- "shrinking as you collect more data. A prediction interval covers the next single apartment, and "
- "it stays wide no matter how much data you have, because individual apartments genuinely differ. "
- "The user is standing in one apartment, so the second is the honest range."),
+ "The type of the outcome rules out probability models, one at a time: linear regression genuinely "
+ "cannot take a yes/no, and Poisson genuinely cannot take a continuous number. It rules out nothing "
+ "on the algorithmic side, because trees, forests and boosting all have a classification mode. So "
+ "when you decide against a forest, the reason is never the outcome. It is that somebody needs to "
+ "read a number out of the model."),
 
 ("You run a lasso on 200 candidate variables, 12 survive, and you report their coefficients with "
  "$p$-values. What is wrong?",
@@ -75,8 +75,8 @@ and how the job you were given narrows the choice. No computer needed.""",
  "Two things are broken at once. The penalty deliberately biases the coefficients, and the "
  "selection step means these 12 are the winners of a 200-way search, so their inference is "
  "computed as if the model had been chosen in advance when it was not. Use the lasso to screen, "
- "then refit an ordinary regression on the survivors if you need a defensible number, and say "
- "that you did."),
+ "computed as if the model had been chosen in advance when it was not. Treat what survives as "
+ "a shortlist worth looking into, and say that a search produced it."),
 
 ("A regulator will review every loan rejection your model produces. What does that fact alone "
  "tell you about the model choice?",
@@ -115,14 +115,38 @@ and how the job you were given narrows the choice. No computer needed.""",
  "Then you ship the model you can explain. If the gap does not close, you have learned that the "
  "structure is genuinely complicated, which is also worth knowing."),
 
-("Two models are within one standard error of each other on cross-validation. What does that "
- "justify?",
- ["Reporting the one with the lower mean, since it is still better.",
-  "Taking the simpler one, because on this data the two are not distinguishable.",
-  "Collecting more data before deciding anything.",
-  "Averaging their predictions."],
+("A depth-10 tree has a training error of 0.44 and a cross-validated error of 13.19. A straight "
+ "line has 11.59 and 12.23. Which is the better model?",
+ ["The tree, since 0.44 is by far the lowest number on the table.",
+  "The line, because the tree only looks good on the rows it was fitted to.",
+  "Neither, the two cannot be compared.",
+  "The tree, because it has more flexibility available."],
  1,
- "A cross-validated score is itself an estimate with noise around it. When two models fall inside "
- "that noise, choosing the lower mean is choosing on a coin flip. Taking the simpler model is a "
- "decision you can defend, and it usually buys you stability and a clearer story as well."),
+ "Training error measures how well a model reproduces data it has already seen, and a flexible "
+ "model can drive that near zero by memorizing. The honest column is the other one, and there the "
+ "tree is worse than a straight line. Notice also that the two models sit on the same rows and are "
+ "scored the same way, which is what makes the comparison mean anything."),
+
+("A model predicting daily revenue reports a cross-validated MSE of 140. What should you tell the "
+ "owner?",
+ ["The model is off by about \\$140 on a typical day.",
+  "The model is off by about \\$12 on a typical day, since $\\sqrt{140} \\approx 12$.",
+  "The model explains 140\\% of the variation.",
+  "MSE cannot be translated into dollars."],
+ 1,
+ "MSE is in squared units, so 140 is 140 squared dollars, which means nothing to anyone. Taking "
+ "the square root puts it back into dollars, and about \\$12 a day is a sentence the owner can "
+ "actually use. Quote the RMSE for that reason, and keep the MSE for comparing models to each "
+ "other."),
+
+("Which of these is decided by fitting the model, rather than by you?",
+ ["How deep to let a tree grow.",
+  "How many folds to use in cross-validation.",
+  "Where a tree puts its split points.",
+  "How large a penalty to put on the coefficients."],
+ 2,
+ "Fitting is the part the data decides: the split points, the slopes, the weights. Depth, the "
+ "number of folds and the size of a penalty are all settings you choose beforehand, and no amount "
+ "of fitting will choose them for you. Unit 4 covers how to make those choices without fooling "
+ "yourself."),
 ])
