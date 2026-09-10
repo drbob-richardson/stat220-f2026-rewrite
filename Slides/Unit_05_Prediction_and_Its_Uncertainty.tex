@@ -1,6 +1,6 @@
 % =====================================================================
 % THIS FILE IS THE SOURCE. Edit it, then rebuild the PDF with:
-%     bash tools/compile.sh Unit_04_Prediction_and_Its_Uncertainty
+%     bash tools/compile.sh Unit_05_Prediction_and_Its_Uncertainty
 % (run from the Course_Rewrite folder; it compiles twice and reports
 %  page count, overfull boxes, and em dashes)
 %
@@ -48,7 +48,7 @@
   \begin{block}{\textbf{LLM check:} #1}}{\end{block}}
 
 \title{Prediction and Its Uncertainty}
-\subtitle{Unit 4: Why Predictions Are Wrong, and How Wrong}
+\subtitle{Unit 5: Why Predictions Are Wrong, and How Wrong}
 \author{Stat 220 \textbar{} Statistics for Data Science}
 \date{}
 
@@ -63,7 +63,7 @@
 % ======================================================================
 \begin{frame}{Where we left off}
 \begin{itemize}
-  \item Unit 3 built models and judged them on data they had not seen.
+  \item Unit 4 built models and judged them on data they had not seen.
   \item Now we zoom all the way in on a single \textbf{prediction}: we hand the model one new
         case and ask for $\yhat$.
   \item The questions for this unit: when that prediction is wrong, \emph{why} is it wrong, and
@@ -518,33 +518,6 @@ The order still matters more than the syntax:
   \item Trusting amazing accuracy without checking for leakage.
 \end{itemize}
 \end{trap}
-\end{frame}
-
-\begin{frame}{Ten questions to be able to answer}
-\begin{enumerate}\small
-  \item A prediction is wrong. Walk me through the possible sources of the error.
-  \item What is the difference between irreducible noise and estimation uncertainty?
-  \item Which sources of error shrink with more data, and which do not?
-  \item Confidence interval or prediction interval: which do you give a customer, and why?
-  \item How would you actually put honest error bars on a forecast?
-  \item Your model was great in testing and failed in production. What happened?
-  \item Your best performer slumped the next quarter. Did your intervention fail?
-  \item A model predicts almost perfectly. Are you excited or suspicious?
-  \item Why is extrapolating beyond the data so dangerous?
-  \item What does it mean for intervals to be calibrated, and how would you check?
-\end{enumerate}
-\end{frame}
-
-\begin{frame}{Mastery checklist}
-You have this unit when you can, from memory:
-\begin{itemize}
-  \item report a prediction as a point plus an honest interval
-  \item name the four layers of error and say which shrink with data
-  \item explain why a prediction interval is wider than a confidence interval
-  \item estimate uncertainty from held-out errors and the bootstrap
-  \item recognize extrapolation, regression to the mean, leakage, and shift
-  \item explain what calibration is and how to check it
-\end{itemize}
 \end{frame}
 
 \begin{frame}{How to report a prediction}

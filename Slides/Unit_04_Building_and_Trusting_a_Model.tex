@@ -1,6 +1,6 @@
 % =====================================================================
 % THIS FILE IS THE SOURCE. Edit it, then rebuild the PDF with:
-%     bash tools/compile.sh Unit_03_Building_and_Trusting_a_Model
+%     bash tools/compile.sh Unit_04_Building_and_Trusting_a_Model
 % (run from the Course_Rewrite folder; it compiles twice and reports
 %  page count, overfull boxes, and em dashes)
 %
@@ -17,6 +17,8 @@
 \usepackage{amsmath, amssymb, amsfonts}
 \usepackage{graphicx}
 \usepackage{booktabs}
+\usepackage{array}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
 \usepackage{bm}
 \usepackage{hyperref}
 
@@ -49,7 +51,7 @@
   \begin{block}{\textbf{LLM check:} #1}}{\end{block}}
 
 \title{Building and Trusting a Model}
-\subtitle{Unit 3: From One Predictor to Many, and How Much Flexibility to Allow}
+\subtitle{Unit 4: Many Predictors, Overfitting, and Honest Evaluation}
 \author{Stat 220 \textbar{} Statistics for Data Science}
 \date{}
 
@@ -64,7 +66,7 @@
 % ======================================================================
 \begin{frame}{Where we left off}
 \begin{itemize}
-  \item Unit 2 fit a line and learned to read a slope, including what happens to it when another
+  \item Unit 3 fit a line and learned to read a slope, including what happens to it when another
         predictor joins the model.
   \item Now we build models with \emph{many} predictors and confront the question that decides
         whether any of it is real: \textbf{how well does this do on data it has never seen?}
@@ -316,6 +318,96 @@ normal condition of a wide dataset.
 \onslide<2->{\centering\small
 The deepest tree is 20\% worse than the shallow one, while looking flawless in training.}
 \end{frame}
+\begin{frame}{Two ways to be wrong}
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\textbf{Too simple}
+\begin{itemize}\small
+  \item Wrong in the same direction every time.
+  \item Fit it on fresh data and you get almost the same wrong answer.
+  \item Stable, and stably off.
+\end{itemize}
+\centering\small (\textbf{bias})
+\end{column}
+\begin{column}{0.48\textwidth}
+\textbf{Too complicated}
+\begin{itemize}\small
+  \item Right on average across many refits.
+  \item But any single fit chases the noise in the rows you happened to draw.
+  \item Refit on new data and it looks like a different model.
+\end{itemize}
+\centering\small (\textbf{variance})
+\end{column}
+\end{columns}
+\vspace{0.4em}
+\begin{principle}{why the error curve is U-shaped}
+Adding flexibility trades one for the other. Bias falls, variance rises, and the total is worst at
+both ends. The whole art is finding where the trade stops paying.
+\end{principle}
+\end{frame}
+
+\begin{frame}{The U-shape, taken apart}
+\begin{columns}[c]
+\begin{column}{0.58\textwidth}
+\centering
+\includegraphics[width=\textwidth]{fig_u13_bias_variance.pdf}
+\end{column}
+\begin{column}{0.42\textwidth}
+\small
+600 datasets of $n = 60$, each fit with polynomials of every degree, compared against the true
+curve we simulated.
+\begin{itemize}
+  \item Bias falls the whole way. More flexibility really does get closer to the truth on average.
+  \item Variance climbs the whole way.
+  \item Their sum bottoms out at degree 5.
+\end{itemize}
+\end{column}
+\end{columns}
+\onslide<2->{\centering\small
+Neither curve has a minimum. Only the sum does.}
+\end{frame}
+
+\begin{frame}{Can you afford the truth?}
+\begin{columns}[c]
+\begin{column}{0.58\textwidth}
+\centering
+\includegraphics[width=\textwidth]{fig_u13_afford_truth.pdf}
+\end{column}
+\begin{column}{0.42\textwidth}
+\small
+The true curve never changes. The only thing that changes is how many rows you were given.
+\begin{itemize}
+  \item $n = 20$: best is degree \textbf{3}.
+  \item $n = 50$: best is degree \textbf{5}.
+  \item $n = 300$: best is degree \textbf{8}.
+\end{itemize}
+\end{column}
+\end{columns}
+\onslide<2->{\vspace{0.2em}\centering\small
+Overshooting to degree 10 costs you a factor of \textbf{96} at $n = 20$, and \textbf{7 percent}
+at $n = 300$. Same mistake, same model, opposite verdict.}
+\end{frame}
+
+\begin{frame}{What moves the best complexity}
+\begin{center}\footnotesize
+\begin{tabular}{p{0.34\textwidth} p{0.18\textwidth} p{0.36\textwidth}}
+\toprule
+\textbf{When this goes up} & \textbf{Best model gets} & \textbf{Because} \\
+\midrule
+Sample size $n$ & more complex & variance is the part data buys down \\
+Noise in the outcome & simpler & more of what you would fit is noise \\
+Candidate predictors $p$ & simpler & searching is itself a form of fitting \\
+Smoothness of the truth & simpler & there is less structure to find \\
+Cost of a confident error & simpler & stable models fail less spectacularly \\
+Need to explain a coefficient & simpler & you cannot defend what you cannot read \\
+\bottomrule
+\end{tabular}
+\end{center}
+\begin{principle}{the one-line version}
+More rows push you toward flexibility. Noise, candidates, and the need to explain push you back.
+\end{principle}
+\end{frame}
+
 \begin{frame}{K-fold cross-validation}
 \begin{enumerate}
   \item Split the data into $K$ parts (5 or 10 is standard).
@@ -651,35 +743,6 @@ This is a correct, careful answer. It separates unstable \emph{coefficients} fro
 \end{trap}
 \end{frame}
 
-\begin{frame}{Ten questions to be able to answer}
-\begin{enumerate}\small
-  \item How do you know you are not overfitting?
-  \item Your $R^2$ jumped when you added 20 features. Better model?
-  \item What does $k$-fold cross-validation estimate, and what does it not?
-  \item Give three ways leakage sneaks into a cross-validation.
-  \item Two predictors are correlated. What happens to their coefficients?
-  \item What does the lasso do that dropping variables by $p$-value does not?
-  \item Why are $p$-values invalid after stepwise selection?
-  \item Your forest beats your regression by 0.02 AUC. Which do you ship?
-  \item What does a random forest's feature importance actually measure?
-  \item Predict or explain: how does the answer change what you build?
-\end{enumerate}
-\end{frame}
-
-\begin{frame}{Mastery checklist}
-You have this unit when you can, from memory:
-\begin{itemize}
-  \item interpret a coefficient in a multiple regression, with the right caveat attached
-  \item explain interactions and transformations, and when each is called for
-  \item recognize multicollinearity and say what it does and does not ruin
-  \item draw the training-versus-honest-error curve and explain the gap
-  \item run cross-validation correctly, with every preprocessing step inside the fold
-  \item apply the one-standard-error rule and defend the simpler model
-  \item explain ridge and lasso as shrinkage, and why selection breaks $p$-values
-  \item state the limits of feature importance
-\end{itemize}
-\end{frame}
-
 \begin{frame}{What you should be able to do with software}
 \small
 Nobody is asking you to memorize syntax. You are expected to know \emph{which} procedure the
@@ -708,7 +771,7 @@ If you cannot say what the output means, the fact that you produced it is worth 
 \begin{frame}{Where we go next}
 \begin{itemize}
   \item We now have models we can trust, judged on data they have never seen.
-  \item \textbf{Unit 4} zooms all the way in on a single \textbf{prediction}: when the model
+  \item \textbf{Unit 5} zooms all the way in on a single \textbf{prediction}: when the model
         hands you one number for one case, how wrong is it likely to be, and where does that
         error come from?
 \end{itemize}

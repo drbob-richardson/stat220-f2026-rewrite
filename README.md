@@ -8,14 +8,14 @@ The reasoning behind this order is in `../Course_Rewrite/ALTERNATIVE_ORDER_model
 
 **Part I: Models, and what they can tell you**
 
-| # | Unit | Frames | Was |
-|---|------|--------|-----|
-| 1 | Statistical Inference | 54 | 1 |
-| 2 | Regression as Reasoning | 44 | 5 |
-| 3 | Building and Trusting a Model | 51 | 6 |
-| 4 | Prediction and Its Uncertainty | 37 | 7 |
-| 5 | Causal Thinking | 38 | 9 |
-| 6 | Where the Data Comes From | 38 | 11 |
+| # | Unit | Pages |
+|---|------|-------|
+| 1 | Statistical Inference | 49 |
+| 2 | A Map of Models | 24 |
+| 3 | Linear Regression | 47 |
+| 4 | Building and Trusting a Model | 53 |
+| 5 | Prediction and Its Uncertainty | 34 |
+| 6 | Causal Claims and Where the Data Came From | 51 |
 
 **Part II: The machinery, and two things that need it**
 
@@ -90,3 +90,17 @@ probability first.
 Figures come from `tools/make_unit13_slide_figs.py` and are computed, not drawn. The
 central one simulates a fixed true curve and varies only the sample size: the best
 polynomial degree moves 3, 5, 8 as n goes 20, 50, 300.
+
+## Part I is the finished half
+
+Units 1 through 6 are built to work together and are the current product. Unit 2 is new: it
+introduces the model families and the probability/algorithmic split before any one family gets
+taught in depth. Unit 3 is the deep dive on linear regression. Unit 6 merges the old Causal
+Thinking and Where the Data Comes From decks, because both taught selection bias separately, once
+as a collider and once as survivorship.
+
+Each of the six ships a deck, an executed code companion, a homework, and a multiple-choice
+practice guide with answers in `Practice/`. The live activities are no longer on the slides.
+They still happen, they are just introduced out loud so a deck can be taught without them.
+
+Units 7 through 12 are the earlier build and have not been revisited yet.

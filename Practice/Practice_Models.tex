@@ -1,0 +1,156 @@
+\documentclass[11pt]{article}
+\usepackage[margin=0.9in,letterpaper]{geometry}
+\usepackage{enumitem}
+\usepackage{amsmath}
+\usepackage{parskip}
+\usepackage[colorlinks=true,linkcolor=black]{hyperref}
+\setlist[enumerate]{itemsep=7pt, topsep=5pt}
+\pagestyle{plain}
+\begin{document}
+
+\begin{center}
+{\Large\textbf{Stat 220: A Map of Models}}\\[3pt]
+{\large Midterm practice questions, with answers}\\[6pt]
+\end{center}
+
+Practice on what separates a probability model from an algorithmic one, what each lets you ask,
+and how the job you were given narrows the choice. No computer needed.
+
+\vspace{8pt}
+\hrule
+\vspace{10pt}
+
+\begin{enumerate}[itemsep=14pt]
+\item What makes something a probability model rather than an algorithmic one?
+
+\begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
+  \item It uses probability somewhere in the fitting procedure.
+  \item It writes down a distribution for the outcome, so the data has a stated origin.
+  \item It produces predictions between 0 and 1.
+  \item It was fit with maximum likelihood rather than least squares.
+\end{enumerate}
+
+\vspace{2pt}
+\textbf{Answer: B.} A probability model says where the data came from: `mpg ~ Normal(b0 + b1*weight, sigma^2)`. That single sentence is what produces a likelihood, and the likelihood is what standard errors, p-values, confidence intervals and AIC are all built out of. Option D describes a fitting method, which is downstream of the distribution, not the thing that defines it.
+\vspace{4pt}
+
+\item Your colleague asks for the $p$-value on the most important variable in a random forest. What do you tell them?
+
+\begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
+  \item It is in the model output, you just have to request it.
+  \item You can get one by bootstrapping the forest 1,000 times.
+  \item There isn't one. A forest states no distribution, so there is no likelihood and no $p$-value to report.
+  \item The $p$-value is 1 divided by the number of trees.
+\end{enumerate}
+
+\vspace{2pt}
+\textbf{Answer: C.} The quantity does not exist rather than being hidden. You can certainly resample to see how much an importance score wobbles, which is worth doing, but that is a stability check and not a test of a null hypothesis. There is no null hypothesis here to test.
+\vspace{4pt}
+
+\item You want to compare a linear regression against a gradient boosted model. Which comparison works?
+
+\begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
+  \item AIC, since it is designed for comparing models.
+  \item Adjusted $R^2$ on the training data.
+  \item Cross-validated error, using the same folds for both.
+  \item Neither can be compared, they are different kinds of model.
+\end{enumerate}
+
+\vspace{2pt}
+\textbf{Answer: C.} AIC needs a likelihood, so boosting is not eligible. Out-of-sample error works for anything that can produce a prediction, which is why it is the general-purpose answer. The catch is that both models have to face identical folds, otherwise you are partly measuring which model got the easier split.
+\vspace{4pt}
+
+\item Which of these is a hyperparameter?
+
+\begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
+  \item The slope on square footage in a rent model.
+  \item The maximum depth of a decision tree.
+  \item The residual standard deviation in a linear regression.
+  \item The predicted value for a new house.
+\end{enumerate}
+
+\vspace{2pt}
+\textbf{Answer: B.} A parameter comes out of fitting. A hyperparameter you set before fitting, and no amount of fitting will discover it. Depth, the lasso penalty, and $k$ in nearest neighbours are all choices. The honest way to make them is cross-validation on folds fixed in advance, not trying values until the result looks agreeable.
+\vspace{4pt}
+
+\item A listings site shows an estimated rent on every apartment page. Which interval belongs next to that number?
+
+\begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
+  \item A confidence interval, because it is the standard thing to report.
+  \item A prediction interval, because the user is asking about one specific apartment.
+  \item Either one, they are the same width in large samples.
+  \item Neither, intervals confuse users.
+\end{enumerate}
+
+\vspace{2pt}
+\textbf{Answer: B.} A confidence interval covers the average rent for apartments like this one, and it keeps shrinking as you collect more data. A prediction interval covers the next single apartment, and it stays wide no matter how much data you have, because individual apartments genuinely differ. The user is standing in one apartment, so the second is the honest range.
+\vspace{4pt}
+
+\item You run a lasso on 200 candidate variables, 12 survive, and you report their coefficients with $p$-values. What is wrong?
+
+\begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
+  \item Nothing, the lasso reports valid standard errors.
+  \item The lasso shrinks every coefficient toward zero on purpose, so the printed values are not describing what they claim, and the variables were chosen by looking at the data.
+  \item You should have used ridge instead, which does report valid $p$-values.
+  \item The problem is only that 12 is too few survivors to be meaningful.
+\end{enumerate}
+
+\vspace{2pt}
+\textbf{Answer: B.} Two things are broken at once. The penalty deliberately biases the coefficients, and the selection step means these 12 are the winners of a 200-way search, so their inference is computed as if the model had been chosen in advance when it was not. Use the lasso to screen, then refit an ordinary regression on the survivors if you need a defensible number, and say that you did.
+\vspace{4pt}
+
+\item A regulator will review every loan rejection your model produces. What does that fact alone tell you about the model choice?
+
+\begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
+  \item Nothing, accuracy is what matters and you should pick the most accurate model.
+  \item You need a probability model, because somebody will read a coefficient and you must be able to defend it.
+  \item You need the largest possible training set.
+  \item You should use a neural network, since they handle complex rules.
+\end{enumerate}
+
+\vspace{2pt}
+\textbf{Answer: B.} The audience decided this before you looked at a single row. A boosted model might predict default better and still be unusable, because 'the algorithm said so' is not a defense. This is the fifth job from the unit, deployment, and it constrains the choice more tightly than accuracy does.
+\vspace{4pt}
+
+\item You have 300 rows and 80 candidate columns. What do you rule out immediately?
+
+\begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
+  \item Linear regression, because 80 columns is too many for it.
+  \item Flexible models like forests and boosting, because there is not enough data to pay for that much freedom.
+  \item Nothing, all models work at any sample size.
+  \item Cross-validation, because the folds would be too small.
+\end{enumerate}
+
+\vspace{2pt}
+\textbf{Answer: B.} Flexibility is bought with sample size. With 300 rows and 80 columns a flexible model will fit the data beautifully and predict new cases badly, because most of what it is fitting is noise. Regularized regression is the sensible move here, used to cut 80 columns down to a handful chosen for a reason.
+\vspace{4pt}
+
+\item Your forest beats your regression by five points of cross-validated error. What should you do next?
+
+\begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
+  \item Ship the forest, it won.
+  \item Ship the regression, simpler is always better.
+  \item Find out what the forest is using that the regression is not, then decide.
+  \item Average the two models together.
+\end{enumerate}
+
+\vspace{2pt}
+\textbf{Answer: C.} A gap that size is information rather than a verdict. Usually the forest has found an interaction or a threshold you can name, and once you put it in the regression the gap closes. Then you ship the model you can explain. If the gap does not close, you have learned that the structure is genuinely complicated, which is also worth knowing.
+\vspace{4pt}
+
+\item Two models are within one standard error of each other on cross-validation. What does that justify?
+
+\begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
+  \item Reporting the one with the lower mean, since it is still better.
+  \item Taking the simpler one, because on this data the two are not distinguishable.
+  \item Collecting more data before deciding anything.
+  \item Averaging their predictions.
+\end{enumerate}
+
+\vspace{2pt}
+\textbf{Answer: B.} A cross-validated score is itself an estimate with noise around it. When two models fall inside that noise, choosing the lower mean is choosing on a coin flip. Taking the simpler model is a decision you can defend, and it usually buys you stability and a clearer story as well.
+\vspace{4pt}
+
+\end{enumerate}
+
+\end{document}

@@ -1,4 +1,12 @@
 % =====================================================================
+% THIS FILE IS THE SOURCE. Rebuild with:
+%     bash tools/compile.sh Unit_06_Causal_and_Data_Provenance
+%
+% Unit 6 merges the old Causal Thinking and Where the Data Comes From
+% decks. They both taught selection bias separately, once as a collider
+% and once as survivorship, so the merged unit teaches the mechanism once
+% and then shows both faces of it.
+% =====================================================================
 % THIS FILE IS THE SOURCE. Edit it, then rebuild the PDF with:
 %     bash tools/compile.sh Unit_05_Causal_Thinking
 % (run from the Course_Rewrite folder; it compiles twice and reports
@@ -17,6 +25,8 @@
 \usepackage{amsmath, amssymb, amsfonts}
 \usepackage{graphicx}
 \usepackage{booktabs}
+\usepackage{array}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
 \usepackage{bm}
 \usepackage{hyperref}
 
@@ -45,8 +55,8 @@
   \setbeamercolor{block body}{bg=violet!10}%
   \begin{block}{\textbf{LLM check:} #1}}{\end{block}}
 
-\title{Causal Thinking}
-\subtitle{Unit 5: From ``What Goes With What'' to ``What Happens If We Change It''}
+\title{Where the Data Came From}
+\subtitle{Unit 6: Causal Claims, Selection, and What You Are Allowed to Conclude}
 \author{Stat 220 \textbar{} Statistics for Data Science}
 \date{}
 
@@ -56,46 +66,20 @@
   \titlepage
 \end{frame}
 
-% ======================================================================
 \section{Why}
-% ======================================================================
+
 \begin{frame}{Where this fits}
 \begin{itemize}
-  \item Units 2 through 4 built models, checked them honestly, and predicted with them. Every one
-        of those answers an \emph{association} question: given what I see, what do I expect?
-  \item Every decision anyone actually needs is a \emph{causal} question: if we change the price,
-        send the email, launch the program, what happens?
-  \item These are different questions, and no amount of model accuracy converts one into the
-        other.
+  \item Units 3 through 5 built models, judged them honestly, and put error bars on what they
+        predict. All of that assumed the rows in front of you were the rows you should have.
+  \item This unit asks the two questions that come before any of it. Where did these rows come
+        from, and does the pattern in them mean what it looks like?
+  \item Those turn out to be one question. A confounder and a biased sample are both cases of the
+        data being assembled in a way that plants a pattern you did not put there.
 \end{itemize}
-\begin{principle}{prediction and intervention are not the same job}
-A model can predict rain beautifully from barometer readings. Smashing the barometer does not stop
-the rain.
-\end{principle}
-\end{frame}
-
-\begin{frame}{Selection can create a relationship}
-\begin{center}
-\includegraphics[width=0.92\textwidth]{fig_m12_collider.pdf}
-\end{center}
-\vspace{-0.4em}
-\small
-Independent to begin with. Among high-sum rolls, a low first die \emph{requires} a high second
-die, so the two become strongly negatively related. Nothing about the dice changed. We changed who
-was in the dataset.
-\end{frame}
-
-\begin{frame}{Where this shows up in real data}
-\begin{itemize}
-  \item Restaurants you hear about are either great food or great location, because bad on both
-        close. So in your data, food quality and location look negatively related.
-  \item Admitted students are either strong on tests or strong on essays. Within the admitted
-        class, the two look like they trade off.
-  \item Hospitalized patients have some serious condition, so among them, unrelated diseases appear
-        connected.
-\end{itemize}
-\begin{principle}{the sample is part of the analysis}
-Before you interpret any relationship, ask who got into the dataset, and what it took to get in.
+\begin{principle}{the order that matters}
+No amount of modeling fixes a dataset that answers a different question than the one you asked.
+The check happens first, or it does not happen.
 \end{principle}
 \end{frame}
 
@@ -105,30 +89,30 @@ Before you interpret any relationship, ask who got into the dataset, and what it
 \textbf{Things to know}
 \begin{itemize}\small
   \item what a causal effect is, in terms of what would have happened otherwise
-  \item why randomization works, and precisely what it buys
-  \item what a confounder is, and why you must control for it
-  \item what a collider is, and why controlling for it is a disaster
-  \item what a mediator is, and when controlling for it answers the wrong question
-  \item the main quasi-experimental designs and the assumption each one leans on
+  \item why randomization works, and exactly what it buys
+  \item the three roles a third variable can play, and what to do about each
+  \item that colliders and survivorship bias are one mechanism
+  \item population, sampling frame, and the designs worth knowing
+  \item how data goes missing, and what that does to your answer
 \end{itemize}
 \end{column}
 \begin{column}{0.5\textwidth}
 \textbf{Mistakes to stop making}
 \begin{itemize}\small
-  \item reading a regression coefficient as the effect of intervening
-  \item controlling for a collider or for a variable on the causal path
-  \item comparing volunteers to non-volunteers and calling it an effect
-  \item ignoring who selected into the dataset
-  \item treating a before-and-after change as an effect with no control group
-  \item forgetting that the treatment might be caused by the outcome
+  \item controlling for everything you have
+  \item reading a slope from observational data as an effect
+  \item treating sample size as evidence of representativeness
+  \item studying only the survivors, winners, or responders
+  \item dropping missing rows without asking why they are missing
+  \item accepting a proxy as the thing you meant to measure
 \end{itemize}
 \end{column}
 \end{columns}
 \end{frame}
 
-% ======================================================================
-\section{What is an effect}
-% ======================================================================
+
+\section{Effects}
+
 \begin{frame}{An effect is a comparison with something that never happened}
 \begin{itemize}
   \item For one customer, the effect of the discount is: what they spend \emph{with} it, minus what
@@ -143,6 +127,7 @@ Before you interpret any relationship, ask who got into the dataset, and what it
 a causal estimate.
 \end{principle}
 \end{frame}
+
 
 \begin{frame}{Why randomization is the gold standard}
 \begin{itemize}
@@ -160,6 +145,9 @@ of difference we can quantify with a standard error.''
 \end{practice}
 \end{frame}
 
+
+\section{Third variables}
+
 \begin{frame}{The three roles a third variable can play}
 \begin{center}
 \includegraphics[width=0.98\textwidth]{fig_m12_dags.pdf}
@@ -169,6 +157,7 @@ of difference we can quantify with a standard error.''
 The arrows are what you believe about the world. Which variables to control for is decided by these
 diagrams, \emph{not} by which ones improve the fit.
 \end{frame}
+
 
 \begin{frame}{Confounders: the classic problem}
 \begin{itemize}
@@ -184,6 +173,7 @@ I cannot rule out that more motivated teams chose the feature.''
 \end{principle}
 \end{frame}
 
+
 \begin{frame}{Confounding in real data}
 \begin{center}
 \includegraphics[width=0.9\textwidth]{fig_m12_confounder.pdf}
@@ -194,6 +184,7 @@ I cannot rule out that more motivated teams chose the feature.''
 you adjust for weight, which drives both, the association collapses to \textbf{0.26}. Nearly 80\%
 of the raw relationship was weight, relabeled.
 \end{frame}
+
 
 \begin{frame}{Colliders: the problem nobody warns you about}
 \begin{itemize}
@@ -211,6 +202,7 @@ makes your estimate worse in a direction you cannot sign.
 \end{trap}
 \end{frame}
 
+
 \begin{frame}{Mediators: controlling away the thing you wanted to measure}
 \begin{itemize}
   \item A \textbf{mediator} sits on the causal path: training raises skill, skill raises sales.
@@ -224,6 +216,7 @@ makes your estimate worse in a direction you cannot sign.
 confounders yes, colliders never, mediators only if you deliberately want the direct effect.
 \end{practice}
 \end{frame}
+
 
 \begin{frame}{The rules, in one table}
 \begin{center}\small
@@ -246,6 +239,7 @@ read the role off a correlation matrix, and the fit will not tell you either.
 \end{principle}
 \end{frame}
 
+
 \begin{frame}{Your turn \#1}
 \begin{yourturn}{classify the variable}
 You want the effect of a \textbf{new onboarding flow} on 90-day retention. For each variable, say
@@ -257,6 +251,7 @@ whether you should control for it, and why:
 \end{enumerate}
 \end{yourturn}
 \end{frame}
+
 
 \begin{frame}{Your turn \#1: answer}
 \begin{itemize}
@@ -274,9 +269,329 @@ Two minutes with a diagram prevents a month of arguing about a coefficient.
 \end{principle}
 \end{frame}
 
-% ======================================================================
-\section{When you cannot experiment}
-% ======================================================================
+
+\section{Selection}
+
+\begin{frame}{Colliders and survivorship bias are the same thing}
+You have now met the collider: conditioning on a common consequence of two variables makes them
+look related when they are not. That mechanism has other names depending on who got filtered out.
+\begin{center}\small
+\begin{tabular}{L{0.24\textwidth} L{0.32\textwidth} L{0.34\textwidth}}
+\toprule
+\textbf{Name} & \textbf{What got filtered} & \textbf{The pattern it plants} \\
+\midrule
+Collider bias & cases that scored high on a shared consequence & two unrelated causes look
+  negatively related \\
+Survivorship bias & anything that did not last & the traits of survivors look like the causes of
+  survival \\
+Nonresponse bias & people who chose not to answer & the answers you got look like the answers
+  everyone would give \\
+\bottomrule
+\end{tabular}
+\end{center}
+\begin{principle}{one question covers all three}
+Ask who is missing from this table, and what it took to get in. That single question catches every
+row above.
+\end{principle}
+\end{frame}
+
+
+\begin{frame}{Selection can create a relationship}
+\begin{center}
+\includegraphics[width=0.92\textwidth]{fig_m12_collider.pdf}
+\end{center}
+\vspace{-0.4em}
+\small
+Independent to begin with. Among high-sum rolls, a low first die \emph{requires} a high second
+die, so the two become strongly negatively related. Nothing about the dice changed. We changed who
+was in the dataset.
+\end{frame}
+
+
+\begin{frame}{Where this shows up in real data}
+\begin{itemize}
+  \item Restaurants you hear about are either great food or great location, because bad on both
+        close. So in your data, food quality and location look negatively related.
+  \item Admitted students are either strong on tests or strong on essays. Within the admitted
+        class, the two look like they trade off.
+  \item Hospitalized patients have some serious condition, so among them, unrelated diseases appear
+        connected.
+\end{itemize}
+\begin{principle}{the sample is part of the analysis}
+Before you interpret any relationship, ask who got into the dataset, and what it took to get in.
+\end{principle}
+\end{frame}
+
+
+\begin{frame}{Survivorship bias: the most famous example}
+\begin{center}
+\includegraphics[width=0.84\textwidth]{fig_m14_survivorship.pdf}
+\end{center}
+\vspace{-0.4em}
+\small
+In World War II, analysts studied bullet holes in returning bombers and proposed armoring the
+wings, where the holes were. Abraham Wald pointed out the obvious once you see it: those planes
+came back. Armor belongs where the returning planes have \emph{no} holes, because planes hit there
+did not return.
+\end{frame}
+
+
+\begin{frame}{Nonresponse: the modern polling problem}
+\begin{columns}[c]
+\begin{column}{0.58\textwidth}
+\centering
+\includegraphics[width=\textwidth]{fig_m14_nonresponse.pdf}
+\end{column}
+\begin{column}{0.42\textwidth}
+\small
+People with strong feelings answer surveys. The indifferent middle does not.
+\begin{itemize}
+  \item Your satisfaction data becomes bimodal even when the population is not.
+  \item Response rates for phone polls have fallen from over 30\% to under 10\%, and the tilt is
+        what makes modern polling hard.
+\end{itemize}
+\end{column}
+\end{columns}
+\onslide<2->{\centering\small
+Weighting can correct for \emph{measured} differences. It cannot correct for people who differ in
+ways you did not record.}
+\end{frame}
+
+
+\begin{frame}{Two famous failures worth remembering}
+\begin{itemize}
+  \item \textbf{1936:} the \emph{Literary Digest} mailed 10 million ballots and got 2.4 million
+        back, predicting a Landon landslide. Roosevelt won 46 states. The frame came from car and
+        telephone registries in the Depression, and only the enthusiastic mailed back.
+  \item At the same time George Gallup polled about 50{,}000 people, chosen to match the
+        population, and got it right.
+  \item \textbf{The lesson repeats:} 2.4 million biased responses lost to 50{,}000 designed ones.
+\end{itemize}
+\begin{principle}{design beats volume}
+Sampling error shrinks with $n$. Sampling bias does not shrink at all.
+\end{principle}
+\end{frame}
+
+
+\begin{frame}{The big-data paradox, quantified}
+\begin{columns}[c]
+\begin{column}{0.58\textwidth}
+\centering
+\includegraphics[width=\textwidth]{fig_m14_bias_vs_n.pdf}
+\end{column}
+\begin{column}{0.42\textwidth}
+\small
+A sample with a 4-point systematic tilt never gets more accurate than 4 points, however many rows
+you add.
+\begin{itemize}
+  \item A \emph{random} sample of about \textbf{156} matches it.
+  \item Worse: the huge sample reports a tiny standard error, so it is confidently wrong.
+\end{itemize}
+\end{column}
+\end{columns}
+\onslide<2->{\centering\small
+This is exactly how 40 million app users can mislead you about your market.}
+\end{frame}
+
+
+\section{Provenance}
+
+\begin{frame}{Population, frame, sample}
+\begin{itemize}
+  \item \textbf{Population:} everyone you want to describe. All customers, all flights, all voters.
+  \item \textbf{Sampling frame:} the list you can actually draw from. Your CRM, the phone book,
+        people with app notifications enabled.
+  \item \textbf{Sample:} who ended up in the data.
+\end{itemize}
+Bias enters at both arrows: frame does not match population (\textbf{undercoverage}), and sample
+does not match frame (\textbf{nonresponse}).
+\begin{principle}{name your frame out loud}
+``Our customers'' usually means ``customers with an email on file who opened the message.'' Saying
+the real frame is often enough to spot the problem.
+\end{principle}
+\end{frame}
+
+
+\begin{frame}{Four designs worth knowing}
+\begin{itemize}
+  \item \textbf{Simple random sample:} everyone equally likely. The benchmark.
+  \item \textbf{Stratified:} split into groups (region, plan tier), sample within each. More
+        precision for the same cost, and guarantees small groups appear.
+  \item \textbf{Cluster:} sample whole groups (stores, classrooms) and measure everyone inside.
+        Cheaper, but the effective sample size is closer to the number of clusters.
+  \item \textbf{Systematic:} take every $k$th record. Fine unless the list has a hidden periodicity.
+\end{itemize}
+\begin{trap}{cluster samples analyzed as if they were random}
+Surveying 20 stores with 50 customers each is not 1{,}000 independent observations. Treating it as
+such is the standard-error error from the CLT module, at scale.
+\end{trap}
+\end{frame}
+
+
+\begin{frame}{Your turn \#2}
+\begin{yourturn}{find the frame problem}
+A streaming service estimates ``average weekly viewing hours per subscriber'' from telemetry sent
+by its smart-TV app.
+\vspace{0.3em}
+
+With a neighbor: name three groups of subscribers this misses or distorts, and say which direction
+the estimate is biased.
+\end{yourturn}
+\end{frame}
+
+
+\begin{frame}{Your turn \#2: answer}
+\begin{itemize}
+  \item Subscribers who watch on phones, laptops, or game consoles are missing entirely, and their
+        habits differ.
+  \item Households sharing one account look like one heavy viewer, while a subscriber who never
+        opens the app sends no telemetry at all and may vanish from the denominator.
+  \item Anyone with telemetry disabled, or an older TV, is excluded, and both correlate with age
+        and income.
+\end{itemize}
+\begin{principle}{ask what the instrument can see}
+Telemetry measures device activity, not people watching. The gap between those two is where the
+bias lives.
+\end{principle}
+\end{frame}
+
+
+
+
+\begin{frame}{Missing values in real data}
+\begin{center}
+\includegraphics[width=0.92\textwidth]{fig_m14_missing.pdf}
+\end{center}
+\vspace{-0.4em}
+\small
+733 patients. Insulin is recorded as zero for \textbf{46\%} of them, which is biologically
+impossible: those are missing values recorded as zero. Keeping them halves the estimated mean.
+Mean imputation gets the mean right and shrinks the SD from 119 to 87, manufacturing precision that
+does not exist.
+\end{frame}
+
+
+\begin{frame}{Three ways data goes missing}
+\begin{itemize}
+  \item \textbf{Missing completely at random:} the machine failed randomly. Dropping rows costs
+        precision but is unbiased. Rare in practice.
+  \item \textbf{Missing at random (given what you measured):} older patients skip a test more often,
+        and you recorded age. Dropping is biased. Modeling with age is not.
+  \item \textbf{Missing not at random:} the value itself drives the absence. High earners refuse to
+        report income, and the sickest patients miss follow-up. Nothing in the data fixes this. You need
+        external information or an explicit assumption.
+\end{itemize}
+\begin{trap}{silent listwise deletion}
+Most software drops incomplete rows without telling you. If the dropped rows differ systematically,
+your entire analysis quietly changed populations.
+\end{trap}
+\end{frame}
+
+
+\begin{frame}{What to actually do}
+\begin{enumerate}
+  \item \textbf{Count and map the missingness} first, per column, and check whether missing rows
+        differ from complete ones on the outcome.
+  \item \textbf{Look for disguised codes}: 0, $-1$, 999, ``N/A'', or an empty string.
+  \item \textbf{Add a missingness indicator} when absence itself might be informative. Often it is
+        the most predictive feature you have.
+  \item \textbf{Prefer multiple imputation} to single mean imputation, so the extra uncertainty
+        shows up in the interval instead of vanishing.
+  \item \textbf{Say what you did}, and show the result both ways.
+\end{enumerate}
+\end{frame}
+
+
+\begin{frame}{Weighting: the partial repair}
+When your sample's composition is wrong but you \emph{know} the true composition, you can reweight.
+\begin{center}\small
+\begin{tabular}{lccc}
+\toprule
+\textbf{Age group} & \textbf{\% of population} & \textbf{\% of respondents} & \textbf{weight} \\
+\midrule
+18--34 & 30\% & 12\% & 2.50 \\
+35--54 & 35\% & 33\% & 1.06 \\
+55+    & 35\% & 55\% & 0.64 \\
+\bottomrule
+\end{tabular}
+\end{center}
+\vspace{0.4em}
+\begin{itemize}
+  \item Each young respondent now counts for 2.5 people, so the estimate reflects the population
+        mix rather than who answered.
+  \item It only fixes imbalance on variables you \emph{measured}, and heavy weights inflate the
+        variance.
+\end{itemize}
+\begin{trap}{weighting as a blank check}
+``We weighted the survey'' does not mean the bias is gone. It means the bias on the weighting
+variables is gone.
+\end{trap}
+\end{frame}
+
+
+\begin{frame}{You measure a proxy, not the concept}
+\begin{itemize}
+  \item ``Engagement'' becomes clicks. ``Teacher quality'' becomes test scores. ``Customer
+        happiness'' becomes a survey score from the 6\% who responded.
+  \item Every proxy has a gap between it and the real concept, and decisions get made in that gap.
+  \item \textbf{Goodhart's law:} once a proxy becomes a target, people optimize the proxy, and the
+        gap widens on purpose.
+\end{itemize}
+\begin{practice}{a strong thing to raise unprompted}
+``Before I model this, what exactly does this column measure, who recorded it, and when? Half the
+projects I have seen went wrong at that step.''
+\end{practice}
+\end{frame}
+
+
+\begin{frame}{Measurement problems that look like findings}
+\begin{itemize}
+  \item \textbf{Instrument drift:} a logging change in March makes April look like a behavior shift.
+  \item \textbf{Question wording:} ``Do you support banning X?'' and ``Do you oppose allowing X?''
+        give different numbers from identical people.
+  \item \textbf{Social desirability:} people over-report voting, exercise, and reading. They
+        under-report drinking and screen time.
+  \item \textbf{Definition changes:} a churn spike caused by moving the churn cutoff from 90 to 60
+        days.
+\end{itemize}
+\begin{trap}{check the instrument before the world}
+Before explaining a sudden jump with a story about the world, check whether the instrument changed
+on that date. It usually did.
+\end{trap}
+\end{frame}
+
+
+\begin{frame}{Your turn \#3}
+\begin{yourturn}{whose data is it?}
+A hiring team builds a model to predict "good employees" using performance ratings from the past
+ten years of hires.
+\vspace{0.3em}
+
+With a neighbor: identify one selection problem, one measurement problem, and one missing-data
+problem in that setup.
+\end{yourturn}
+\end{frame}
+
+
+\begin{frame}{Your turn \#3: answer}
+\begin{itemize}
+  \item \textbf{Selection:} you only observe performance for people who were \emph{hired}. Rejected
+        candidates who would have excelled are invisible, so the model learns the old process's
+        preferences.
+  \item \textbf{Measurement:} ``performance rating'' is a manager's judgment, carrying whatever
+        biases and grade inflation that manager had. It is a proxy, not the concept.
+  \item \textbf{Missing:} people who left early have no rating, and they left for reasons related
+        to the outcome. That is missing not at random.
+\end{itemize}
+\begin{principle}{the model inherits the process that made the data}
+A model trained on past decisions predicts the past decisions, including their mistakes. That is
+not a bug you can regularize away.
+\end{principle}
+\end{frame}
+
+
+\section{Quasi-experiments}
+
 \begin{frame}{The realistic situation}
 Often you cannot randomize: it is unethical, illegal, too slow, or the change already happened.
 Four workhorse designs, each buying credibility with an assumption:
@@ -291,6 +606,7 @@ Four workhorse designs, each buying credibility with an assumption:
         \emph{Assumes} the instrument has no other path to the outcome.
 \end{itemize}
 \end{frame}
+
 
 \begin{frame}{Difference in differences, drawn}
 \begin{columns}[c]
@@ -312,6 +628,7 @@ economy was moving anyway.
 \onslide<2->{\centering\small
 So the first thing to check is whether the two lines were parallel \emph{before} the change.}
 \end{frame}
+
 
 \begin{frame}{Difference in differences, with the actual arithmetic}
 A chain raises pay in its \textbf{Ohio} stores in July and leaves \textbf{Indiana} alone.
@@ -340,6 +657,7 @@ assumption is credible.
 \end{principle}
 \end{frame}
 
+
 \begin{frame}{Reverse causation, and how to rule it out}
 \begin{itemize}
   \item Hospitals with more staff have higher mortality. Do nurses kill people, or do sicker
@@ -355,6 +673,7 @@ what a rollout date, a policy change, or a budget freeze gives you, and no regre
 substitute for it.
 \end{principle}
 \end{frame}
+
 
 \begin{frame}{Natural experiments worth knowing}
 \begin{itemize}
@@ -373,7 +692,8 @@ the treatment for them.
 \end{principle}
 \end{frame}
 
-\begin{frame}{Your turn \#2}
+
+\begin{frame}{Your turn \#4}
 \begin{yourturn}{design the study}
 Your company rolled out a new sales-training program. Reps who completed it sold 18\% more last
 quarter than reps who did not. Leadership wants to make it mandatory.
@@ -384,7 +704,8 @@ you could actually run next quarter.
 \end{yourturn}
 \end{frame}
 
-\begin{frame}{Your turn \#2: answer}
+
+\begin{frame}{Your turn \#4: answer}
 \begin{itemize}
   \item \textbf{Selection:} reps who volunteered were more motivated, and would have improved
         anyway. \textbf{Regression to the mean:} if struggling reps were assigned, expect a bounce
@@ -401,39 +722,10 @@ a guess into an estimate.
 \end{principle}
 \end{frame}
 
-% ======================================================================
+
 \section{LLM check}
-% ======================================================================
-\begin{frame}{Your turn \#3}
-\begin{yourturn}{sort the variables}
-You want the effect of a \textbf{price increase} on \textbf{customer churn}. For each variable,
-say confounder, collider, or mediator, and whether it belongs in the model:
-\begin{enumerate}
-  \item The customer's contract tier, which affects both the price they were offered and their
-        likelihood of leaving.
-  \item Whether the customer called support to complain about the price.
-  \item How much the customer's monthly bill actually rose.
-\end{enumerate}
-\end{yourturn}
-\end{frame}
 
-\begin{frame}{Your turn \#3: answer}
-\begin{itemize}
-  \item \textbf{Contract tier: confounder.} It drives both the treatment and the outcome, so
-        leaving it out biases the estimate. \textbf{Control for it.}
-  \item \textbf{Complaint call: collider.} It is caused by the price increase \emph{and} by the
-        customer's underlying unhappiness. Controlling for it, or studying only complainers,
-        manufactures a relationship. \textbf{Leave it out.}
-  \item \textbf{Size of the bill increase: mediator.} It is how the price increase acts. Include
-        it only if you specifically want the effect of price that runs through something else.
-\end{itemize}
-\begin{principle}{how to spot it}
-Ask ``did this happen before or after the treatment?'' Anything measured afterward is a candidate
-mediator or collider, and both are dangerous controls.
-\end{principle}
-\end{frame}
-
-\begin{frame}{LLM check: mistake or not? (1 of 2)}
+\begin{frame}{LLM check: mistake or not?}
 \begin{llmcheck}{we asked an LLM about a feature launch}
 \textbf{We told it:} ``Customers who use our new dashboard renew at 91\%, others at 68\%. What is
 the effect of the dashboard on renewal?''\\[4pt]
@@ -450,27 +742,27 @@ variables are colliders and mediators, and controlling for them adds bias.
 \end{trap}}
 \end{frame}
 
-\begin{frame}{LLM check: mistake or not? (2 of 2)}
-\begin{llmcheck}{same territory, a different answer}
-\textbf{We told it:} ``Our ad spend and sales are correlated at 0.8 across 24 months. Does
-advertising drive sales?''\\[4pt]
-\textbf{It answered:} ``Not necessarily. Ad budgets are often set as a percentage of expected
-sales, so sales may be causing spend. Both also rise in the holiday season, which is a confounder.
-I would look for a period when spend changed for a reason unrelated to sales, such as a budget
-freeze or a regional rollout, and compare against a similar region.''
+
+\begin{frame}{LLM check: mistake or not?}
+\begin{llmcheck}{we asked an LLM about sample size}
+\textbf{We told it:} ``Our survey of app users got 40,000 responses out of 2 million invitations.
+Is that enough to represent our user base?''\\[4pt]
+\textbf{It answered:} ``Yes, 40,000 is an excellent sample size. The margin of error is under 0.5\%,
+so you can be very confident these results represent your users.''
 \end{llmcheck}
 \vspace{0.2em}
 \centering\small Mistake, or no mistake?
 \onslide<2->{%
-\begin{principle}{verdict: no mistake}
-It raised reverse causation, named a confounder, and proposed a design. That is the full causal
-checklist in three sentences.
-\end{principle}}
+\begin{trap}{verdict: mistake}
+A 2\% response rate is the headline, not the 40{,}000. The margin of error describes sampling
+error only, and says nothing about the 98\% who did not answer. The tiny stated error makes the
+result more dangerous, not more trustworthy.
+\end{trap}}
 \end{frame}
 
-% ======================================================================
-\section{Workflow}
-% ======================================================================
+
+\section{Consolidate}
+
 \begin{frame}{How to answer ``does X cause Y?''}
 \begin{enumerate}
   \item \textbf{State the intervention precisely.} Who gets what, instead of what?
@@ -485,79 +777,36 @@ checklist in three sentences.
 \end{enumerate}
 \end{frame}
 
-\begin{frame}{Scenario: the loyalty program that ``worked''}
-\textbf{Setup.} Members of a new loyalty program spend \$340 a year. Non-members spend \$180.
-Marketing claims the program doubled spending.
-\begin{itemize}
-  \item Who joins a loyalty program? People who already shop there often. The comparison is between
-        heavy and light customers, not between two versions of the same customer.
-  \item Adjusting for prior-year spending would help, but only if you have it, and it will not
-        remove intent.
-  \item The clean answer: randomize invitations, or use a staged geographic rollout, and compare
-        the change in spending, not the level.
-\end{itemize}
-\begin{interview}{how to answer}
-``The 160-dollar gap is mostly selection. I would estimate this from a randomized invitation, and I
-would look at the change in spending rather than its level.''
-\end{interview}
-\end{frame}
 
-% ======================================================================
-\section{Consolidate}
-% ======================================================================
-\begin{frame}{Answering ``does X cause Y?''}
+\begin{frame}{The audit to run before you model anything}
 \small
 \begin{enumerate}
-  \item \textbf{State the intervention precisely.} Who gets what, instead of what?
-  \item \textbf{Name the comparison group.} If there is none, stop.
-  \item \textbf{Draw the diagram} and classify every candidate control as confounder, collider, or mediator.
-  \item \textbf{Ask how treatment was assigned}: randomized, self-selected, or by a rule?
-  \item \textbf{Choose the design that matches the assignment}, and write down the assumption it buys.
-  \item \textbf{Check that assumption explicitly}, for example by plotting pre-treatment trends.
-  \item \textbf{Report the estimate, its uncertainty, and the confounder you could not measure.}
+  \item \textbf{Name the population} the decision concerns, and the frame the rows actually came from.
+  \item \textbf{Ask who is missing because of the outcome} you are studying.
+  \item \textbf{Count the missing values per column}, and look for them in disguise: 0, $-1$, 999, empty strings.
+  \item \textbf{Compare rows with missing values to complete rows} on the outcome. If they differ, dropping them changes the population.
+  \item \textbf{Ask what each column really measures}, who recorded it, and when.
+  \item \textbf{Check for breaks over time} in the instrument, the definition, or the pipeline.
+  \item \textbf{Write down what you could not fix}, and put it in the report.
 \end{enumerate}
 \end{frame}
+
 
 \begin{frame}{The traps, all in one place}
 \begin{trap}{the ones that bite most often}
 \begin{itemize}
-  \item Reading a regression coefficient as the effect of intervening.
-  \item Controlling for everything you have.
-  \item Conditioning on a collider, including by how you selected the sample.
-  \item Controlling for a mediator and reporting the shrunken effect as ``no effect.''
-  \item Comparing volunteers to non-volunteers.
-  \item Treating a before-after change as an effect with no control group.
-  \item Forgetting that the treatment might be caused by the outcome.
+  \item Reading a slope from observational data as an effect.
+  \item Controlling for everything available, which is how you condition on a collider.
+  \item Controlling for a mediator and then reporting the effect as if it vanished.
+  \item Treating a large sample as a representative one.
+  \item Studying only survivors, winners, or people who responded.
+  \item Dropping rows with missing values without asking why they are missing.
+  \item Imputing the mean and then quoting the narrower interval that results.
+  \item Accepting a proxy as the concept you actually meant.
 \end{itemize}
 \end{trap}
 \end{frame}
 
-\begin{frame}{Ten questions to be able to answer}
-\begin{enumerate}\small
-  \item Users of feature X retain better. Should we push everyone onto it?
-  \item Why does randomization work, and what does it fail to fix?
-  \item Should you control for every variable you have? Explain with an example.
-  \item What is a collider, and give a case where selecting on one misled someone?
-  \item When would controlling for a variable be actively harmful?
-  \item We cannot run an experiment. What are the options, and what does each assume?
-  \item How would you check the parallel-trends assumption?
-  \item Ad spend and sales correlate at 0.8. What do you conclude?
-  \item Our program's participants improved 18\%. What do you ask first?
-  \item How would you design a rollout so it produces a causal estimate for free?
-\end{enumerate}
-\end{frame}
-
-\begin{frame}{Mastery checklist}
-You have this unit when you can, from memory:
-\begin{itemize}
-  \item define a causal effect as a comparison with a counterfactual
-  \item explain precisely what randomization buys and what it does not
-  \item classify a variable as confounder, collider, or mediator and act accordingly
-  \item explain why ``control for everything'' is wrong
-  \item name four quasi-experimental designs and the assumption behind each
-  \item design a staged rollout that yields a defensible estimate
-\end{itemize}
-\end{frame}
 
 \begin{frame}{What you should be able to do with software}
 \small
@@ -584,16 +833,20 @@ Logistic version for a binary outcome & \texttt{smf.logit} \\
 If you cannot say what the output means, the fact that you produced it is worth nothing.
 \end{frame}
 
+
 \begin{frame}{Where we go next}
 \begin{itemize}
-  \item We have been treating the data as the only source of information. \textbf{Unit 12} lets
-        prior knowledge enter the estimate explicitly, and makes decisions by weighing outcomes
-        rather than by rejecting a null.
+  \item That closes Part I. You can build a model, judge it honestly, say how wrong a prediction
+        might be, and now ask whether the data ever supported the claim.
+  \item Part II goes back and earns the machinery. \textbf{Unit 7} starts with probability, which
+        is what the standard errors, the $p$-values, and the distributions have been resting on
+        the whole time.
 \end{itemize}
 \begin{principle}{the through-line}
-The data can only tell you what went with what. The causal claim comes from the design, and the
-design is your job.
+Part I was about what you can conclude. Part II is about why those tools are entitled to conclude
+anything at all.
 \end{principle}
 \end{frame}
+
 
 \end{document}

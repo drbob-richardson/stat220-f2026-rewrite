@@ -256,6 +256,23 @@ Hyperparameters to tune & few & many, and they matter \\
 The right-hand column is shorter. That is the trade you make for the accuracy.
 \end{frame}
 
+\begin{frame}{What ``going deep'' on one model actually involves}
+Once you commit to a family, the work is the same list every time. Unit 3 walks all of it for
+linear regression, and later units repeat the pattern for the others.
+\begin{enumerate}\small
+  \item \textbf{Fit it}, and read the parameters in the units of the problem.
+  \item \textbf{Check the form.} Look at what the model missed. Is the shape you assumed roughly
+        the shape that is there?
+  \item \textbf{Decide what belongs in it}, and be able to say why each variable is there.
+  \item \textbf{Tune what is not estimated}, on folds you fixed in advance.
+  \item \textbf{Put uncertainty on both things}: the parameters, and a prediction for a new case.
+  \item \textbf{Ask the actual question.} Usually that is a test or an interval on one
+        coefficient, not the model as a whole.
+  \item \textbf{Score it on data you did not fit}, once.
+  \item \textbf{Decide whether to ship it}, and whether you can explain any single output.
+\end{enumerate}
+\end{frame}
+
 \begin{frame}{Two intervals that get confused}
 \begin{columns}[T]
 \begin{column}{0.48\textwidth}
@@ -274,7 +291,7 @@ data you collect, because individual cases vary.
 being passed off as a prediction. The honest range for one house is far wider, and the customer
 is asking about one house.
 \end{trap}
-\centering\small Unit 4 takes this apart properly.
+\centering\small Unit 5 takes this apart properly.
 \end{frame}
 
 % ======================================================================

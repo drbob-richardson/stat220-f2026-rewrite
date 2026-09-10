@@ -1,6 +1,6 @@
 % =====================================================================
 % THIS FILE IS THE SOURCE. Edit it, then rebuild the PDF with:
-%     bash tools/compile.sh Unit_02_Regression_as_Reasoning
+%     bash tools/compile.sh Unit_03_Linear_Regression
 % (run from the Course_Rewrite folder; it compiles twice and reports
 %  page count, overfull boxes, and em dashes)
 %
@@ -51,8 +51,8 @@
   \setbeamercolor{block body}{bg=violet!10}%
   \begin{block}{\textbf{LLM check:} #1}}{\end{block}}
 
-\title{Regression as Reasoning}
-\subtitle{Unit 2: Reasoning With a Slope}
+\title{Linear Regression}
+\subtitle{Unit 3: Fitting It, Reading It, and Answering the Question You Were Asked}
 \author{Stat 220 \textbar{} Statistics for Data Science}
 \date{}
 
@@ -750,35 +750,6 @@ This one is right: it holds the other predictor fixed, says ``associated'' inste
   \item Reading an observational slope as proof of causation.
 \end{itemize}
 \end{trap}
-\end{frame}
-
-\begin{frame}{Ten questions to be able to answer}
-\begin{enumerate}\small
-  \item What does the slope mean, in the units of this problem?
-  \item Our slope is significant but $R^2$ is 0.04. Is the model useful?
-  \item How do you put a categorical predictor with five levels into a regression?
-  \item What does an interaction term mean, in plain language?
-  \item The coefficient flipped sign when we added a variable. What happened?
-  \item When is controlling for a variable the right move, and when is it a mistake?
-  \item Can you say the slope is the effect of changing $x$? Under what conditions?
-  \item Two predictors are highly correlated. What happens to their coefficients?
-  \item How would you explain a regression output to a non-technical manager?
-  \item What would make you distrust a regression you did not run yourself?
-\end{enumerate}
-\end{frame}
-
-\begin{frame}{Mastery checklist}
-You have this unit when you can, from memory:
-\begin{itemize}
-  \item state any slope as a sentence with units, direction, and uncertainty
-  \item test a slope and explain its $p$-value and CI in plain words
-  \item separate significance, effect size, and $R^2$
-  \item interpret dummy and categorical coefficients against their baseline
-  \item explain what ``holding the others fixed'' does to a coefficient
-  \item recognize confounding, and explain why adding or removing a variable moves slopes
-  \item say exactly when a slope is causal and when it is only a description
-  \item walk a regression analysis from question to answer in the right order
-\end{itemize}
 \end{frame}
 
 \begin{frame}{How to read any regression coefficient}
