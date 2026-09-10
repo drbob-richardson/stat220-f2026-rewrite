@@ -15,6 +15,7 @@ from sklearn.tree import DecisionTreeRegressor, plot_tree
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.linear_model import lasso_path
+from matplotlib.patches import FancyArrowPatch, FancyBboxPatch
 from sklearn.preprocessing import StandardScaler
 
 OUT = Path(__file__).resolve().parents[1] / "Slides"
@@ -145,5 +146,96 @@ ax.annotate(f"lowest honest error\nat depth {best}", xy=(best, min(cv)),
 ax.set_xlabel("tree depth"); ax.set_ylabel("mean squared error"); ax.set_xticks(list(depths))
 ax.legend(frameon=False, fontsize=8)
 save(fig, "fig_u2_mse.pdf")
+
+def little_tree(ax, cx, cy, w=0.62, h=0.5, color=GREY):
+    """A small stylised decision tree centred at (cx, cy)."""
+    top = (cx, cy + h/2)
+    mid = [(cx - w/3, cy), (cx + w/3, cy)]
+    bot = [(cx - w/2, cy - h/2), (cx - w/6, cy - h/2), (cx + w/6, cy - h/2), (cx + w/2, cy - h/2)]
+    for m in mid:
+        ax.plot([top[0], m[0]], [top[1], m[1]], color=color, lw=1.1, zorder=1)
+    for i, m in enumerate(mid):
+        for b in bot[2*i:2*i+2]:
+            ax.plot([m[0], b[0]], [m[1], b[1]], color=color, lw=1.1, zorder=1)
+    for pt in [top] + mid:
+        ax.plot(*pt, "o", ms=4.5, color=color, zorder=2)
+    for b in bot:
+        ax.plot(*b, "s", ms=4.5, color=color, zorder=2)
+
+def arrow(ax, a, b, color="black", lw=1.2, style="-|>"):
+    ax.add_patch(FancyArrowPatch(a, b, arrowstyle=style, mutation_scale=11,
+                                 color=color, lw=lw, shrinkA=3, shrinkB=3))
+
+# ---------------- random forest: many trees, one average -------------------
+fig, ax = plt.subplots(figsize=(7.4, 3.2))
+xs = [0.9, 2.4, 3.9, 6.3]
+for i, cx in enumerate(xs):
+    if i == 3:
+        continue
+    little_tree(ax, cx, 2.05, color=GREY)
+    ax.text(cx, 1.45, f"tree {i+1}", ha="center", fontsize=8, color=GREY)
+    ax.text(cx, 1.18, f"says {[31.2, 28.6, 30.1][i]}", ha="center", fontsize=8, color="black")
+ax.text(5.2, 2.0, r"$\cdots$", ha="center", va="center", fontsize=16, color=GREY)
+ax.text(6.3, 1.45, "tree 500", ha="center", fontsize=8, color=GREY)
+ax.text(6.3, 1.18, "says 29.4", ha="center", fontsize=8, color="black")
+little_tree(ax, 6.3, 2.05, color=GREY)
+box = FancyBboxPatch((2.35, 0.12), 2.6, 0.52, boxstyle="round,pad=0.06",
+                     fc="#efe7f6", ec=PURPLE, lw=1.4)
+ax.add_patch(box)
+ax.text(3.65, 0.38, "average them:  29.8 mpg", ha="center", va="center",
+        fontsize=10, color=PURPLE, weight="bold")
+for cx in [0.9, 2.4, 3.9, 6.3]:
+    arrow(ax, (cx, 1.05), (3.65, 0.70), color=GREY, lw=1.0)
+ax.set_xlim(0.2, 7.2); ax.set_ylim(0, 2.7); ax.axis("off")
+ax.set_title("every tree votes, and the forest reports the average", fontsize=9)
+fig.tight_layout(); fig.savefig(OUT / "fig_u2_m_forest.pdf"); plt.close(fig)
+print("  fig_u2_m_forest.pdf")
+
+# ---------------- boosting: each tree fixes the last ----------------------
+fig, ax = plt.subplots(figsize=(8.4, 2.9))
+xs = [0.8, 2.9, 5.0, 7.6]
+labels = ["tree 1", "tree 2", "tree 3", "tree 200"]
+running = ["23.0", "26.4", "28.1", "29.8"]
+for i, cx in enumerate(xs):
+    little_tree(ax, cx, 1.75, w=0.55, h=0.45, color=GREY)
+    ax.text(cx, 1.20, labels[i], ha="center", fontsize=8, color=GREY)
+    box = FancyBboxPatch((cx - 0.52, 0.55), 1.04, 0.42, boxstyle="round,pad=0.05",
+                         fc="#efe7f6" if i == 3 else "white", ec=PURPLE, lw=1.3)
+    ax.add_patch(box)
+    ax.text(cx, 0.76, running[i], ha="center", va="center", fontsize=9,
+            color=PURPLE, weight="bold" if i == 3 else "normal")
+    arrow(ax, (cx, 1.10), (cx, 1.00), color=GREY, lw=1.0)
+for a, b, lab in [(0.8, 2.9, "what it\nstill missed"), (2.9, 5.0, "what it\nstill missed")]:
+    arrow(ax, (a + 0.55, 0.76), (b - 0.55, 0.76), color=RED, lw=1.2)
+    ax.text((a + b) / 2, 1.02, lab, ha="center", fontsize=7, color=RED)
+ax.text(6.3, 0.76, r"$\cdots$", ha="center", va="center", fontsize=15, color=GREY)
+arrow(ax, (5.55, 0.76), (6.0, 0.76), color=RED, lw=1.2)
+arrow(ax, (6.6, 0.76), (7.05, 0.76), color=RED, lw=1.2)
+ax.text(7.6, 0.30, "final prediction", ha="center", fontsize=8, color=PURPLE)
+ax.set_xlim(0.1, 8.3); ax.set_ylim(0.1, 2.35); ax.axis("off")
+ax.set_title("each tree is fitted to what the ones before it got wrong", fontsize=9)
+fig.tight_layout(); fig.savefig(OUT / "fig_u2_m_boost.pdf"); plt.close(fig)
+print("  fig_u2_m_boost.pdf")
+
+# ---------------- lasso path: penalty increasing to the right -------------
+cars = pd.read_csv(DATA / "cars.csv").dropna()
+preds = ["displacement", "horsepower", "model_year", "cylinder", "acceleration"]
+Xs = StandardScaler().fit_transform(cars[preds])
+alphas, coefs, _ = lasso_path(Xs, cars["mpg"].values, eps=5e-4, n_alphas=200)
+order = np.argsort(alphas)                    # ascending penalty, so it reads left to right
+alphas, coefs = alphas[order], coefs[:, order]
+fig, ax = plt.subplots(figsize=(6.4, 3.3))
+cols = [BLUE, RED, GREEN, "#e08214", PURPLE]
+for i, name in enumerate(preds):
+    ax.plot(alphas, coefs[i], lw=2.0, color=cols[i], label=name)
+ax.set_xscale("log")
+ax.set_xlim(alphas[0] * 0.9, alphas[-1] * 3.4)
+ax.legend(frameon=False, fontsize=7.5, loc="upper right", ncol=2)
+ax.axhline(0, color="black", lw=.8)
+ax.set_xlabel("penalty, increasing to the right")
+ax.set_ylabel("coefficient")
+ax.set_title("raise the penalty and coefficients are driven to zero, one at a time", fontsize=9)
+fig.tight_layout(); fig.savefig(OUT / "fig_u2_m_lasso.pdf"); plt.close(fig)
+print("  fig_u2_m_lasso.pdf")
 
 print("done")

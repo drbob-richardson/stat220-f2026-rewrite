@@ -76,7 +76,7 @@ modeling starts with someone skipping that sentence.
 \end{principle}
 \end{frame}
 
-\begin{frame}{Every model is the same sentence}
+\begin{frame}{The general form}
 \[
 y \;=\; f(x_1, x_2, \ldots, x_p) \;+\; \text{error}
 \]
@@ -136,7 +136,7 @@ like, and do we say anything about the error?
 Same 392 cars, same predictor, four families. Only $f$ changed.
 \end{frame}
 
-\begin{frame}{Two kinds of thing get called a model}
+\begin{frame}{Two kinds of model}
 \begin{columns}[T]
 \begin{column}{0.48\textwidth}
 \textbf{A probability model}\\[2pt]
@@ -163,9 +163,6 @@ watch it miss.
 \includegraphics[width=0.96\textwidth]{fig_u2_ytypes.pdf}
 \end{center}
 \vspace{-0.2em}
-\centering\small
-This is the one part of the choice that is not a judgment call, and it removes most of the menu
-before you have thought about anything else.
 \end{frame}
 
 \begin{frame}{What each type of $y$ points to}
@@ -189,7 +186,7 @@ probabilities above 1 or below 0, which should tell you what happened.
 \end{trap}
 \end{frame}
 
-\begin{frame}{Two filters, doing different jobs}
+\begin{frame}{What the type of $y$ does and does not decide}
 Notice what the right-hand column of that table just did. It repeated itself.
 \begin{center}\small
 \begin{tabular}{L{0.30\textwidth} L{0.28\textwidth} L{0.30\textwidth}}
@@ -300,7 +297,8 @@ somebody needs to read a number out of the model, and a forest has none to give.
 \begin{column}{0.46\textwidth}\small
 \begin{itemize}
   \item Trees added one at a time, each one fitting what the previous ones got wrong.
-  \item One tree is a crude step. Ten is closer. Two hundred traces the shape.
+  \item The running prediction is corrected at every stage, so it walks toward the answer rather
+        than jumping to it.
   \item Usually the most accurate thing you can fit to a table of numbers.
 \end{itemize}
 \textbf{Any $y$:} numbers, yes/no, counts, categories.\\[3pt]
@@ -342,7 +340,7 @@ somebody needs to read a number out of the model, and a forest has none to give.
 \end{columns}
 \end{frame}
 
-\begin{frame}{The menu, on one page}
+\begin{frame}{The menu, summarized}
 \begin{center}\footnotesize
 \renewcommand{\arraystretch}{1.05}%
 \begin{tabular}{L{0.22\textwidth} L{0.14\textwidth} L{0.23\textwidth} L{0.25\textwidth}}
@@ -365,7 +363,7 @@ Lasso and ridge & partly & a penalized line & too many columns to defend \\
 % ======================================================================
 \section{What you want from it}
 % ======================================================================
-\begin{frame}{Five jobs people hand a model}
+\begin{frame}{Five jobs for a model}
 \begin{enumerate}
   \item \textbf{Predict.} Give me a number for this new case.
   \item \textbf{Explain.} Does $X$ actually move $Y$, and by how much?
@@ -456,7 +454,7 @@ rejections to customers and I would rather be able to.''
 \end{practice}
 \end{frame}
 
-\begin{frame}{The five jobs, side by side}
+\begin{frame}{The five jobs, summarized}
 \begin{center}\footnotesize
 \begin{tabular}{L{0.11\textwidth} L{0.29\textwidth} L{0.22\textwidth} L{0.23\textwidth}}
 \toprule
@@ -519,7 +517,7 @@ of the model.
 % ======================================================================
 \section{Comparing models}
 % ======================================================================
-\begin{frame}{Is model A better than model B?}
+\begin{frame}{Comparing two models}
 That is the only comparison question you will ever be asked, and everything in this section
 exists to answer it.
 \begin{itemize}
@@ -535,11 +533,9 @@ exists to answer it.
   \item \textbf{Data neither model was fitted to}, or a criterion that charges for parameters.
 \end{enumerate}
 \end{principle}
-\centering\small
-There are two ways to satisfy the third one. The rest of this section is those two ways.
 \end{frame}
 
-\begin{frame}{What ``error'' means, exactly}
+\begin{frame}{Measuring error}
 The measure both candidates get scored on. For a numeric outcome it is usually
 \textbf{mean squared error}:
 \[
@@ -559,7 +555,7 @@ true for your problem, use absolute error instead, and say so.
 \end{principle}
 \end{frame}
 
-\begin{frame}{Two ways to get an honest number}
+\begin{frame}{Scoring on data you did not fit}
 Both candidates need a score on rows neither of them was fitted to. Two ways to arrange that.
 \begin{columns}[T]
 \begin{column}{0.48\textwidth}
@@ -580,7 +576,7 @@ keep, even choosing the scaling. If it happened before scoring, it has to happen
 \end{principle}
 \end{frame}
 
-\begin{frame}{AIC and BIC: paying for parameters}
+\begin{frame}{AIC and BIC}
 The other way to compare A against B, and it needs no held-out data at all. A \textbf{probability
 model} can report how likely your data was under the fitted model. Call that the likelihood $L$. Bigger is better, but adding parameters always makes it bigger, so a
 raw comparison always picks the biggest model.
@@ -596,7 +592,7 @@ raw comparison always picks the biggest model.
 \end{itemize}
 \end{frame}
 
-\begin{frame}{AIC, worked on the cars}
+\begin{frame}{AIC, worked}
 $n = 392$. Three nested models, each fit to the same rows.
 \begin{center}\small
 \begin{tabular}{L{0.30\textwidth} L{0.08\textwidth} L{0.14\textwidth} L{0.30\textwidth}}
@@ -637,7 +633,7 @@ identical rows.
 \end{trap}
 \end{frame}
 
-\begin{frame}{Deciding between A and B, in order}
+\begin{frame}{Deciding between two models, in order}
 \begin{enumerate}
   \item \textbf{Are both probability models, fit to the same rows?} If yes, AIC is available and
         it costs one fit each. If not, skip to step 3.
@@ -658,7 +654,7 @@ answer, so its number is optimistic by exactly the amount you searched.
 % ======================================================================
 \section{What you do with it}
 % ======================================================================
-\begin{frame}{The five things you do to any model}
+\begin{frame}{Five things you do to any model}
 \begin{enumerate}
   \item \textbf{Fit it.} Estimate the parts the data decides.
   \item \textbf{Tune it.} Set the parts the data does not decide.
@@ -670,8 +666,6 @@ answer, so its number is optimistic by exactly the amount you searched.
 Every family on the menu goes through all five. What differs is which tool does each step, and
 whether the model can supply it for you or you have to get it from held-out data.
 \end{principle}
-\centering\small
-The next five slides walk one regression tree through all of it, on the 392 cars.
 \end{frame}
 
 \begin{frame}{Step 1: fit it}
@@ -730,11 +724,11 @@ on the 98 cars it never saw.
 $22.8 - 4.6 \;=\; 18.2$ \qquad to \qquad $22.8 + 7.6 \;=\; 30.4$ mpg
 \end{center}
 \centering\small
-That car's actual mpg was \textbf{23.0}, comfortably inside. A probability model would have
-produced this range from its own assumptions instead.
+That car's actual mpg was \textbf{23.0}. A probability model would have produced this range from
+its own assumptions instead.
 \end{frame}
 
-\begin{frame}{Step 5: judge it against an alternative}
+\begin{frame}{Step 5: compare it}
 Same six predictors, same five folds, three candidates.
 \begin{center}\small
 \begin{tabular}{L{0.28\textwidth} L{0.22\textwidth} L{0.22\textwidth}}
@@ -795,11 +789,9 @@ On 300 rows that bet usually loses.
 \bottomrule
 \end{tabular}
 \end{center}
-\centering\small
-The first two have identical outcome types. The audience decided them, not the data.
 \end{frame}
 
-\begin{frame}{The two-model habit}
+\begin{frame}{Fitting two models on purpose}
 \begin{itemize}
   \item Fit the simplest defensible model and a flexible one. Both, every time.
   \item If they agree, report the simple one. Easier to defend, cheaper to maintain, less likely
@@ -822,7 +814,6 @@ threshold at 30 days, added that to the regression, and it caught up. I shipped 
         you revisit first?
 \end{enumerate}
 \end{yourturn}
-The reason is the half that gets graded.
 \end{frame}
 
 \begin{frame}{Your turn \#2: answer}
@@ -849,7 +840,6 @@ interactions automatically and gives you feature importances, so you can report 
 predictors as the key risk factors and their $p$-values.''
 \end{llmcheck}
 \vspace{0.2em}
-\centering\small Three separate problems. Find them before the next slide.
 \end{frame}
 
 \begin{frame}{LLM check: answer}
