@@ -194,120 +194,90 @@ nb.write("Code_Unit02_Map_of_Models.ipynb")
 # HOMEWORK
 # =====================================================================
 hw = HW(2, "A Map of Models",
-        """One dataset throughout: `campus_cafe.csv`, 700 days at a campus coffee shop. It is not
-one of the datasets from the code companion.
+        """This one is short on purpose. Unit 2 is a map, so the questions are about
+*choosing* and *recognizing*, not about fitting things well or reading coefficients. Those come
+in Units 3 to 5.
 
-| column | what it is |
-|---|---|
-| `temp_f` | outside temperature that day |
-| `exam_week` | 1 during finals and midterms, 0 otherwise |
-| `promo` | 1 if a discount ran that day |
-| `foot_traffic` | people who walked past the shop |
-| `drinks_sold` | drinks sold that day |
-| `revenue` | dollars taken that day |
-| `sold_out` | 1 if they ran out of a main item |
-
-**Most of the code is written for you.** Run each cell, read what comes back, and answer the
-question. The reasoning is the graded part, not the typing. Start by running this:
+The code you need is written for you. Run each cell, look at what comes back, and answer.
 
 ```python
 import pandas as pd, numpy as np
 import statsmodels.api as sm, statsmodels.formula.api as smf
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.model_selection import KFold, cross_val_score, train_test_split
+from sklearn.model_selection import KFold, cross_val_score
 from sklearn.linear_model import LinearRegression
 
 cafe = pd.read_csv("https://drbob-richardson.github.io/stat220/F2026/data/campus_cafe.csv")
-P = ["drinks_sold", "exam_week", "promo", "temp_f"]
 cafe.head()
-```""")
+```
+
+`campus_cafe.csv` is 700 days at a campus coffee shop: `temp_f`, `exam_week`, `promo`,
+`foot_traffic`, `drinks_sold`, `revenue`, and `sold_out`.""")
 
 hw.problem(1, """*Reading a situation.* No computer. Two or three sentences each.""")
 hw.part("a", "The owner wants to know how many drinks to prepare tomorrow, given the forecast "
-             "temperature. Name the type of `y`, name the model family, and say why.",
+             "temperature. What type is `y` here, and which model family would you name?",
         kind="markdown")
-hw.part("b", "The owner wants to know whether running a promotion actually raises revenue, "
-             "because she is deciding whether to keep doing it. Name the type of `y` and the "
-             "family, and say what makes this a different job from part a.", kind="markdown")
-hw.part("c", "A classmate suggests a random forest for part b. It would run on that data without "
-             "complaining. Would you use it, and what would it cost you?", kind="markdown")
+hw.part("b", "The owner wants to know whether running a promotion actually raises revenue, since "
+             "she is deciding whether to keep doing it. What type is `y`, which family, and what "
+             "makes this a different job from part a?", kind="markdown")
+hw.part("c", "The owner wants the chance they run out of an item on a given day. What type is "
+             "`y`, and which family?", kind="markdown")
+hw.part("d", "A classmate says to just use a random forest for all three. A forest would run on "
+             "all three without complaining. Say which of the three you would refuse to use it "
+             "for, and why.", kind="markdown")
 
-hw.problem(2, """*The type of `y` picks the model.* Three outcomes in one table.""")
-hw.given("a", "Run this. Report the coefficient on `drinks_sold` in a full sentence, with units.",
-'''# a number -> linear regression
-m_rev = smf.ols("revenue ~ drinks_sold + exam_week", data=cafe).fit()
-print(m_rev.params.round(3))''')
-hw.given("b", "Run this. Why can this model never predict a negative number of drinks?",
-'''# a count -> Poisson regression
-m_cnt = smf.glm("drinks_sold ~ temp_f + exam_week + promo",
-                data=cafe, family=sm.families.Poisson()).fit()
-print(m_cnt.params.round(4))
-print("smallest prediction:", round(m_cnt.predict().min(), 1))''')
-hw.given("c", "The first model below is the right one for a yes/no outcome. The second forces a "
-              "linear model onto it. Say what has gone wrong in the second, and what it tells you.",
-'''# a yes/no -> logistic regression
-m_out = smf.logit("sold_out ~ drinks_sold", data=cafe).fit(disp=0)
-p_ok = m_out.predict()
-print(f"logistic fitted probabilities: {p_ok.min():.3f} to {p_ok.max():.3f}")
+hw.problem(2, """*What happens if you ignore the type of `y`.* One cell, already written.""")
+hw.given("a", "Run it. `sold_out` is a yes/no column. Describe what the linear model produced "
+              "that the logistic model did not, and say why that is a problem.",
+'''# the right model for a yes/no outcome
+p_ok = smf.logit("sold_out ~ drinks_sold", data=cafe).fit(disp=0).predict()
 
 # the same outcome, forced into a linear model
 p_bad = smf.ols("sold_out ~ drinks_sold", data=cafe).fit().predict()
-print(f"linear   fitted probabilities: {p_bad.min():.2f} to {p_bad.max():.2f}")
-print("how many fall outside 0 to 1:", int(((p_bad < 0) | (p_bad > 1)).sum()))''')
 
-hw.problem(3, """*What each kind of model hands back.* Both predict `revenue` from the same four
-columns.""")
-hw.given("a", "Run this. Report the 95% confidence interval for `exam_week` and say what it means "
-              "in dollars.",
-'''reg = smf.ols("revenue ~ " + " + ".join(P), data=cafe).fit()
-print(reg.summary().tables[1])
-print("95% CI for exam_week:", reg.conf_int().loc["exam_week"].round(2).tolist())''')
-hw.given("b", "Run this. Which predictor does the forest lean on most, and which barely registers?",
-'''forest = RandomForestRegressor(n_estimators=300, random_state=0).fit(cafe[P], cafe["revenue"])
-print(pd.Series(forest.feature_importances_, index=P).round(3).to_string())''')
-hw.given("c", "This checks which quantities each model can produce. For each one the forest "
-              "cannot, say why not. Use the word distribution.",
-'''for name, model in [("regression", reg), ("forest", forest)]:
+print(f"logistic gives values from {p_ok.min():.3f} to {p_ok.max():.3f}")
+print(f"linear   gives values from {p_bad.min():.2f} to {p_bad.max():.2f}")
+print("linear values that are not possible probabilities:",
+      int(((p_bad < 0) | (p_bad > 1)).sum()), "out of", len(p_bad))''')
+hw.part("b", "`drinks_sold` is a count. Name the probability model you would use for it, and say "
+             "in one sentence what would go wrong with an ordinary linear model there.",
+        kind="markdown")
+
+hw.problem(3, """*What a model can and cannot hand back.* One cell, already written.""")
+hw.given("a", "Run it. List the quantities the forest could not produce, and explain why not. "
+              "Your answer should use the word distribution.",
+'''X = cafe[["drinks_sold", "exam_week", "promo", "temp_f"]]
+reg = LinearRegression().fit(X, cafe["revenue"])
+forest = RandomForestRegressor(n_estimators=300, random_state=0).fit(X, cafe["revenue"])
+sm_reg = smf.ols("revenue ~ drinks_sold + exam_week + promo + temp_f", data=cafe).fit()
+
+for name, model in [("regression", sm_reg), ("forest", forest)]:
     have = [a for a in ["pvalues", "conf_int", "aic"] if hasattr(model, a)]
-    print(f"{name:<12} can give you: {have}")''')
+    print(f"{name:<12} can give you: {have if have else 'none of them'}")''')
+hw.part("b", "Go back to the three jobs in Problem 1. Which one of them could a forest not do at "
+             "all, given what you just saw?", kind="markdown")
 
-hw.problem(4, """*Is model A better than model B?* Same rows, same measure, both times.""")
-hw.given("a", "Run this. One of the two additions makes AIC go up rather than down. Which, and "
-              "what does that mean?",
+hw.problem(4, """*Is model A better than model B?* Two cells, already written.""")
+hw.given("a", "Run it. These three models are compared by AIC. Say which one you would keep, and "
+              "what it means that one of the additions made AIC go up.",
 '''for f in ["revenue ~ drinks_sold",
           "revenue ~ drinks_sold + exam_week",
           "revenue ~ drinks_sold + exam_week + promo"]:
     print(f"{f:<48} AIC = {smf.ols(f, data=cafe).fit().aic:8.1f}")''')
-hw.given("b", "Run this. Which model would you ship, and does the answer surprise you?",
+hw.given("b", "Run it. Say which model you would ship, and whether the result surprises you.",
 '''folds = KFold(5, shuffle=True, random_state=0)   # one fold object, used for both
 for name, mod in [("regression", LinearRegression()),
                   ("forest", RandomForestRegressor(n_estimators=300, random_state=0))]:
-    mse = -cross_val_score(mod, cafe[P], cafe["revenue"], cv=folds,
+    mse = -cross_val_score(mod, X, cafe["revenue"], cv=folds,
                            scoring="neg_mean_squared_error").mean()
     print(f"  {name:<12} cross-validated MSE {mse:7.1f}   RMSE {np.sqrt(mse):5.1f} dollars")''')
-hw.part("c", "You have AIC values from part a and cross-validated errors from part b. Explain in "
-             "two sentences why you cannot settle the regression-versus-forest question using "
-             "AIC.", kind="markdown")
+hw.part("c", "You could compare the three models in part a with AIC, but you could not use AIC "
+             "for the comparison in part b. Explain why in two sentences.", kind="markdown")
 
-hw.problem(5, """*One prediction, with a range on it.*""")
-hw.given("a", "Run this. Report the prediction and the interval, and say whether the interval "
-              "caught the true value.",
-'''Xtr, Xte, ytr, yte = train_test_split(cafe[P], cafe["revenue"],
-                                      test_size=0.25, random_state=1)
-fit = LinearRegression().fit(Xtr, ytr)
-
-pred = fit.predict(Xte.iloc[[0]])[0]           # one held-out day
-resid = yte - fit.predict(Xte)                 # errors on days it never saw
-lo, hi = np.percentile(resid, [5, 95])
-
-print(f"prediction          : {pred:6.1f}")
-print(f"90% interval        : {pred + lo:6.1f} to {pred + hi:.1f}")
-print(f"what it actually was: {yte.iloc[0]:6.1f}")''')
-hw.part("b", "The owner asks for one number and no range. Write the single sentence you would say "
-             "to her instead, using your numbers from part a.", kind="markdown")
-hw.part("c", "Look back at your two answers about `exam_week`. The forest gave it an importance "
-             "near the bottom of the four. The regression gave it a coefficient several dollars "
-             "away from zero. Explain how both can be true, and say which number you would take "
-             "to the owner.", kind="markdown")
+hw.problem(5, """*Putting it together.* No computer.""")
+hw.part("a", "The owner reads that a forest predicted revenue almost as well as the regression, "
+             "and asks whether she should use the forest to decide about promotions. Answer her "
+             "in three or four sentences.", kind="markdown")
 
 hw.write("Stat_220_HW_Unit02_Map_of_Models.ipynb")
