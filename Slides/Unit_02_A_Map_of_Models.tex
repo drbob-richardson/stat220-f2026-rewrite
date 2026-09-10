@@ -75,6 +75,23 @@ modeling starts with someone skipping that sentence.
 \end{principle}
 \end{frame}
 
+\begin{frame}{Every model is the same sentence}
+\[
+y \;=\; f(x_1, x_2, \ldots, x_p) \;+\; \text{error}
+\]
+\begin{itemize}
+  \item $y$ is the thing you want to know. The $x$'s are what you already have.
+  \item $f$ is the part the model supplies. Choosing a model is choosing what shapes $f$ is
+        allowed to take.
+  \item The error is everything $f$ does not account for. Some models make a claim about it.
+        Others say nothing at all.
+\end{itemize}
+\begin{principle}{that is the whole menu}
+Every family in this unit is a different answer to two questions. What is $f$ allowed to look
+like, and do we say anything about the error?
+\end{principle}
+\end{frame}
+
 \begin{frame}{What this unit gives you}
 \begin{columns}[T]
 \begin{column}{0.5\textwidth}
@@ -103,6 +120,21 @@ modeling starts with someone skipping that sentence.
 % ======================================================================
 \section{The menu}
 % ======================================================================
+\begin{frame}{What $f$ can look like}
+\begin{center}
+\includegraphics[width=\textwidth]{fig_u2_shapes.pdf}
+\end{center}
+\vspace{-0.3em}
+\begin{itemize}\small
+  \item \textbf{A straight line.} One slope, and you can say it out loud in units.
+  \item \textbf{A curve.} One extra term, still readable.
+  \item \textbf{A tree.} A step function, which is a set of if-then rules.
+  \item \textbf{A forest.} An average of hundreds of trees, and here it is chasing every bump.
+\end{itemize}
+\centering\small
+Same 392 cars and the same predictor in all four. Only $f$ changed.
+\end{frame}
+
 \begin{frame}{Two kinds of thing get called a model}
 \begin{columns}[T]
 \begin{column}{0.48\textwidth}
@@ -124,6 +156,36 @@ A distribution gives you a likelihood, and a likelihood gives you standard error
 confidence intervals, and AIC. With no distribution there is no likelihood, and none of those
 exist. You get uncertainty by resampling or by holding data out instead.
 \end{principle}
+\end{frame}
+
+\begin{frame}{Start with the type of $y$}
+\begin{center}
+\includegraphics[width=0.96\textwidth]{fig_u2_ytypes.pdf}
+\end{center}
+\vspace{-0.2em}
+\centering\small
+This is the one part of the choice that is not a judgment call, and it removes most of the menu
+before you have thought about anything else.
+\end{frame}
+
+\begin{frame}{What each type of $y$ points to}
+\begin{center}\footnotesize
+\begin{tabular}{L{0.15\textwidth} L{0.21\textwidth} L{0.26\textwidth} L{0.24\textwidth}}
+\toprule
+\textbf{$y$ is} & \textbf{Example} & \textbf{Probability model} & \textbf{Algorithmic} \\
+\midrule
+a number & mpg, rent, revenue & linear regression & trees, forests, boosting \\
+yes or no & churn, default, click & logistic regression & classification trees and forests \\
+a count or rate & tickets per hour & Poisson, negative binomial & boosting on counts \\
+a category & which of four plans & multinomial logistic & classification models \\
+time to an event & months until churn & survival models & specialized versions \\
+\bottomrule
+\end{tabular}
+\end{center}
+\begin{trap}{forcing the wrong type}
+Running an ordinary linear regression on a yes/no outcome will produce numbers. Some of them will
+be predicted probabilities above 1 or below 0, which should tell you what happened.
+\end{trap}
 \end{frame}
 
 \begin{frame}{The probability models}
@@ -196,6 +258,28 @@ second, and the choice that makes the fifth easy usually costs you accuracy on t
 \end{principle}
 \end{frame}
 
+\begin{frame}{The jobs, with the models attached}
+\begin{center}\footnotesize
+\begin{tabular}{L{0.17\textwidth} L{0.37\textwidth} L{0.34\textwidth}}
+\toprule
+\textbf{Job} & \textbf{What you would reach for} & \textbf{Why that one} \\
+\midrule
+Predict a number & boosting or a forest with plenty of rows, regression when rows are scarce
+& judged only on out-of-sample error, so nothing else constrains it \\
+Predict yes or no & logistic regression if anyone must explain it, boosting if not
+& you need a probability first, then somebody picks a threshold \\
+Explain one effect & linear or logistic regression
+& only a probability model gives a coefficient you can defend \\
+Screen many columns & the lasso & shrinks most coefficients to zero and leaves a short list \\
+Decide under cost & anything that outputs a calibrated probability, plus a cost table
+& the threshold is a business choice, not a modeling one \\
+Deploy & the simplest model that clears the bar
+& fewer moving parts, and every output can be explained \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{frame}
+
 \begin{frame}{The jobs pull against each other}
 \begin{center}\small
 \begin{tabular}{L{0.18\textwidth} L{0.36\textwidth} L{0.36\textwidth}}
@@ -217,6 +301,40 @@ would build.''
 \end{frame}
 
 % ======================================================================
+\begin{frame}{Your turn \#1: which model, and why}
+\begin{yourturn}{name the type of $y$ first, then the family}
+\begin{enumerate}\small
+  \item A hospital wants to know which of 60 measurements taken at intake are worth continuing to
+        collect.
+  \item A subscription business wants, for each customer, the chance they cancel next month.
+  \item A city wants to know whether a new bus lane reduced average commute time.
+  \item A support team wants to know how many tickets will arrive each hour tomorrow.
+\end{enumerate}
+\end{yourturn}
+Two of these have the same type of $y$ and call for different models anyway. Find them.
+\end{frame}
+
+\begin{frame}{Your turn \#2: answer}
+\small
+\begin{enumerate}
+  \item \textbf{Screening, many columns.} The lasso. $y$ is whatever outcome they care about, but
+        the job is cutting 60 down to a handful, and that is what a penalty is for. Report it as a
+        shortlist, not as effects.
+  \item \textbf{Yes or no.} Logistic regression, or boosting if nobody needs to read it. Note
+        that the ask is a \emph{probability}, not a label, and somebody still has to choose the
+        cutoff for acting on it.
+  \item \textbf{A number, but the real problem is causal.} Linear regression with the bus lane as
+        the predictor of interest. The model is the easy part. Whether the lane was the only thing
+        that changed is Unit 6.
+  \item \textbf{A count.} Poisson regression. Forcing hourly ticket counts into an ordinary linear
+        model will happily predict negative tickets at 3 a.m.
+\end{enumerate}
+\begin{principle}{}
+Items 2 and 3 share nothing. Items 1 and 3 could both end up as a regression, for completely
+different reasons.
+\end{principle}
+\end{frame}
+
 \section{What you do with it}
 % ======================================================================
 \begin{frame}{The verbs}
@@ -274,24 +392,23 @@ linear regression, and later units repeat the pattern for the others.
 \end{frame}
 
 \begin{frame}{Two intervals that get confused}
-\begin{columns}[T]
-\begin{column}{0.48\textwidth}
-\textbf{Confidence interval}\\[2pt]
-Around a \emph{parameter}. Where is the true slope? Shrinks as $n$ grows, toward zero width.
+\begin{columns}[c]
+\begin{column}{0.54\textwidth}
+\centering
+\includegraphics[width=\textwidth]{fig_u2_ci_pi.pdf}
 \end{column}
-\begin{column}{0.48\textwidth}
-\textbf{Prediction interval}\\[2pt]
-Around a \emph{new observation}. Where will the next case land? Stays wide no matter how much
-data you collect, because individual cases vary.
+\begin{column}{0.44\textwidth}\small
+\textbf{Confidence band.} Around the \emph{mean}. Where is the true line? It shrinks toward
+nothing as $n$ grows.\\[4pt]
+\textbf{Prediction band.} Around \emph{one new car}. It stays wide forever, because individual
+cars genuinely differ.
 \end{column}
 \end{columns}
-\vspace{0.5em}
+\vspace{0.2em}
 \begin{trap}{quoting the wrong one}
-``Our model predicts \$420k, 95\% CI \$418k to \$422k'' is almost always a confidence interval
-being passed off as a prediction. The honest range for one house is far wider, and the customer
-is asking about one house.
+``We predict \$420k, 95\% CI \$418k to \$422k'' is a confidence interval passed off as a
+prediction. The customer is asking about one house, and that range is far wider.
 \end{trap}
-\centering\small Unit 5 takes this apart properly.
 \end{frame}
 
 % ======================================================================
@@ -333,6 +450,31 @@ and use it for every candidate, on identical data.
 \end{trap}
 \end{frame}
 
+\begin{frame}{Three choices, worked}
+\begin{center}\footnotesize
+\begin{tabular}{L{0.30\textwidth} L{0.14\textwidth} L{0.46\textwidth}}
+\toprule
+\textbf{Situation} & \textbf{$y$ is} & \textbf{What I would fit, and why} \\
+\midrule
+1{,}100 loan applications, 12 clean columns, a regulator reviews every rejection
+& yes or no
+& Penalized logistic to pick the columns, then refit an ordinary logistic on the survivors so the
+  coefficients are defensible. Say that you screened first. \\
+6 million ad impressions, 400 columns, only click rate matters
+& yes or no
+& Gradient boosting. Same type of $y$ as above and a completely different answer, because nobody
+  will ever read a coefficient. \\
+900 stores, weekly complaint counts, did the new policy reduce them
+& a count
+& Poisson regression with a policy indicator, and an offset if the stores differ in size. Then
+  ask whether anything else changed the same week. \\
+\bottomrule
+\end{tabular}
+\end{center}
+\centering\small
+The first two have identical outcome types. The audience decided them, not the data.
+\end{frame}
+
 \begin{frame}{The two-model habit}
 \begin{itemize}
   \item Fit the simplest defensible model and a flexible one. Both, every time.
@@ -347,7 +489,7 @@ threshold at 30 days, added that to the regression, and it caught up. I shipped 
 \end{practice}
 \end{frame}
 
-\begin{frame}{Your turn \#1}
+\begin{frame}{Your turn \#2}
 \begin{yourturn}{name the family and the reason}
 \begin{enumerate}\small
   \item 1{,}100 loan applications, 12 clean columns, and a regulator who will ask you to justify
@@ -360,7 +502,7 @@ threshold at 30 days, added that to the regression, and it caught up. I shipped 
 The family is the easy half. The reason is the half that gets graded.
 \end{frame}
 
-\begin{frame}{Your turn \#1: answer}
+\begin{frame}{Your turn \#2: answer}
 \small
 \begin{enumerate}
   \item \textbf{Logistic regression.} Not because it predicts best, but because ``justify every
