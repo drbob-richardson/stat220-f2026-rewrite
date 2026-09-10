@@ -194,11 +194,8 @@ nb.write("Code_Unit02_Map_of_Models.ipynb")
 # HOMEWORK
 # =====================================================================
 hw = HW(2, "A Map of Models",
-        """This one is short on purpose. Unit 2 is a map, so the questions are about
-*choosing* and *recognizing*, not about fitting things well or reading coefficients. Those come
-in Units 3 to 5.
-
-The code you need is written for you. Run each cell, look at what comes back, and answer.
+        """`campus_cafe.csv` is 700 days at a campus coffee shop: `temp_f`, `exam_week`,
+`promo`, `foot_traffic`, `drinks_sold`, `revenue`, and `sold_out`.
 
 ```python
 import pandas as pd, numpy as np
@@ -209,12 +206,9 @@ from sklearn.linear_model import LinearRegression
 
 cafe = pd.read_csv("https://drbob-richardson.github.io/stat220/F2026/data/campus_cafe.csv")
 cafe.head()
-```
+```""")
 
-`campus_cafe.csv` is 700 days at a campus coffee shop: `temp_f`, `exam_week`, `promo`,
-`foot_traffic`, `drinks_sold`, `revenue`, and `sold_out`.""")
-
-hw.problem(1, """*Reading a situation.* No computer. Two or three sentences each.""")
+hw.problem(1, """*Reading a situation.* No computer.""")
 hw.part("a", "The owner wants to know how many drinks to prepare tomorrow, given the forecast "
              "temperature. What type is `y` here, and which model family would you name?",
         kind="markdown")
@@ -227,8 +221,8 @@ hw.part("d", "A classmate says to just use a random forest for all three. A fore
              "all three without complaining. Say which of the three you would refuse to use it "
              "for, and why.", kind="markdown")
 
-hw.problem(2, """*What happens if you ignore the type of `y`.* One cell, already written.""")
-hw.given("a", "Run it. `sold_out` is a yes/no column. Describe what the linear model produced "
+hw.problem(2, """*What happens if you ignore the type of `y`.*""")
+hw.given("a", "`sold_out` is a yes/no column. Describe what the linear model produced "
               "that the logistic model did not, and say why that is a problem.",
 '''# the right model for a yes/no outcome
 p_ok = smf.logit("sold_out ~ drinks_sold", data=cafe).fit(disp=0).predict()
@@ -244,8 +238,8 @@ hw.part("b", "`drinks_sold` is a count. Name the probability model you would use
              "in one sentence what would go wrong with an ordinary linear model there.",
         kind="markdown")
 
-hw.problem(3, """*What a model can and cannot hand back.* One cell, already written.""")
-hw.given("a", "Run it. List the quantities the forest could not produce, and explain why not. "
+hw.problem(3, """*What a model can and cannot hand back.*""")
+hw.given("a", "List the quantities the forest could not produce, and explain why not. "
               "Your answer should use the word distribution.",
 '''X = cafe[["drinks_sold", "exam_week", "promo", "temp_f"]]
 reg = LinearRegression().fit(X, cafe["revenue"])
@@ -258,14 +252,14 @@ for name, model in [("regression", sm_reg), ("forest", forest)]:
 hw.part("b", "Go back to the three jobs in Problem 1. Which one of them could a forest not do at "
              "all, given what you just saw?", kind="markdown")
 
-hw.problem(4, """*Is model A better than model B?* Two cells, already written.""")
-hw.given("a", "Run it. These three models are compared by AIC. Say which one you would keep, and "
+hw.problem(4, """*Is model A better than model B?*""")
+hw.given("a", "These three models are compared by AIC. Say which one you would keep, and "
               "what it means that one of the additions made AIC go up.",
 '''for f in ["revenue ~ drinks_sold",
           "revenue ~ drinks_sold + exam_week",
           "revenue ~ drinks_sold + exam_week + promo"]:
     print(f"{f:<48} AIC = {smf.ols(f, data=cafe).fit().aic:8.1f}")''')
-hw.given("b", "Run it. Say which model you would ship, and whether the result surprises you.",
+hw.given("b", "Say which model you would ship, and whether the result surprises you.",
 '''folds = KFold(5, shuffle=True, random_state=0)   # one fold object, used for both
 for name, mod in [("regression", LinearRegression()),
                   ("forest", RandomForestRegressor(n_estimators=300, random_state=0))]:
