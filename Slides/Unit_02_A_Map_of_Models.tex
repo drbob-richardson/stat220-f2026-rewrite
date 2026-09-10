@@ -66,8 +66,7 @@
   \item Unit 1 compared two groups. One estimate, one standard error, one question.
   \item Almost nothing you will be handed at work looks like that. You get a table with forty
         columns and a vague question attached.
-  \item This unit is the map: what is available, what each one lets you do, and how to pick
-        without guessing.
+  \item This unit is the map: what is available, what each one lets you do, and how to pick.
 \end{itemize}
 \begin{principle}{the honest starting point}
 ``Which model should I use?'' has no answer until you say what you want out of it. Most bad
@@ -98,18 +97,18 @@ like, and do we say anything about the error?
 \textbf{Things to know}
 \begin{itemize}\small
   \item the main model families, and what each one assumes
-  \item the difference between a probability model and an algorithmic one
-  \item the five jobs people hand a model, and how they conflict
-  \item which operations a model supports, and which it does not
-  \item how sample size and the goal narrow the choice
+  \item that the type of $y$ decides most of the choice for you
+  \item the five jobs people hand a model
+  \item the five things you do to any model once you pick it
+  \item how to measure error honestly, and compare two models
 \end{itemize}
 \end{column}
 \begin{column}{0.5\textwidth}
 \textbf{Mistakes to stop making}
 \begin{itemize}\small
   \item picking the algorithm before naming the goal
-  \item asking a random forest for a $p$-value
-  \item comparing an AIC against a cross-validation score
+  \item forcing the wrong model onto the type of $y$
+  \item judging a model on the data you fit it to
   \item reading a penalized coefficient as an effect
   \item reaching for flexibility on a few hundred rows
 \end{itemize}
@@ -129,32 +128,31 @@ like, and do we say anything about the error?
   \item \textbf{A straight line.} One slope, and you can say it out loud in units.
   \item \textbf{A curve.} One extra term, still readable.
   \item \textbf{A tree.} A step function, which is a set of if-then rules.
-  \item \textbf{A forest.} An average of hundreds of trees, and here it is chasing every bump.
+  \item \textbf{A forest.} An average of hundreds of trees, chasing every bump here.
 \end{itemize}
 \centering\small
-Same 392 cars and the same predictor in all four. Only $f$ changed.
+Same 392 cars, same predictor, four families. Only $f$ changed.
 \end{frame}
 
 \begin{frame}{Two kinds of thing get called a model}
 \begin{columns}[T]
 \begin{column}{0.48\textwidth}
 \textbf{A probability model}\\[2pt]
-Says where the data came from. It writes down a distribution for the outcome:
+Says where the data came from. It writes down a distribution:
 \[ y \sim \text{Normal}(b_0 + b_1 x,\; \sigma^2) \]
-Everything else follows from that sentence.
 \end{column}
 \begin{column}{0.48\textwidth}
 \textbf{An algorithmic model}\\[2pt]
 Says nothing about where the data came from. It gives you a rule that turns inputs into a
-prediction, tuned until the predictions are good.\\[4pt]
-A random forest is an average of 500 trees. That is the whole claim.
+prediction, tuned until the predictions are good.
 \end{column}
 \end{columns}
 \vspace{0.4em}
-\begin{principle}{this split decides what you are allowed to ask}
-A distribution gives you a likelihood, and a likelihood gives you standard errors, $p$-values,
-confidence intervals, and AIC. With no distribution there is no likelihood, and none of those
-exist. You get uncertainty by resampling or by holding data out instead.
+\begin{principle}{why the split matters}
+A model that names a distribution has already said what \emph{other} datasets like yours would
+have looked like, so it can tell you how much its own numbers would move. A model that only
+produces predictions cannot. To learn how much it would move, you have to hold data back and
+watch it miss.
 \end{principle}
 \end{frame}
 
@@ -183,61 +181,159 @@ time to an event & months until churn & survival models & specialized versions \
 \end{tabular}
 \end{center}
 \begin{trap}{forcing the wrong type}
-Running an ordinary linear regression on a yes/no outcome will produce numbers. Some of them will
-be predicted probabilities above 1 or below 0, which should tell you what happened.
+Run an ordinary linear regression on a yes/no outcome and it will produce numbers. Some will be
+predicted probabilities above 1 or below 0, which should tell you what happened.
 \end{trap}
 \end{frame}
 
-\begin{frame}{The probability models}
-\begin{center}\footnotesize
-\begin{tabular}{L{0.26\textwidth} L{0.26\textwidth} L{0.38\textwidth}}
-\toprule
-\textbf{Model} & \textbf{Outcome it is for} & \textbf{What it says} \\
-\midrule
-Linear regression & a number & the mean moves in a straight line, with normal scatter around it \\
-Logistic regression & yes or no & the log-odds move in a straight line \\
-Poisson regression & a count, or a rate & counts arrive at a rate that depends on the inputs \\
-Multinomial & one of several categories & the same idea with more than two outcomes \\
-Mixed models & grouped or repeated data & rows inside a group are related, and the model says how \\
-Bayesian versions & any of the above & the same models, plus a prior, giving a distribution over the answer \\
-\bottomrule
-\end{tabular}
-\end{center}
-\centering\small
-All of these are the same move: name a distribution, let the inputs shift its center.
-\end{frame}
-
-\begin{frame}{The algorithmic models}
-\begin{center}\footnotesize
-\begin{tabular}{L{0.26\textwidth} L{0.30\textwidth} L{0.34\textwidth}}
-\toprule
-\textbf{Model} & \textbf{How it works} & \textbf{What it is good at} \\
-\midrule
-Decision tree & splits the data on one variable at a time & a rule a human can follow, and read out loud \\
-Random forest & averages hundreds of trees grown on resampled data & solid predictions with little tuning \\
-Gradient boosting & each tree fixes the last one's mistakes & usually the best raw accuracy on tabular data \\
-$k$-nearest neighbours & predicts from the most similar past cases & simple, and surprisingly hard to beat locally \\
-Neural networks & layers of weighted sums, fit by gradient descent & images, text, and very large datasets \\
-\bottomrule
-\end{tabular}
-\end{center}
-\centering\small
-None of these assume a distribution, so none of them hand you a $p$-value.
-\end{frame}
-
-\begin{frame}{The awkward middle: penalized regression}
+\begin{frame}{Linear regression}
+\begin{columns}[c]
+\begin{column}{0.52\textwidth}
+\centering\includegraphics[width=\textwidth]{fig_u2_m_linear.pdf}
+\end{column}
+\begin{column}{0.46\textwidth}\small
+\[ y \sim \text{Normal}(b_0 + b_1x,\; \sigma^2) \]
 \begin{itemize}
-  \item \textbf{Lasso} and \textbf{ridge} look like linear regression with a penalty added for
-        large coefficients.
-  \item The form is a probability model, so people report the coefficients as if the usual
-        machinery applied.
-  \item It does not. The penalty deliberately biases every coefficient toward zero, so the
-        printed standard errors and $p$-values are not describing what they claim to.
+  \item $y$ is a \textbf{number}.
+  \item $f$ is a straight line, so one slope describes the whole relationship.
+  \item You can read $b_1$ out loud in units and defend it.
 \end{itemize}
-\begin{trap}{a coefficient that has been shrunk is not an effect}
-Use these to \emph{screen} many candidates down to a few, then refit an ordinary regression on
-the survivors if you need to defend a number. Report the screening step when you do.
-\end{trap}
+\textbf{Costs you:} the world has to be roughly straight, or you have to bend it yourself.
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Logistic regression}
+\begin{columns}[c]
+\begin{column}{0.52\textwidth}
+\centering\includegraphics[width=\textwidth]{fig_u2_m_logistic.pdf}
+\end{column}
+\begin{column}{0.46\textwidth}\small
+\[ y \sim \text{Bernoulli}(p(x)) \]
+\begin{itemize}
+  \item $y$ is \textbf{yes or no}. The output is a probability, never a label.
+  \item $f$ is a straight line on the log-odds, which becomes an S-curve on the probability.
+  \item Predictions are trapped between 0 and 1 by construction.
+\end{itemize}
+\textbf{Costs you:} somebody still has to pick the cutoff for acting.
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Poisson regression}
+\begin{columns}[c]
+\begin{column}{0.52\textwidth}
+\centering\includegraphics[width=\textwidth]{fig_u2_m_poisson.pdf}
+\end{column}
+\begin{column}{0.46\textwidth}\small
+\[ y \sim \text{Poisson}(\lambda(x)) \]
+\begin{itemize}
+  \item $y$ is a \textbf{count}: bikes rented in an hour, tickets, complaints.
+  \item $f$ works on the log of the rate, so predictions can never go negative.
+  \item Built in: counts are more variable when the rate is higher.
+\end{itemize}
+\textbf{Costs you:} it assumes the variance equals the mean, which real counts often exceed.
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Decision tree}
+\begin{center}
+\includegraphics[width=0.94\textwidth]{fig_u2_m_tree.pdf}
+\end{center}
+\vspace{-0.3em}
+\begin{itemize}\small
+  \item Splits the data one variable at a time and predicts the average inside each box.
+  \item $f$ is a \textbf{step function}, and the same thing written out is a set of if-then rules
+        a human can follow.
+  \item No distribution is named anywhere, so there is nothing here to test.
+\end{itemize}
+\centering\small \textbf{Costs you:} move a few rows and the splits can land somewhere else entirely.
+\end{frame}
+
+\begin{frame}{Random forest}
+\begin{columns}[c]
+\begin{column}{0.52\textwidth}
+\centering\includegraphics[width=\textwidth]{fig_u2_m_forest.pdf}
+\end{column}
+\begin{column}{0.46\textwidth}\small
+\begin{itemize}
+  \item Grow hundreds of trees on resampled data, then average them.
+  \item Each single tree is unstable. Averaging cancels most of that out, which is the whole
+        idea.
+  \item Solid predictions with almost no tuning.
+\end{itemize}
+\textbf{Costs you:} there is no line to read any more, and no coefficient to report.
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Gradient boosting}
+\begin{columns}[c]
+\begin{column}{0.52\textwidth}
+\centering\includegraphics[width=\textwidth]{fig_u2_m_boost.pdf}
+\end{column}
+\begin{column}{0.46\textwidth}\small
+\begin{itemize}
+  \item Trees added one at a time, each one fitting what the previous ones got wrong.
+  \item One tree is a crude step. Ten is closer. Two hundred traces the shape.
+  \item Usually the most accurate thing you can fit to a table of numbers.
+\end{itemize}
+\textbf{Costs you:} several hyperparameters that matter, and it will overfit if you let it.
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{$k$-nearest neighbours}
+\begin{columns}[c]
+\begin{column}{0.52\textwidth}
+\centering\includegraphics[width=\textwidth]{fig_u2_m_knn.pdf}
+\end{column}
+\begin{column}{0.46\textwidth}\small
+\begin{itemize}
+  \item To predict a new case, find the $k$ most similar past cases and average them.
+  \item There is no fitted equation at all. The training data \emph{is} the model.
+  \item $k$ sets the smoothness: 3 is jumpy, 40 is smooth.
+\end{itemize}
+\textbf{Costs you:} it degrades badly once you have many columns, and it stores everything.
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Lasso and ridge}
+\begin{columns}[c]
+\begin{column}{0.54\textwidth}
+\centering\includegraphics[width=\textwidth]{fig_u2_m_lasso.pdf}
+\end{column}
+\begin{column}{0.44\textwidth}\small
+\begin{itemize}
+  \item A linear regression with a penalty on large coefficients.
+  \item Raise the penalty and coefficients slide toward zero. The lasso sends most of them to
+        exactly zero, which is how it picks a shortlist.
+  \item Useful when you have far more columns than you can defend.
+\end{itemize}
+\textbf{Costs you:} every coefficient is now deliberately biased, so they are not effects.
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{The menu, on one page}
+\begin{center}\footnotesize
+\begin{tabular}{L{0.22\textwidth} L{0.14\textwidth} L{0.23\textwidth} L{0.25\textwidth}}
+\toprule
+\textbf{Model} & \textbf{Names a distribution} & \textbf{$f$ is} & \textbf{Reach for it when} \\
+\midrule
+Linear regression & yes & a straight line & you must defend a number \\
+Logistic regression & yes & an S-curve on a probability & $y$ is yes or no and someone reads it \\
+Poisson regression & yes & a curve on a rate & $y$ is a count \\
+Decision tree & no & a step function & you want followable rules \\
+Random forest & no & an average of trees & prediction matters, reading does not \\
+Gradient boosting & no & a sum of small trees & you want the best accuracy available \\
+$k$-nearest neighbours & no & a local average & few columns, and similarity is meaningful \\
+Lasso and ridge & partly & a penalized line & too many columns to defend \\
+\bottomrule
+\end{tabular}
+\end{center}
 \end{frame}
 
 % ======================================================================
@@ -253,54 +349,107 @@ the survivors if you need to defend a number. Report the screening step when you
         output to someone who is unhappy about it.
 \end{enumerate}
 \begin{principle}{say which one out loud first}
-These are five different jobs. A model that is excellent at the first can be useless at the
-second, and the choice that makes the fifth easy usually costs you accuracy on the first.
+A model that is excellent at the first can be useless at the second, and the choice that makes
+the fifth easy usually costs you accuracy on the first.
 \end{principle}
 \end{frame}
 
-\begin{frame}{The jobs, with the models attached}
-\begin{center}\footnotesize
-\begin{tabular}{L{0.17\textwidth} L{0.37\textwidth} L{0.34\textwidth}}
-\toprule
-\textbf{Job} & \textbf{What you would reach for} & \textbf{Why that one} \\
-\midrule
-Predict a number & boosting or a forest with plenty of rows, regression when rows are scarce
-& judged only on out-of-sample error, so nothing else constrains it \\
-Predict yes or no & logistic regression if anyone must explain it, boosting if not
-& you need a probability first, then somebody picks a threshold \\
-Explain one effect & linear or logistic regression
-& only a probability model gives a coefficient you can defend \\
-Screen many columns & the lasso & shrinks most coefficients to zero and leaves a short list \\
-Decide under cost & anything that outputs a calibrated probability, plus a cost table
-& the threshold is a business choice, not a modeling one \\
-Deploy & the simplest model that clears the bar
-& fewer moving parts, and every output can be explained \\
-\bottomrule
-\end{tabular}
-\end{center}
+\begin{frame}{Job 1: predict}
+\textbf{The ask.} A listings site wants an estimated rent on every apartment page.
+\begin{itemize}
+  \item \textbf{What matters:} error on apartments the model has never seen. Nothing else.
+  \item \textbf{Reach for:} boosting or a forest when you have plenty of rows, a regression when
+        rows are scarce.
+  \item \textbf{Nobody will ever read a coefficient}, so nothing constrains you except accuracy
+        and whatever you need to keep it running.
+\end{itemize}
+\begin{trap}{judging it on the wrong data}
+A model that predicts the rows it was fitted to is not predicting. It is remembering. The only
+number that counts here comes from data the model never saw.
+\end{trap}
 \end{frame}
 
-\begin{frame}{The jobs pull against each other}
-\begin{center}\small
-\begin{tabular}{L{0.18\textwidth} L{0.36\textwidth} L{0.36\textwidth}}
-\toprule
-\textbf{Job} & \textbf{What it needs} & \textbf{What it will cost you} \\
-\midrule
-Predict  & flexibility, and lots of rows & coefficients nobody can read \\
-Explain  & a simple form and honest standard errors & accuracy you could have had \\
-Screen   & a method that handles many columns at once & valid $p$-values on the survivors \\
-Decide   & calibrated probabilities and a cost table & extra work nobody asked for \\
-Deploy   & stability, few moving parts, a clear story & the last few points of accuracy \\
-\bottomrule
-\end{tabular}
-\end{center}
+\begin{frame}{Job 2: explain}
+\textbf{The ask.} A city council wants to know whether apartment size drives rent, and will write
+policy from your answer.
+\begin{itemize}
+  \item \textbf{What matters:} one coefficient, its units, and an honest range around it.
+  \item \textbf{Reach for:} linear or logistic regression. Only a probability model gives you a
+        number you can defend.
+  \item Accuracy is almost beside the point. A model that predicts worse but reports a
+        trustworthy slope wins this job outright.
+\end{itemize}
+\begin{trap}{the forest cannot do this one}
+Feature importance is not an effect. It has no units, no direction, and it splits credit between
+correlated columns close to arbitrarily.
+\end{trap}
+\end{frame}
+
+\begin{frame}{Job 3: screen}
+\textbf{The ask.} A hospital records 60 things at intake and wants to know which are worth
+continuing to collect.
+\begin{itemize}
+  \item \textbf{What matters:} getting from 60 down to a handful, without hand-picking.
+  \item \textbf{Reach for:} the lasso. Turn the penalty up and most coefficients go to exactly
+        zero, leaving a shortlist.
+  \item Report it as \textbf{a shortlist}, which is what it is.
+\end{itemize}
+\begin{trap}{the survivors are not effects}
+They were shrunk on purpose, and they were chosen by looking at the data. If you need defensible
+numbers, refit an ordinary regression on the survivors and say that you screened first.
+\end{trap}
+\end{frame}
+
+\begin{frame}{Job 4: decide}
+\textbf{The ask.} A bank has a model that outputs a default probability. Now what?
+\begin{itemize}
+  \item \textbf{What matters:} a probability you can trust, plus what each kind of mistake costs.
+  \item \textbf{Reach for:} anything that outputs a calibrated probability. The model is half the
+        problem.
+  \item The other half is the \textbf{threshold}, and that is a business decision, not a
+        statistical one.
+\end{itemize}
+\begin{principle}{the costs are rarely symmetric}
+Approving a bad loan and rejecting a good customer do not cost the same amount, so 0.5 is almost
+never the right cutoff. Unit 11 does this properly.
+\end{principle}
+\end{frame}
+
+\begin{frame}{Job 5: deploy}
+\textbf{The ask.} This runs every night for two years and someone will call about a specific
+output.
+\begin{itemize}
+  \item \textbf{What matters:} stability, few moving parts, and a story for any single
+        prediction.
+  \item \textbf{Reach for:} the simplest model that clears the accuracy bar you actually need.
+  \item A model with six tuned hyperparameters is six things that can drift when the data does.
+\end{itemize}
 \begin{practice}{a strong thing to say}
-``Before I pick anything: is this going in a report, or in production? The answer changes what I
-would build.''
+``Boosting was two points better in testing. I shipped the regression, because we have to explain
+rejections to customers and I would rather be able to.''
 \end{practice}
 \end{frame}
 
-% ======================================================================
+\begin{frame}{The five jobs, side by side}
+\begin{center}\footnotesize
+\begin{tabular}{L{0.11\textwidth} L{0.29\textwidth} L{0.22\textwidth} L{0.23\textwidth}}
+\toprule
+\textbf{Job} & \textbf{Reach for} & \textbf{Judged by} & \textbf{Costs you} \\
+\midrule
+Predict & boosting or a forest, regression if rows are scarce & out-of-sample error
+& coefficients nobody can read \\
+Explain & linear or logistic regression & the interval on one coefficient
+& accuracy you could have had \\
+Screen & the lasso & does the shortlist hold up & valid inference on the survivors \\
+Decide & anything calibrated, plus a cost table & expected cost, not accuracy
+& work nobody asked for \\
+Deploy & the simplest thing that clears the bar & does it still work in a year
+& the last few points of accuracy \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{frame}
+
 \begin{frame}{Your turn \#1: which model, and why}
 \begin{yourturn}{name the type of $y$ first, then the family}
 \begin{enumerate}\small
@@ -314,20 +463,17 @@ would build.''
 Two of these have the same type of $y$ and call for different models anyway. Find them.
 \end{frame}
 
-\begin{frame}{Your turn \#2: answer}
+\begin{frame}{Your turn \#1: answer}
 \small
 \begin{enumerate}
-  \item \textbf{Screening, many columns.} The lasso. $y$ is whatever outcome they care about, but
-        the job is cutting 60 down to a handful, and that is what a penalty is for. Report it as a
-        shortlist, not as effects.
-  \item \textbf{Yes or no.} Logistic regression, or boosting if nobody needs to read it. Note
-        that the ask is a \emph{probability}, not a label, and somebody still has to choose the
-        cutoff for acting on it.
+  \item \textbf{Screening.} The lasso. The job is cutting 60 down to a handful, and that is what
+        a penalty is for. Report a shortlist, not effects.
+  \item \textbf{Yes or no.} Logistic regression, or boosting if nobody needs to read it. The ask
+        is a \emph{probability}, and somebody still chooses the cutoff for acting on it.
   \item \textbf{A number, but the real problem is causal.} Linear regression with the bus lane as
-        the predictor of interest. The model is the easy part. Whether the lane was the only thing
-        that changed is Unit 6.
-  \item \textbf{A count.} Poisson regression. Forcing hourly ticket counts into an ordinary linear
-        model will happily predict negative tickets at 3 a.m.
+        the predictor of interest. Whether the lane was the only thing that changed is Unit 6.
+  \item \textbf{A count.} Poisson regression. Force hourly tickets into an ordinary linear model
+        and it will happily predict negative tickets at 3 a.m.
 \end{enumerate}
 \begin{principle}{}
 Items 2 and 3 share nothing. Items 1 and 3 could both end up as a regression, for completely
@@ -335,79 +481,200 @@ different reasons.
 \end{principle}
 \end{frame}
 
+% ======================================================================
 \section{What you do with it}
 % ======================================================================
-\begin{frame}{The verbs}
-Every model gets some of these done to it. Which ones are available is not the same for all of
-them.
+\begin{frame}{The five things you do to any model}
+\begin{enumerate}
+  \item \textbf{Fit it.} Estimate the parts the data decides.
+  \item \textbf{Tune it.} Set the parts the data does not decide.
+  \item \textbf{Predict with it.} Push a new case through.
+  \item \textbf{Say how wrong it might be.} Attach a range to that prediction.
+  \item \textbf{Judge it against an alternative.} A number alone means nothing.
+\end{enumerate}
+\begin{principle}{the list does not change, the tools do}
+Every family on the menu goes through all five. What differs is which tool does each step, and
+whether the model can supply it for you or you have to get it from held-out data.
+\end{principle}
+\centering\small
+The next five slides walk one regression tree through all of it, on the 392 cars.
+\end{frame}
+
+\begin{frame}{Step 1: fit it}
+\begin{center}
+\includegraphics[width=0.90\textwidth]{fig_u2_m_tree.pdf}
+\end{center}
+\vspace{-0.3em}
 \begin{itemize}\small
-  \item \textbf{Estimate parameters.} Find the slopes, the splits, the weights.
-  \item \textbf{Tune hyperparameters.} Settings you choose rather than estimate: tree depth, the
-        lasso penalty, $k$ in nearest neighbours.
-  \item \textbf{Predict.} Push a new case through and get a number back.
-  \item \textbf{Test.} Ask whether a coefficient could plausibly be zero.
-  \item \textbf{Put an interval on it.} Around a coefficient, or around a prediction.
+  \item Fitting a tree means finding the \textbf{splits}: which variable, and at what cutoff.
+  \item Here it chose weight at 2764, then 2217 and 3658, giving four groups with average mpg of
+        33, 26, 20, and 15.
+  \item Those numbers are what the data decided. Nobody chose them.
 \end{itemize}
-\begin{principle}{parameters are learned, hyperparameters are chosen}
-A parameter comes out of fitting. A hyperparameter you set beforehand, and the honest way to set
-it is by cross-validation, never by trying values until the answer looks right.
+\end{frame}
+
+\begin{frame}{Step 2: tune it}
+\begin{columns}[c]
+\begin{column}{0.56\textwidth}
+\centering\includegraphics[width=\textwidth]{fig_u2_mse.pdf}
+\end{column}
+\begin{column}{0.42\textwidth}\small
+\textbf{Depth} is not estimated. You choose it, and the data cannot choose it for you by fitting.
+\begin{itemize}
+  \item Training error falls forever. By depth 10 it is near zero.
+  \item Honest error bottoms out at \textbf{depth 4} and then climbs.
+\end{itemize}
+So depth 4, chosen on folds fixed before looking.
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Step 3: predict with it}
+\begin{itemize}
+  \item Fit the depth-4 tree on 294 cars, hold back 98 it never sees.
+  \item Push one held-out car through: it lands in a leaf, and the prediction is that leaf's
+        average.
+\end{itemize}
+\begin{center}\large
+predicted mpg $= 22.8$
+\end{center}
+\begin{principle}{a tree predicts by lookup}
+There is no equation to evaluate. The car falls through a sequence of yes/no questions and comes
+out in a box, and the answer is the average of the training cars already in that box.
 \end{principle}
 \end{frame}
 
-\begin{frame}{Which verbs each family supports}
-\begin{center}\footnotesize
-\begin{tabular}{L{0.33\textwidth} L{0.26\textwidth} L{0.29\textwidth}}
+\begin{frame}{Step 4: say how wrong it might be}
+The tree names no distribution, so it cannot hand you a range. Get one from how badly it missed
+on the 98 cars it never saw.
+\begin{itemize}\small
+  \item Collect those 98 held-out errors, $y_i - \hat{y}_i$.
+  \item The 5th and 95th percentiles are $-4.6$ and $+7.6$ mpg.
+  \item Attach them to the prediction.
+\end{itemize}
+\begin{center}\large
+$22.8 - 4.6 \;=\; 18.2$ \qquad to \qquad $22.8 + 7.6 \;=\; 30.4$ mpg
+\end{center}
+\centering\small
+That car's actual mpg was \textbf{23.0}, comfortably inside. A probability model would have
+produced this range from its own assumptions instead.
+\end{frame}
+
+\begin{frame}{Step 5: judge it against an alternative}
+Same six predictors, same five folds, three candidates.
+\begin{center}\small
+\begin{tabular}{L{0.28\textwidth} L{0.22\textwidth} L{0.22\textwidth}}
 \toprule
- & \textbf{Probability model} & \textbf{Algorithmic model} \\
+\textbf{Model} & \textbf{Training MSE} & \textbf{Cross-validated MSE} \\
 \midrule
-Parameters mean something & yes, a slope is an effect & no, splits are bookkeeping \\
-Standard errors and $p$-values & free from the likelihood & none exist \\
-Confidence interval for an effect & yes & not really \\
-Prediction interval & from the assumed distribution & from held-out errors \\
-AIC or BIC & yes & undefined, no likelihood \\
-Out-of-sample error & yes & yes, and it is the only option \\
-Hyperparameters to tune & few & many, and they matter \\
+Linear regression & 11.59 & 12.23 \\
+Tree, depth 4     & \phantom{0}6.74 & \textbf{11.63} \\
+Tree, depth 10    & \phantom{0}0.44 & 13.19 \\
 \bottomrule
 \end{tabular}
 \end{center}
-\centering\small
-The right-hand column is shorter. That is the trade you make for the accuracy.
+\begin{trap}{the middle column is a trap}
+Ranked on training error, the depth-10 tree wins by a mile. On data it did not see, it is the
+worst of the three, and worse than a straight line.
+\end{trap}
 \end{frame}
 
-\begin{frame}{What ``going deep'' on one model actually involves}
-Once you commit to a family, the work is the same list every time. Unit 3 walks all of it for
-linear regression, and later units repeat the pattern for the others.
-\begin{enumerate}\small
-  \item \textbf{Fit it}, and read the parameters in the units of the problem.
-  \item \textbf{Check the form.} Look at what the model missed. Is the shape you assumed roughly
-        the shape that is there?
-  \item \textbf{Decide what belongs in it}, and be able to say why each variable is there.
-  \item \textbf{Tune what is not estimated}, on folds you fixed in advance.
-  \item \textbf{Put uncertainty on both things}: the parameters, and a prediction for a new case.
-  \item \textbf{Ask the actual question.} Usually that is a test or an interval on one
-        coefficient, not the model as a whole.
-  \item \textbf{Score it on data you did not fit}, once.
-  \item \textbf{Decide whether to ship it}, and whether you can explain any single output.
-\end{enumerate}
+% ======================================================================
+\section{Measuring}
+% ======================================================================
+\begin{frame}{What ``error'' means, exactly}
+For a numeric outcome, the usual measure is \textbf{mean squared error}:
+\[
+\text{MSE} \;=\; \frac{1}{n}\sum_{i=1}^{n}\bigl(y_i - \hat{y}_i\bigr)^2
+\qquad\qquad
+\text{RMSE} \;=\; \sqrt{\text{MSE}}
+\]
+\begin{itemize}\small
+  \item Squaring makes big misses count much more than small ones. A miss of 4 counts sixteen
+        times a miss of 1.
+  \item MSE is in squared units, which nobody can picture. RMSE is back in the units of $y$.
+  \item Our depth-4 tree: MSE $= 11.63$, so RMSE $= 3.41$ mpg. That is the number to quote.
+\end{itemize}
+\begin{principle}{the measure is a choice}
+Squared error is a decision that one big miss is worse than several small ones. If that is not
+true for your problem, use absolute error instead, and say so.
+\end{principle}
 \end{frame}
 
-\begin{frame}{Two intervals that get confused}
-\begin{columns}[c]
-\begin{column}{0.54\textwidth}
-\centering
-\includegraphics[width=\textwidth]{fig_u2_ci_pi.pdf}
+\begin{frame}{Two ways to get an honest number}
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\textbf{Hold out once}\\[3pt]
+Split the rows, fit on most, score on the rest. Simple, and the score depends on which rows
+happened to be held out.
 \end{column}
-\begin{column}{0.44\textwidth}\small
-\textbf{Confidence band.} Around the \emph{mean}. Where is the true line? It shrinks toward
-nothing as $n$ grows.\\[4pt]
-\textbf{Prediction band.} Around \emph{one new car}. It stays wide forever, because individual
-cars genuinely differ.
+\begin{column}{0.48\textwidth}
+\textbf{Cross-validate}\\[3pt]
+Split into $k$ folds. Fit on $k-1$, score on the one left out, rotate, average. Every row gets
+scored exactly once, by a model that never saw it.
 \end{column}
 \end{columns}
-\vspace{0.2em}
-\begin{trap}{quoting the wrong one}
-``We predict \$420k, 95\% CI \$418k to \$422k'' is a confidence interval passed off as a
-prediction. The customer is asking about one house, and that range is far wider.
+\vspace{0.5em}
+\begin{principle}{same rule either way}
+Anything you learned from the data counts as fitting. Choosing depth, choosing which columns to
+keep, even choosing the scaling. If it happened before scoring, it has to happen inside the fold.
+\end{principle}
+\end{frame}
+
+\begin{frame}{AIC and BIC: paying for parameters}
+A \textbf{probability model} can report how likely your data was under the fitted model. Call
+that the likelihood $L$. Bigger is better, but adding parameters always makes it bigger, so a
+raw comparison always picks the biggest model.
+\[
+\text{AIC} \;=\; 2k - 2\ln L
+\qquad\qquad
+\text{BIC} \;=\; k\ln n - 2\ln L
+\]
+\begin{itemize}\small
+  \item $k$ is how many parameters you estimated, $n$ is how many rows you have.
+  \item The second term rewards fit. The first charges you for the parameters that bought it.
+  \item \textbf{Lower is better.} The raw value means nothing on its own, only differences do.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{AIC, worked on the cars}
+$n = 392$. Three nested models, each fit to the same rows.
+\begin{center}\small
+\begin{tabular}{L{0.30\textwidth} L{0.08\textwidth} L{0.14\textwidth} L{0.30\textwidth}}
+\toprule
+\textbf{Model} & \textbf{$k$} & \textbf{$\ln L$} & \textbf{AIC $= 2k - 2\ln L$} \\
+\midrule
+mpg on weight & 2 & $-1130.0$ & $4 + 2260.0 = 2264.0$ \\
+\quad + horsepower & 3 & $-1121.0$ & $6 + 2242.0 = 2248.0$ \\
+\quad + model year & 4 & $-1037.4$ & $8 + 2074.8 = 2082.8$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+\begin{itemize}\small
+  \item Horsepower buys 16 points of AIC, and model year buys another 165. Both are worth their
+        one parameter.
+  \item BIC charges $\ln(392) = 5.97$ per parameter instead of 2, so it prefers smaller models,
+        and the gap widens as $n$ grows.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Which comparison to use}
+\begin{center}\small
+\begin{tabular}{L{0.26\textwidth} L{0.30\textwidth} L{0.32\textwidth}}
+\toprule
+ & \textbf{AIC and BIC} & \textbf{Out-of-sample error} \\
+\midrule
+Needs a likelihood & yes, so probability models only & no, works on anything \\
+Data used & all of it, once & held out, or rotated in folds \\
+Cost & one fit per model & $k$ fits per model \\
+Compares across families & no & yes \\
+\bottomrule
+\end{tabular}
+\end{center}
+\begin{trap}{comparing numbers that are not comparable}
+An AIC of 2082 and a cross-validated MSE of 11.63 are different quantities on different scales,
+and neither one is ``better'' than the other. Pick one method and use it for every candidate, on
+identical rows.
 \end{trap}
 \end{frame}
 
@@ -416,14 +683,13 @@ prediction. The customer is asking about one house, and that range is far wider.
 % ======================================================================
 \begin{frame}{Simple or complicated}
 \begin{center}\small
-\begin{tabular}{L{0.18\textwidth} L{0.35\textwidth} L{0.35\textwidth}}
+\begin{tabular}{L{0.16\textwidth} L{0.34\textwidth} L{0.36\textwidth}}
 \toprule
  & \textbf{Reach for simple} & \textbf{Reach for flexible} \\
 \midrule
 Goal      & explaining, screening, deploying & predicting \\
 Rows      & hundreds & tens of thousands and up \\
 Columns   & few, chosen for a reason & many, and you do not know which \\
-Shape     & you can say what it should look like & you have no idea, and want the fit to find it \\
 Audience  & someone who will challenge a number & someone who only sees the output \\
 \bottomrule
 \end{tabular}
@@ -432,22 +698,6 @@ Audience  & someone who will challenge a number & someone who only sees the outp
 A complicated model is a bet that you have enough data to pin down everything you just let vary.
 On 300 rows that bet usually loses.
 \end{principle}
-\end{frame}
-
-\begin{frame}{Comparing models by a number}
-\begin{itemize}
-  \item \textbf{AIC and BIC} trade fit against the number of parameters. They need a likelihood,
-        so they only apply to probability models, and only when the models are fit to the same
-        rows. Lower is better, and the raw value means nothing on its own.
-  \item \textbf{Out-of-sample error} fits on part of the data and scores on the rest. It works
-        for every model on this list, including the ones with no likelihood.
-  \item Cross-validation is that idea done five or ten times over so the score is less dependent
-        on which rows you happened to hold out.
-\end{itemize}
-\begin{trap}{comparing scores that are not comparable}
-An AIC and a cross-validated error are different quantities on different scales. Pick one method
-and use it for every candidate, on identical data.
-\end{trap}
 \end{frame}
 
 \begin{frame}{Three choices, worked}
@@ -466,8 +716,7 @@ and use it for every candidate, on identical data.
   will ever read a coefficient. \\
 900 stores, weekly complaint counts, did the new policy reduce them
 & a count
-& Poisson regression with a policy indicator, and an offset if the stores differ in size. Then
-  ask whether anything else changed the same week. \\
+& Poisson regression with a policy indicator. Then ask whether anything else changed that week. \\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -478,8 +727,8 @@ The first two have identical outcome types. The audience decided them, not the d
 \begin{frame}{The two-model habit}
 \begin{itemize}
   \item Fit the simplest defensible model and a flexible one. Both, every time.
-  \item If they agree, report the simple one. It is easier to defend, cheaper to maintain, and
-        less likely to break when the data shifts.
+  \item If they agree, report the simple one. Easier to defend, cheaper to maintain, less likely
+        to break when the data shifts.
   \item If they disagree, you have learned something specific: there is structure the simple
         model is missing. Go find out what it is.
 \end{itemize}
@@ -492,33 +741,27 @@ threshold at 30 days, added that to the regression, and it caught up. I shipped 
 \begin{frame}{Your turn \#2}
 \begin{yourturn}{name the family and the reason}
 \begin{enumerate}\small
-  \item 1{,}100 loan applications, 12 clean columns, and a regulator who will ask you to justify
-        every rejection.
-  \item 6 million ad impressions, 400 columns, and nobody will ever read a coefficient.
   \item 60 trial patients, one treatment variable, and the question is whether the drug works.
   \item 25{,}000 sensor readings where you know the relationship bends but not how.
+  \item A model that has run nightly for a year suddenly gets worse. Which of the five steps do
+        you revisit first?
 \end{enumerate}
 \end{yourturn}
-The family is the easy half. The reason is the half that gets graded.
+The reason is the half that gets graded.
 \end{frame}
 
 \begin{frame}{Your turn \#2: answer}
 \small
 \begin{enumerate}
-  \item \textbf{Logistic regression.} Not because it predicts best, but because ``justify every
-        rejection'' means somebody will read a coefficient, and only a probability model gives
-        you one you can defend.
-  \item \textbf{Boosting or a forest.} Six million rows makes flexibility affordable and nobody
-        needs the parameters to mean anything.
   \item \textbf{A $t$-test, or a regression with the treatment indicator.} With $n=60$ and one
         variable of interest, a flexible model would spend your data estimating things nobody
         asked about. Randomization is doing the work here, not the model.
   \item \textbf{Both.} A flexible fit to see the shape, then name it and put it in a regression
-        you can explain.
+        you can explain. That is the two-model habit doing its job.
+  \item \textbf{None of them first. Check whether the data still looks like the training data.}
+        Nothing about the model changed, so the thing that changed is outside it. Re-tuning a
+        model against a shifted world just fits the new noise.
 \end{enumerate}
-\begin{principle}{}
-Three of these four were decided before anyone looked at the data.
-\end{principle}
 \end{frame}
 
 % ======================================================================
@@ -540,8 +783,8 @@ predictors as the key risk factors and their $p$-values.''
         well and predict badly. A penalized regression is the honest choice.
   \item \textbf{``Automatically'' costs something.} Discovering interactions means spending data
         to find them. With 200 rows you cannot afford the search.
-  \item \textbf{A forest has no $p$-values.} There is no likelihood, so the quantity being asked
-        for does not exist. And an importance score ranks correlated columns close to
+  \item \textbf{A forest has no $p$-values.} It names no distribution, so the quantity being
+        asked for does not exist. And an importance score ranks correlated columns close to
         arbitrarily, so it is not an effect either.
 \end{itemize}
 \begin{principle}{}
@@ -557,10 +800,10 @@ for one, and about what the output means.
 \small
 \begin{enumerate}
   \item \textbf{Name the job.} Predict, explain, screen, decide, or deploy.
-  \item \textbf{Name the outcome type.} A number, a yes or no, a count, a category. This is not a
-        judgment call and it removes most of the menu.
+  \item \textbf{Name the type of $y$.} A number, a yes or no, a count, a category. Not a judgment
+        call, and it removes most of the menu.
   \item \textbf{Decide whether you need parameters that mean something.} If yes, you are in the
-        probability column, and that is the end of the discussion.
+        probability column and that is the end of the discussion.
   \item \textbf{Count what you have against what you are estimating.} Rows, columns, and noise.
   \item \textbf{Fit the simple one first.} It is your baseline and often your answer.
   \item \textbf{Fit a flexible one on the same folds}, compare with one method, and take the
@@ -573,12 +816,12 @@ for one, and about what the output means.
 \begin{trap}{the ones that bite most often}
 \begin{itemize}
   \item Choosing the algorithm before naming the job.
+  \item Forcing a linear model onto a count or a yes/no outcome.
+  \item Judging a model on the rows it was fitted to.
   \item Asking an algorithmic model for a $p$-value or an AIC.
   \item Reading a penalized or shrunk coefficient as an effect.
-  \item Comparing an in-sample criterion against an out-of-sample one.
+  \item Comparing an AIC against a cross-validated error.
   \item Tuning a hyperparameter until the answer looks right.
-  \item Quoting a confidence interval when the question was about one new case.
-  \item Reaching for flexibility you do not have the rows to pay for.
 \end{itemize}
 \end{trap}
 \end{frame}
@@ -592,19 +835,16 @@ calls for, what to hand it, and what the output means.
 \toprule
 \textbf{You should be able to} & \textbf{What you would reach for} \\
 \midrule
-Fit a linear or logistic regression & \texttt{smf.ols} / \texttt{smf.logit} \\
+Fit a linear, logistic or Poisson model & \texttt{smf.ols}, \texttt{smf.logit}, \texttt{smf.glm} \\
 Read the coefficient table & \texttt{fit.summary()} \\
-Fit a forest or a boosted model & \texttt{RandomForestRegressor}, \texttt{HistGradientBoosting...} \\
-Tune a hyperparameter honestly & \texttt{GridSearchCV} over folds you fixed first \\
+Fit a tree, a forest, or boosting & \texttt{DecisionTree...}, \texttt{RandomForest...} \\
+Tune a hyperparameter honestly & \texttt{GridSearchCV} over folds fixed first \\
 Compare probability models & \texttt{fit.aic}, on identical rows \\
 Compare anything at all & \texttt{cross\_val\_score} with one shared \texttt{KFold} \\
 Screen many columns & \texttt{LassoCV}, then read what survived \\
 \bottomrule
 \end{tabular}
 \end{center}
-\vspace{0.2em}
-\centering\small
-If you cannot say what the output means, producing it was worth nothing.
 \end{frame}
 
 \begin{frame}{Where we go next}
@@ -612,8 +852,8 @@ If you cannot say what the output means, producing it was worth nothing.
   \item You now have the map. The rest of Part I walks the parts of it that matter most.
   \item \textbf{Unit 3} takes the linear model seriously: reading a slope, what happens when you
         add a variable, and how to tell whether the fit is real.
-  \item Later units come back to the right-hand column, to prediction intervals, and to the
-        categorical outcomes this map only names.
+  \item \textbf{Unit 4} comes back to tuning and honest evaluation properly, and \textbf{Unit 5}
+        to putting a range on a prediction.
 \end{itemize}
 \begin{principle}{the through-line}
 The model is a means. The job you were given decides which one, and saying that job out loud is
