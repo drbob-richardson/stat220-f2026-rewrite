@@ -172,14 +172,18 @@ before you have thought about anything else.
 \toprule
 \textbf{$y$ is} & \textbf{Example} & \textbf{Probability model} & \textbf{Trees, forests, boosting} \\
 \midrule
-a number & mpg, rent, revenue & linear regression & same three, regression mode \\
-yes or no & churn, default, click & logistic regression & same three, classification mode \\
-a count or rate & tickets per hour & Poisson, negative binomial & same three, on counts \\
-a category & which of four plans & multinomial logistic & same three, multi-class \\
+a number & mpg, rent, revenue & linear regression & in regression mode \\
+yes or no & churn, default, click & logistic regression & in classification mode \\
+a count or rate & tickets per hour & Poisson, negative binomial & on counts \\
+a category & which of four plans & multinomial logistic & in multi-class mode \\
 time to an event & months until churn & survival models & specialized versions \\
 \bottomrule
 \end{tabular}
 \end{center}
+\vspace{-0.3em}
+\centering\small
+Read the last column down. It is the \textbf{same three families every row}, and only the mode
+changes.
 \begin{trap}{forcing the wrong type}
 Run a linear regression on a yes/no outcome and it produces numbers. Some will be predicted
 probabilities above 1 or below 0, which should tell you what happened.
