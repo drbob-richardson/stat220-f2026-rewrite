@@ -94,6 +94,17 @@ class HW:
         self.ids.append(n)
         self.md(f"**Problem {n}.** {text}")
 
+    def given(self, letter, text, code, answer=True):
+        """A part where the mechanics are supplied and the student interprets.
+
+        Use this for syntax the unit has not drilled. The student runs the cell,
+        reads the output, and writes what it means. The thinking is the graded part.
+        """
+        self.md(f"Part {letter}. {text}")
+        self.code(code.strip("\n"))
+        if answer:
+            self.answer()
+
     def part(self, letter, text, kind="code"):
         self.md(f"Part {letter}. {text}")
         if kind == "code":
