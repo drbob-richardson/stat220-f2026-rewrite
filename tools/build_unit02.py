@@ -151,17 +151,16 @@ print("\\ncheck the arithmetic:  2k - 2*logL =",
       round(2 * 4 - 2 * smf.ols('mpg ~ weight + horsepower + model_year', data=cars).fit().llf, 1))""")
 
 nb.section("10. The five steps, on one regression tree",
-           "Fit, tune, predict, put a range on it, and compare. All five in one place.")
+           "Fit, tune, predict, put a range on it, and compare. Step 2 is set aside "
+           "here: choosing a hyperparameter honestly is Unit 4.")
 nb.code("""# 1. fit
 Xtr, Xte, ytr, yte = train_test_split(X, y, test_size=0.25, random_state=1)
 
-# 2. tune, on folds fixed before looking
-for d in [2, 3, 4, 6, 10]:
-    s = -cross_val_score(DecisionTreeRegressor(max_depth=d, random_state=0),
-                         Xtr, ytr, cv=folds, scoring="neg_mean_squared_error")
-    print(f"  depth {d:<3} CV MSE {s.mean():6.2f}")
-
-tree = DecisionTreeRegressor(max_depth=4, random_state=0).fit(Xtr, ytr)
+# 2. tune: depth is a choice, not something fitting discovers.
+#    Choosing it well is Unit 4. Here we simply take 4.
+DEPTH = 4
+tree = DecisionTreeRegressor(max_depth=DEPTH, random_state=0).fit(Xtr, ytr)
+print(f"  depth chosen: {DEPTH}  (how to choose it honestly is Unit 4)")
 
 # 3. predict one held-out car
 one = Xte.iloc[[0]]
@@ -242,8 +241,9 @@ hw.part("d", "Can you compute an AIC for the tree? Say why or why not in one sen
         kind="markdown")
 
 hw.problem(4, """*The five steps on one model.* Use `cars`. Hold out 25% before you start.""")
-hw.part("a", "**Tune.** Cross-validate a regression tree over depths 2, 3, 4, 6 and 10 on the "
-             "training rows only. Report the CV error for each and pick a depth.")
+hw.part("a", "**Fit.** Fit a regression tree of depth 4 on the training rows. Report its "
+             "training MSE and, in one sentence, say why that number is not evidence the "
+             "model is good.")
 hw.part("b", "**Fit and predict.** Fit at your chosen depth and predict for one held-out car. "
              "Report the prediction.")
 hw.part("c", "**Put a range on it.** Take the model's errors on the held-out cars, compute the "

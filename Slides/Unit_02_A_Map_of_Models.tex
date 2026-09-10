@@ -687,12 +687,13 @@ whether the model can supply it for you or you have to get it from held-out data
 \centering\includegraphics[width=\textwidth]{fig_u2_mse.pdf}
 \end{column}
 \begin{column}{0.42\textwidth}\small
-\textbf{Depth} is not estimated. You choose it, and the data cannot choose it for you by fitting.
+\textbf{Depth} is not estimated. You choose it, and no amount of fitting will choose it for you.
 \begin{itemize}
   \item Training error falls forever. By depth 10 it is near zero.
-  \item Honest error bottoms out at \textbf{depth 4} and then climbs.
+  \item Honest error turns around, so more depth stops helping and starts hurting.
 \end{itemize}
-So depth 4, chosen on folds fixed before looking.
+Picking where to stop, without fooling yourself while you do it, is \textbf{Unit 4}. Take depth 4
+here and move on.
 \end{column}
 \end{columns}
 \end{frame}
@@ -902,7 +903,6 @@ calls for, what to hand it, and what the output means.
 Fit a linear, logistic or Poisson model & \texttt{smf.ols}, \texttt{smf.logit}, \texttt{smf.glm} \\
 Read the coefficient table & \texttt{fit.summary()} \\
 Fit a tree, a forest, or boosting & \texttt{DecisionTree...}, \texttt{RandomForest...} \\
-Tune a hyperparameter honestly & \texttt{GridSearchCV} over folds fixed first \\
 Compare probability models & \texttt{fit.aic}, on identical rows \\
 Compare anything at all & \texttt{cross\_val\_score} with one shared \texttt{KFold} \\
 Screen many columns & \texttt{LassoCV}, then read what survived \\
