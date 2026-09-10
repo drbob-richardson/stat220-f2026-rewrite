@@ -21,160 +21,160 @@ ask, and how the job you were given narrows the choice. No computer needed.
 \vspace{10pt}
 
 \begin{enumerate}[itemsep=14pt]
-\item What makes something a probability model?
+\item What makes something a probability model rather than a non-probability one?
 
 \begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
-  \item It states a distribution the outcome is drawn from.
-  \item It uses probability somewhere in the fitting.
-  \item Its predictions fall between 0 and 1.
-  \item It was fit by maximum likelihood.
+  \item It states a distribution the outcome is drawn from, which is what produces a likelihood.
+  \item It uses probability somewhere inside the fitting procedure rather than plain arithmetic.
+  \item Its predictions are guaranteed to fall between 0 and 1, so they can be read as chances.
+  \item It was fitted by maximum likelihood rather than by minimizing squared error directly.
 \end{enumerate}
 
 \vspace{2pt}
-\textbf{Answer: A.} A probability model commits to where the data came from, saying the outcome is normal around a line, or Bernoulli with some probability, or Poisson with some rate. That commitment is what produces a likelihood, and the likelihood is what standard errors, p-values, confidence intervals and AIC are all made of. The last option names a fitting method, which comes after the distribution rather than instead of it.
+\textbf{Answer: A.} A probability model commits to where the data came from: normal around a line, Bernoulli with some probability, Poisson with some rate. That commitment produces a likelihood, and the likelihood is what standard errors, p-values, confidence intervals and AIC are all made of. Option D names a fitting method, which comes after the distribution rather than instead of it.
 \vspace{4pt}
 
-\item A colleague wants the p-value on the top variable in a random forest. What do you say?
+\item A colleague asks for the p-value on the most important variable in a random forest.
 
 \begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
-  \item It is in the output, you have to request it.
-  \item Bootstrap the forest and read it off.
-  \item It is one over the number of trees.
-  \item There isn't one to report.
+  \item It is in the model output, and you just have to ask the library to print it for you.
+  \item Bootstrap the forest a thousand times and read the p-value off the spread of the importances.
+  \item There isn't one, because the forest never states a distribution for the outcome.
+  \item It works out to roughly one divided by the number of trees you grew in the forest.
 \end{enumerate}
 
 \vspace{2pt}
-\textbf{Answer: D.} A forest never says what distribution the data came from, so there is no likelihood, and a p-value has nothing to be computed from. The quantity does not exist rather than being hidden. Resampling will tell you how much an importance score wobbles, which is worth knowing, but that is a stability check and not a test of anything.
+\textbf{Answer: C.} No distribution means no likelihood, and a p-value would have nothing to be computed from. The quantity does not exist rather than being hidden somewhere. Resampling will tell you how much an importance score wobbles, which is worth knowing, but that is a stability check and not a test of any hypothesis.
 \vspace{4pt}
 
-\item You want to compare a linear regression against a boosted model. Which comparison works?
+\item You want to compare a linear regression against a gradient boosted model. Which comparison actually works?
 
 \begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
-  \item Adjusted R-squared on the training data.
-  \item Cross-validated error, same folds for both.
-  \item AIC, which exists to compare models.
-  \item Neither, the two are different kinds of model.
+  \item Adjusted R-squared on the training data, which already corrects for the number of predictors.
+  \item Cross-validated error, provided both models are scored on exactly the same folds.
+  \item AIC, since it exists precisely to compare models against each other on the same data.
+  \item Neither, because the two are different kinds of model and cannot be put on one scale.
 \end{enumerate}
 
 \vspace{2pt}
-\textbf{Answer: B.} AIC needs a likelihood, so boosting is not eligible. Out-of-sample error works on anything that can produce a prediction, which is why it is the general-purpose answer. The catch is in the second half of the option: both models have to face identical folds, or you are partly measuring which one drew the easier split.
+\textbf{Answer: B.} AIC needs a likelihood, so boosting is not eligible for it. Out-of-sample error works on anything that produces a prediction, which is why it is the general-purpose answer. The condition in the second half matters: both models must face identical folds, or you are partly measuring which one drew the easier split.
 \vspace{4pt}
 
-\item Which of these does fitting decide, rather than you?
+\item Which of these does fitting the model decide, rather than you deciding it beforehand?
 
 \begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
-  \item How deep a tree may grow.
-  \item How many folds to cross-validate with.
-  \item Where a tree puts its splits.
-  \item How big a penalty to apply.
+  \item How deep the tree is allowed to grow before it has to stop splitting.
+  \item How many folds to divide the data into when you cross-validate.
+  \item Where the tree puts its split points, and what value it predicts inside each one.
+  \item How large a penalty to place on the size of the coefficients.
 \end{enumerate}
 
 \vspace{2pt}
-\textbf{Answer: C.} Fitting settles the parts the data has an opinion about: split points, slopes, weights. Depth, fold count and penalty size are settings you fix beforehand, and no amount of fitting will choose them for you. Unit 4 covers how to choose them without fooling yourself.
+\textbf{Answer: C.} Fitting settles the parts the data has an opinion about: split points, slopes, weights. Depth, fold count and penalty size are settings you fix in advance, and no amount of fitting will choose them for you. Unit 4 covers how to make those choices without fooling yourself.
 \vspace{4pt}
 
-\item Your outcome is yes or no. What does that fact rule out?
+\item Your outcome is a yes or no. What does that fact by itself rule out?
 
 \begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
-  \item Random forests, which need numeric outcomes.
-  \item Boosting, which only handles counts.
-  \item Nothing, every model takes any outcome.
-  \item Linear regression, which ignores the 0 to 1 bound.
+  \item Random forests, which are built for numeric outcomes and cannot handle categories.
+  \item Boosting, which works on counts and continuous outcomes but not on binary ones.
+  \item Nothing at all, since every model on the menu can take any type of outcome you hand it.
+  \item Linear regression, which has no way to keep its predictions inside 0 and 1.
 \end{enumerate}
 
 \vspace{2pt}
-\textbf{Answer: D.} The outcome type eliminates probability models one at a time, and it eliminates nothing on the other side, because trees, forests and boosting all have a classification mode. So when you decide against a forest, the reason is never the outcome. It is that somebody needs to read a number out of the model.
+\textbf{Answer: D.} The outcome type eliminates probability models one at a time, and eliminates nothing on the other side, because trees, forests and boosting all have a classification mode. So when you decide against a forest, the reason is never the outcome. It is that somebody needs to read a number out of the model.
 \vspace{4pt}
 
-\item A lasso keeps 12 of 200 variables. You report their coefficients and p-values. What is wrong?
+\item A lasso keeps 12 of 200 candidate variables. You report those coefficients with their p-values.
 
 \begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
-  \item Nothing, the lasso reports valid standard errors.
-  \item They were shrunk, and chosen by looking at the data.
-  \item Ridge would have been the right choice here.
-  \item Twelve survivors is too few to mean anything.
+  \item Nothing is wrong, since the lasso reports valid standard errors alongside its coefficients.
+  \item They were shrunk toward zero on purpose, and the 12 were picked by looking at the data.
+  \item Ridge would have been the correct choice here, since it keeps every variable in the model.
+  \item Twelve survivors out of 200 is too few for the resulting model to be worth reporting at all.
 \end{enumerate}
 
 \vspace{2pt}
-\textbf{Answer: B.} Two separate things break at once. The penalty biases every coefficient toward zero by design, so the printed numbers are not estimating what they appear to. And these 12 won a 200-way search, while the inference is computed as though the model had been settled in advance. Treat what survives as a shortlist worth investigating.
+\textbf{Answer: B.} Two things break at once. The penalty biases every coefficient toward zero by design, so the printed numbers are not estimating what they appear to. And these 12 won a 200-way search while the inference is computed as though the model had been settled in advance. Treat what survives as a shortlist worth investigating.
 \vspace{4pt}
 
-\item A regulator will review every loan rejection. What does that alone tell you?
+\item A regulator will review every loan rejection your model produces. What does that fact alone tell you?
 
 \begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
-  \item You need a probability model.
-  \item You need as much training data as possible.
-  \item Accuracy is what matters, so pick the strongest model.
-  \item A neural network will handle the complex rules.
+  \item You need a probability model, because somebody will read a coefficient and ask you to defend it.
+  \item You need as much training data as you can gather, since regulators expect large samples.
+  \item Accuracy is what matters most here, so you should pick whichever model predicts best.
+  \item A neural network is the right choice, since lending rules are complicated and interacting.
 \end{enumerate}
 
 \vspace{2pt}
-\textbf{Answer: A.} Somebody is going to read a coefficient and ask you to defend it, and only a probability model has one to give. This was settled before anyone looked at a row of data. A boosted model might predict default better and still be unusable, because the algorithm said so is not a defence.
+\textbf{Answer: A.} The audience settled this before anyone looked at a row of data. A boosted model might predict default better and still be unusable, because the algorithm said so is not a defence. This is the deployment job, and it constrains the choice more tightly than accuracy does.
 \vspace{4pt}
 
-\item 300 rows, 80 candidate columns. What do you rule out straight away?
+\item You have 300 rows and 80 candidate columns. What should you rule out straight away?
 
 \begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
-  \item Cross-validation, since the folds get too small.
-  \item Nothing, all models work at any size.
-  \item Forests and boosting, which you cannot afford here.
-  \item Linear regression, which cannot take 80 columns.
+  \item Cross-validation, since splitting 300 rows five ways leaves folds too small to score on.
+  \item Nothing yet, since any model can be fitted at any sample size and then judged on its error.
+  \item Forests and boosting, since 300 rows cannot pay for that much flexibility.
+  \item Linear regression, which cannot be fitted at all once you have more columns than you want.
 \end{enumerate}
 
 \vspace{2pt}
-\textbf{Answer: C.} Flexibility is bought with sample size. At 300 rows and 80 columns a flexible model will fit beautifully and predict badly, because most of what it is fitting is noise. Regularized regression is the sensible move, used to cut 80 columns down to a few chosen for a reason.
+\textbf{Answer: C.} Flexibility is bought with sample size. At 300 rows and 80 columns a flexible model fits beautifully and predicts badly, because most of what it is fitting is noise. Regularized regression is the sensible move, used to cut 80 columns down to a few you can defend.
 \vspace{4pt}
 
-\item Your forest beats your regression by five points of cross-validated error. Now what?
+\item Your forest beats your regression by five points of cross-validated error. What do you do next?
 
 \begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
-  \item Ship the forest, it won.
-  \item Average the two together.
-  \item Ship the regression, simpler is better.
-  \item Find out what the forest is using.
+  \item Ship the forest, since it won the comparison on the measure you agreed to use.
+  \item Average the two models together, which usually beats either one on its own.
+  \item Ship the regression anyway, because a simpler model is the safer choice in every case.
+  \item Find out what the forest is using that the regression is missing.
 \end{enumerate}
 
 \vspace{2pt}
-\textbf{Answer: D.} A gap that size is information, not a verdict. Usually the forest has found an interaction or a threshold you can name, and once you put it into the regression the gap closes and you ship the model you can explain. If it does not close, you have learned the structure is genuinely complicated, which is also worth knowing.
+\textbf{Answer: D.} A gap that size is information rather than a verdict. Usually the forest has found an interaction or a threshold you can name, and once you add it to the regression the gap closes and you ship the model you can explain. If it does not close, you have learned the structure is genuinely complicated, which is also worth knowing.
 \vspace{4pt}
 
-\item A depth-10 tree scores 0.44 training error and 13.19 cross-validated. A line scores 11.59 and 12.23. Which is better?
+\item A depth-10 tree scores 0.44 training error and 13.19 cross-validated. A straight line scores 11.59 and 12.23. Which model is better?
 
 \begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
-  \item The tree, since 0.44 is the lowest number here.
-  \item The line, by the column that counts.
-  \item Neither, they cannot be compared.
-  \item The tree, since it has more flexibility to use.
+  \item The tree, since 0.44 is by a wide margin the lowest error anywhere on the table.
+  \item The line, because the column that counts is the one scored on rows the model never saw.
+  \item Neither, since a tree and a line are different kinds of model and cannot be compared.
+  \item The tree, since having more flexibility available can only help once it is tuned properly.
 \end{enumerate}
 
 \vspace{2pt}
-\textbf{Answer: B.} Training error measures how well a model reproduces rows it has already seen, and a flexible model drives that toward zero by memorizing. The honest column is the other one, and there the tree loses to a straight line. Both models sat on the same rows and were scored the same way, which is what lets you compare them at all.
+\textbf{Answer: B.} Training error measures how well a model reproduces rows it has already seen, and a flexible model drives that toward zero by memorizing. On the honest column the tree loses to a straight line. Both sat on the same rows and were scored the same way, which is what makes them comparable at all.
 \vspace{4pt}
 
-\item A revenue model reports a cross-validated MSE of 140. What do you tell the owner?
+\item A model predicting daily revenue reports a cross-validated MSE of 140. What do you tell the owner?
 
 \begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
-  \item It explains 140 percent of the variation.
-  \item It is off by roughly 140 dollars on a typical day.
-  \item MSE does not translate into dollars.
-  \item It is off by roughly 12 dollars on a typical day.
+  \item That it explains about 140 percent of the day-to-day variation in what the shop takes.
+  \item That it is off by roughly 140 dollars on a typical day, which is the meaning of the number.
+  \item That MSE is an internal diagnostic and cannot sensibly be translated into dollars at all.
+  \item That it is off by roughly 12 dollars on a typical day.
 \end{enumerate}
 
 \vspace{2pt}
-\textbf{Answer: D.} MSE is in squared units, so 140 means 140 squared dollars, which nobody can picture. The square root of 140 is about 12, and that is back in dollars and is a sentence the owner can act on. Quote the RMSE for people, and keep the MSE for ranking models against each other.
+\textbf{Answer: D.} MSE is in squared units, so 140 means 140 squared dollars, which nobody can picture. The square root is about 12, which is back in dollars and is a sentence the owner can act on. Quote the RMSE to people, and keep the MSE for ranking models against each other.
 \vspace{4pt}
 
-\item A model that must run nightly for two years, with any output explainable on request. What should that push you toward?
+\item A model has to run nightly for two years, and any single output may be queried. What does that push you toward?
 
 \begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
-  \item Whatever scored best in testing.
-  \item The most flexible model you can afford.
-  \item The simplest model that clears the bar.
-  \item A model retuned every month.
+  \item Whichever model scored best in testing, since that is the only objective criterion available.
+  \item The most flexible model your data can support, retuned each month as new data arrives.
+  \item The simplest model that clears the accuracy bar you actually need.
+  \item A model with several tuned settings, so it can be adjusted as conditions change over time.
 \end{enumerate}
 
 \vspace{2pt}
-\textbf{Answer: C.} Accuracy is one requirement among several, and this job is mostly the other ones. A model with six tuned settings is six things that can drift as the data moves, and every one of them is something you would have to explain. Choosing simplicity on purpose reads as judgement. Defaulting to it because you never tried anything else does not.
+\textbf{Answer: C.} Accuracy is one requirement among several, and this job is mostly the others. A model with six tuned settings is six things that can drift as the data moves, and each is something you would have to explain. Choosing simplicity on purpose reads as judgement. Defaulting to it because you never tried anything else does not.
 \vspace{4pt}
 
 \end{enumerate}

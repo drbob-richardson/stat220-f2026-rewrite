@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 """Unit 2 practice, multiple choice with answers inline. STUDENT-FACING.
 
-Distractor discipline: the correct option is never systematically the longest,
-and the key is spread across A, B, C and D. Reasoning lives in the explanation,
-not stuffed into the right answer.
+Every option carries its own reasoning. The key is not systematically longest and
+is spread over A, B, C and D.
 """
 from build_questions import build_mc
 
@@ -11,134 +10,137 @@ build_mc("Models", "A Map of Models",
 """Practice on what separates a probability model from a non-probability one, what each lets you
 ask, and how the job you were given narrows the choice. No computer needed.""",
 [
-("What makes something a probability model?",
- ["It states a distribution the outcome is drawn from.",
-  "It uses probability somewhere in the fitting.",
-  "Its predictions fall between 0 and 1.",
-  "It was fit by maximum likelihood."],
+("What makes something a probability model rather than a non-probability one?",
+ ["It states a distribution the outcome is drawn from, which is what produces a likelihood.",
+  "It uses probability somewhere inside the fitting procedure rather than plain arithmetic.",
+  "Its predictions are guaranteed to fall between 0 and 1, so they can be read as chances.",
+  "It was fitted by maximum likelihood rather than by minimizing squared error directly."],
  0,
- "A probability model commits to where the data came from, saying the outcome is normal around a "
- "line, or Bernoulli with some probability, or Poisson with some rate. That commitment is what "
- "produces a likelihood, and the likelihood is what standard errors, p-values, confidence "
- "intervals and AIC are all made of. The last option names a fitting method, which comes after "
- "the distribution rather than instead of it."),
+ "A probability model commits to where the data came from: normal around a line, Bernoulli with "
+ "some probability, Poisson with some rate. That commitment produces a likelihood, and the "
+ "likelihood is what standard errors, p-values, confidence intervals and AIC are all made of. "
+ "Option D names a fitting method, which comes after the distribution rather than instead of it."),
 
-("A colleague wants the p-value on the top variable in a random forest. What do you say?",
- ["It is in the output, you have to request it.",
-  "Bootstrap the forest and read it off.",
-  "It is one over the number of trees.",
-  "There isn't one to report."],
- 3,
- "A forest never says what distribution the data came from, so there is no likelihood, and a "
- "p-value has nothing to be computed from. The quantity does not exist rather than being hidden. "
- "Resampling will tell you how much an importance score wobbles, which is worth knowing, but that "
- "is a stability check and not a test of anything."),
+("A colleague asks for the p-value on the most important variable in a random forest.",
+ ["It is in the model output, and you just have to ask the library to print it for you.",
+  "Bootstrap the forest a thousand times and read the p-value off the spread of the importances.",
+  "There isn't one, because the forest never states a distribution for the outcome.",
+  "It works out to roughly one divided by the number of trees you grew in the forest."],
+ 2,
+ "No distribution means no likelihood, and a p-value would have nothing to be computed from. The "
+ "quantity does not exist rather than being hidden somewhere. Resampling will tell you how much "
+ "an importance score wobbles, which is worth knowing, but that is a stability check and not a "
+ "test of any hypothesis."),
 
-("You want to compare a linear regression against a boosted model. Which comparison works?",
- ["Adjusted R-squared on the training data.",
-  "Cross-validated error, same folds for both.",
-  "AIC, which exists to compare models.",
-  "Neither, the two are different kinds of model."],
+("You want to compare a linear regression against a gradient boosted model. Which comparison "
+ "actually works?",
+ ["Adjusted R-squared on the training data, which already corrects for the number of predictors.",
+  "Cross-validated error, provided both models are scored on exactly the same folds.",
+  "AIC, since it exists precisely to compare models against each other on the same data.",
+  "Neither, because the two are different kinds of model and cannot be put on one scale."],
  1,
- "AIC needs a likelihood, so boosting is not eligible. Out-of-sample error works on anything that "
- "can produce a prediction, which is why it is the general-purpose answer. The catch is in the "
- "second half of the option: both models have to face identical folds, or you are partly "
+ "AIC needs a likelihood, so boosting is not eligible for it. Out-of-sample error works on "
+ "anything that produces a prediction, which is why it is the general-purpose answer. The "
+ "condition in the second half matters: both models must face identical folds, or you are partly "
  "measuring which one drew the easier split."),
 
-("Which of these does fitting decide, rather than you?",
- ["How deep a tree may grow.",
-  "How many folds to cross-validate with.",
-  "Where a tree puts its splits.",
-  "How big a penalty to apply."],
+("Which of these does fitting the model decide, rather than you deciding it beforehand?",
+ ["How deep the tree is allowed to grow before it has to stop splitting.",
+  "How many folds to divide the data into when you cross-validate.",
+  "Where the tree puts its split points, and what value it predicts inside each one.",
+  "How large a penalty to place on the size of the coefficients."],
  2,
  "Fitting settles the parts the data has an opinion about: split points, slopes, weights. Depth, "
- "fold count and penalty size are settings you fix beforehand, and no amount of fitting will "
- "choose them for you. Unit 4 covers how to choose them without fooling yourself."),
+ "fold count and penalty size are settings you fix in advance, and no amount of fitting will "
+ "choose them for you. Unit 4 covers how to make those choices without fooling yourself."),
 
-("Your outcome is yes or no. What does that fact rule out?",
- ["Random forests, which need numeric outcomes.",
-  "Boosting, which only handles counts.",
-  "Nothing, every model takes any outcome.",
-  "Linear regression, which ignores the 0 to 1 bound."],
+("Your outcome is a yes or no. What does that fact by itself rule out?",
+ ["Random forests, which are built for numeric outcomes and cannot handle categories.",
+  "Boosting, which works on counts and continuous outcomes but not on binary ones.",
+  "Nothing at all, since every model on the menu can take any type of outcome you hand it.",
+  "Linear regression, which has no way to keep its predictions inside 0 and 1."],
  3,
- "The outcome type eliminates probability models one at a time, and it eliminates nothing on the "
+ "The outcome type eliminates probability models one at a time, and eliminates nothing on the "
  "other side, because trees, forests and boosting all have a classification mode. So when you "
  "decide against a forest, the reason is never the outcome. It is that somebody needs to read a "
  "number out of the model."),
 
-("A lasso keeps 12 of 200 variables. You report their coefficients and p-values. What is wrong?",
- ["Nothing, the lasso reports valid standard errors.",
-  "They were shrunk, and chosen by looking at the data.",
-  "Ridge would have been the right choice here.",
-  "Twelve survivors is too few to mean anything."],
+("A lasso keeps 12 of 200 candidate variables. You report those coefficients with their p-values.",
+ ["Nothing is wrong, since the lasso reports valid standard errors alongside its coefficients.",
+  "They were shrunk toward zero on purpose, and the 12 were picked by looking at the data.",
+  "Ridge would have been the correct choice here, since it keeps every variable in the model.",
+  "Twelve survivors out of 200 is too few for the resulting model to be worth reporting at all."],
  1,
- "Two separate things break at once. The penalty biases every coefficient toward zero by design, "
- "so the printed numbers are not estimating what they appear to. And these 12 won a 200-way "
- "search, while the inference is computed as though the model had been settled in advance. Treat "
- "what survives as a shortlist worth investigating."),
+ "Two things break at once. The penalty biases every coefficient toward zero by design, so the "
+ "printed numbers are not estimating what they appear to. And these 12 won a 200-way search while "
+ "the inference is computed as though the model had been settled in advance. Treat what survives "
+ "as a shortlist worth investigating."),
 
-("A regulator will review every loan rejection. What does that alone tell you?",
- ["You need a probability model.",
-  "You need as much training data as possible.",
-  "Accuracy is what matters, so pick the strongest model.",
-  "A neural network will handle the complex rules."],
+("A regulator will review every loan rejection your model produces. What does that fact alone "
+ "tell you?",
+ ["You need a probability model, because somebody will read a coefficient and ask you to defend "
+  "it.",
+  "You need as much training data as you can gather, since regulators expect large samples.",
+  "Accuracy is what matters most here, so you should pick whichever model predicts best.",
+  "A neural network is the right choice, since lending rules are complicated and interacting."],
  0,
- "Somebody is going to read a coefficient and ask you to defend it, and only a probability model "
- "has one to give. This was settled before anyone looked at a row of data. A boosted model might "
- "predict default better and still be unusable, because the algorithm said so is not a defence."),
+ "The audience settled this before anyone looked at a row of data. A boosted model might predict "
+ "default better and still be unusable, because the algorithm said so is not a defence. This is "
+ "the deployment job, and it constrains the choice more tightly than accuracy does."),
 
-("300 rows, 80 candidate columns. What do you rule out straight away?",
- ["Cross-validation, since the folds get too small.",
-  "Nothing, all models work at any size.",
-  "Forests and boosting, which you cannot afford here.",
-  "Linear regression, which cannot take 80 columns."],
+("You have 300 rows and 80 candidate columns. What should you rule out straight away?",
+ ["Cross-validation, since splitting 300 rows five ways leaves folds too small to score on.",
+  "Nothing yet, since any model can be fitted at any sample size and then judged on its error.",
+  "Forests and boosting, since 300 rows cannot pay for that much flexibility.",
+  "Linear regression, which cannot be fitted at all once you have more columns than you want."],
  2,
- "Flexibility is bought with sample size. At 300 rows and 80 columns a flexible model will fit "
- "beautifully and predict badly, because most of what it is fitting is noise. Regularized "
- "regression is the sensible move, used to cut 80 columns down to a few chosen for a reason."),
+ "Flexibility is bought with sample size. At 300 rows and 80 columns a flexible model fits "
+ "beautifully and predicts badly, because most of what it is fitting is noise. Regularized "
+ "regression is the sensible move, used to cut 80 columns down to a few you can defend."),
 
-("Your forest beats your regression by five points of cross-validated error. Now what?",
- ["Ship the forest, it won.",
-  "Average the two together.",
-  "Ship the regression, simpler is better.",
-  "Find out what the forest is using."],
+("Your forest beats your regression by five points of cross-validated error. What do you do next?",
+ ["Ship the forest, since it won the comparison on the measure you agreed to use.",
+  "Average the two models together, which usually beats either one on its own.",
+  "Ship the regression anyway, because a simpler model is the safer choice in every case.",
+  "Find out what the forest is using that the regression is missing."],
  3,
- "A gap that size is information, not a verdict. Usually the forest has found an interaction or a "
- "threshold you can name, and once you put it into the regression the gap closes and you ship the "
- "model you can explain. If it does not close, you have learned the structure is genuinely "
- "complicated, which is also worth knowing."),
+ "A gap that size is information rather than a verdict. Usually the forest has found an "
+ "interaction or a threshold you can name, and once you add it to the regression the gap closes "
+ "and you ship the model you can explain. If it does not close, you have learned the structure is "
+ "genuinely complicated, which is also worth knowing."),
 
-("A depth-10 tree scores 0.44 training error and 13.19 cross-validated. A line scores 11.59 and "
- "12.23. Which is better?",
- ["The tree, since 0.44 is the lowest number here.",
-  "The line, by the column that counts.",
-  "Neither, they cannot be compared.",
-  "The tree, since it has more flexibility to use."],
+("A depth-10 tree scores 0.44 training error and 13.19 cross-validated. A straight line scores "
+ "11.59 and 12.23. Which model is better?",
+ ["The tree, since 0.44 is by a wide margin the lowest error anywhere on the table.",
+  "The line, because the column that counts is the one scored on rows the model never saw.",
+  "Neither, since a tree and a line are different kinds of model and cannot be compared.",
+  "The tree, since having more flexibility available can only help once it is tuned properly."],
  1,
  "Training error measures how well a model reproduces rows it has already seen, and a flexible "
- "model drives that toward zero by memorizing. The honest column is the other one, and there the "
- "tree loses to a straight line. Both models sat on the same rows and were scored the same way, "
- "which is what lets you compare them at all."),
+ "model drives that toward zero by memorizing. On the honest column the tree loses to a straight "
+ "line. Both sat on the same rows and were scored the same way, which is what makes them "
+ "comparable at all."),
 
-("A revenue model reports a cross-validated MSE of 140. What do you tell the owner?",
- ["It explains 140 percent of the variation.",
-  "It is off by roughly 140 dollars on a typical day.",
-  "MSE does not translate into dollars.",
-  "It is off by roughly 12 dollars on a typical day."],
+("A model predicting daily revenue reports a cross-validated MSE of 140. What do you tell the "
+ "owner?",
+ ["That it explains about 140 percent of the day-to-day variation in what the shop takes.",
+  "That it is off by roughly 140 dollars on a typical day, which is the meaning of the number.",
+  "That MSE is an internal diagnostic and cannot sensibly be translated into dollars at all.",
+  "That it is off by roughly 12 dollars on a typical day."],
  3,
  "MSE is in squared units, so 140 means 140 squared dollars, which nobody can picture. The square "
- "root of 140 is about 12, and that is back in dollars and is a sentence the owner can act on. "
- "Quote the RMSE for people, and keep the MSE for ranking models against each other."),
+ "root is about 12, which is back in dollars and is a sentence the owner can act on. Quote the "
+ "RMSE to people, and keep the MSE for ranking models against each other."),
 
-("A model that must run nightly for two years, with any output explainable on request. What "
- "should that push you toward?",
- ["Whatever scored best in testing.",
-  "The most flexible model you can afford.",
-  "The simplest model that clears the bar.",
-  "A model retuned every month."],
+("A model has to run nightly for two years, and any single output may be queried. What does that "
+ "push you toward?",
+ ["Whichever model scored best in testing, since that is the only objective criterion available.",
+  "The most flexible model your data can support, retuned each month as new data arrives.",
+  "The simplest model that clears the accuracy bar you actually need.",
+  "A model with several tuned settings, so it can be adjusted as conditions change over time."],
  2,
- "Accuracy is one requirement among several, and this job is mostly the other ones. A model with "
- "six tuned settings is six things that can drift as the data moves, and every one of them is "
- "something you would have to explain. Choosing simplicity on purpose reads as judgement. "
- "Defaulting to it because you never tried anything else does not."),
+ "Accuracy is one requirement among several, and this job is mostly the others. A model with six "
+ "tuned settings is six things that can drift as the data moves, and each is something you would "
+ "have to explain. Choosing simplicity on purpose reads as judgement. Defaulting to it because "
+ "you never tried anything else does not."),
 ])
