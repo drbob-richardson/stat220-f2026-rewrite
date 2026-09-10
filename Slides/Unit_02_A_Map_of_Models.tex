@@ -517,6 +517,145 @@ of the model.
 \end{frame}
 
 % ======================================================================
+\section{Comparing models}
+% ======================================================================
+\begin{frame}{Is model A better than model B?}
+That is the only comparison question you will ever be asked, and everything in this section
+exists to answer it.
+\begin{itemize}
+  \item You will always have more than one candidate. A line and a curve. Four predictors and
+        seven. A regression and a forest.
+  \item ``Better'' is not a property of a model. It is a number, computed the same way for both,
+        on the same rows.
+\end{itemize}
+\begin{principle}{three conditions, or the comparison means nothing}
+\begin{enumerate}
+  \item \textbf{Same rows.} Both candidates see identical data.
+  \item \textbf{Same measure.} One number, computed the same way for each.
+  \item \textbf{Data neither model was fitted to}, or a criterion that charges for parameters.
+\end{enumerate}
+\end{principle}
+\centering\small
+There are two ways to satisfy the third one. The rest of this section is those two ways.
+\end{frame}
+
+\begin{frame}{What ``error'' means, exactly}
+The measure both candidates get scored on. For a numeric outcome it is usually
+\textbf{mean squared error}:
+\[
+\text{MSE} \;=\; \frac{1}{n}\sum_{i=1}^{n}\bigl(y_i - \hat{y}_i\bigr)^2
+\qquad\qquad
+\text{RMSE} \;=\; \sqrt{\text{MSE}}
+\]
+\begin{itemize}\small
+  \item Squaring makes big misses count much more than small ones. A miss of 4 counts sixteen
+        times a miss of 1.
+  \item MSE is in squared units, which nobody can picture. RMSE is back in the units of $y$.
+  \item Our depth-4 tree: MSE $= 11.63$, so RMSE $= 3.41$ mpg. That is the number to quote.
+\end{itemize}
+\begin{principle}{the measure is a choice}
+Squared error is a decision that one big miss is worse than several small ones. If that is not
+true for your problem, use absolute error instead, and say so.
+\end{principle}
+\end{frame}
+
+\begin{frame}{Two ways to get an honest number}
+Both candidates need a score on rows neither of them was fitted to. Two ways to arrange that.
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\textbf{Hold out once}\\[3pt]
+Split the rows, fit on most, score on the rest. Simple, and the score depends on which rows
+happened to be held out.
+\end{column}
+\begin{column}{0.48\textwidth}
+\textbf{Cross-validate}\\[3pt]
+Split into $k$ folds. Fit on $k-1$, score on the one left out, rotate, average. Every row gets
+scored exactly once, by a model that never saw it.
+\end{column}
+\end{columns}
+\vspace{0.5em}
+\begin{principle}{same rule either way}
+Anything you learned from the data counts as fitting. Choosing depth, choosing which columns to
+keep, even choosing the scaling. If it happened before scoring, it has to happen inside the fold.
+\end{principle}
+\end{frame}
+
+\begin{frame}{AIC and BIC: paying for parameters}
+The other way to compare A against B, and it needs no held-out data at all. A \textbf{probability
+model} can report how likely your data was under the fitted model. Call that the likelihood $L$. Bigger is better, but adding parameters always makes it bigger, so a
+raw comparison always picks the biggest model.
+\[
+\text{AIC} \;=\; 2k - 2\ln L
+\qquad\qquad
+\text{BIC} \;=\; k\ln n - 2\ln L
+\]
+\begin{itemize}\small
+  \item $k$ is how many parameters you estimated, $n$ is how many rows you have.
+  \item The second term rewards fit. The first charges you for the parameters that bought it.
+  \item \textbf{Lower is better.} The raw value means nothing on its own, only differences do.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{AIC, worked on the cars}
+$n = 392$. Three nested models, each fit to the same rows.
+\begin{center}\small
+\begin{tabular}{L{0.30\textwidth} L{0.08\textwidth} L{0.14\textwidth} L{0.30\textwidth}}
+\toprule
+\textbf{Model} & \textbf{$k$} & \textbf{$\ln L$} & \textbf{AIC $= 2k - 2\ln L$} \\
+\midrule
+mpg on weight & 2 & $-1130.0$ & $4 + 2260.0 = 2264.0$ \\
+\quad + horsepower & 3 & $-1121.0$ & $6 + 2242.0 = 2248.0$ \\
+\quad + model year & 4 & $-1037.4$ & $8 + 2074.8 = 2082.8$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+\begin{itemize}\small
+  \item Horsepower buys 16 points of AIC, and model year buys another 165. Both are worth their
+        one parameter.
+  \item BIC charges $\ln(392) = 5.97$ per parameter instead of 2, so it prefers smaller models,
+        and the gap widens as $n$ grows.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Which comparison to use}
+\begin{center}\small
+\begin{tabular}{L{0.26\textwidth} L{0.30\textwidth} L{0.32\textwidth}}
+\toprule
+ & \textbf{AIC and BIC} & \textbf{Out-of-sample error} \\
+\midrule
+Needs a likelihood & yes, so probability models only & no, works on anything \\
+Data used & all of it, once & held out, or rotated in folds \\
+Cost & one fit per model & $k$ fits per model \\
+Compares across families & no & yes \\
+\bottomrule
+\end{tabular}
+\end{center}
+\begin{trap}{comparing numbers that are not comparable}
+An AIC of 2082 and a cross-validated MSE of 11.63 are different quantities on different scales,
+and neither one is ``better'' than the other. Pick one method and use it for every candidate, on
+identical rows.
+\end{trap}
+\end{frame}
+
+\begin{frame}{Deciding between A and B, in order}
+\begin{enumerate}
+  \item \textbf{Are both probability models, fit to the same rows?} If yes, AIC is available and
+        it costs one fit each. If not, skip to step 3.
+  \item \textbf{Compare the AICs.} Lower wins. A gap of a point or two is nothing. Sixteen, as
+        horsepower bought us, is real.
+  \item \textbf{Otherwise, fix the folds first}, then score both models on those same folds with
+        the same measure.
+  \item \textbf{Compare the two numbers, and their spread.} If the gap is smaller than the noise
+        across folds, you have not shown that either one is better.
+  \item \textbf{When they are that close, take the simpler one} and say why.
+\end{enumerate}
+\begin{trap}{the comparison that proves nothing}
+Fitting A, then tuning B until it wins, then reporting B's score. B was chosen by looking at the
+answer, so its number is optimistic by exactly the amount you searched.
+\end{trap}
+\end{frame}
+
+% ======================================================================
 \section{What you do with it}
 % ======================================================================
 \begin{frame}{The five things you do to any model}
@@ -611,105 +750,6 @@ Tree, depth 10    & \phantom{0}0.44 & 13.19 \\
 \begin{trap}{the middle column is a trap}
 Ranked on training error, the depth-10 tree wins by a mile. On data it did not see, it is the
 worst of the three, and worse than a straight line.
-\end{trap}
-\end{frame}
-
-% ======================================================================
-\section{Measuring}
-% ======================================================================
-\begin{frame}{What ``error'' means, exactly}
-For a numeric outcome, the usual measure is \textbf{mean squared error}:
-\[
-\text{MSE} \;=\; \frac{1}{n}\sum_{i=1}^{n}\bigl(y_i - \hat{y}_i\bigr)^2
-\qquad\qquad
-\text{RMSE} \;=\; \sqrt{\text{MSE}}
-\]
-\begin{itemize}\small
-  \item Squaring makes big misses count much more than small ones. A miss of 4 counts sixteen
-        times a miss of 1.
-  \item MSE is in squared units, which nobody can picture. RMSE is back in the units of $y$.
-  \item Our depth-4 tree: MSE $= 11.63$, so RMSE $= 3.41$ mpg. That is the number to quote.
-\end{itemize}
-\begin{principle}{the measure is a choice}
-Squared error is a decision that one big miss is worse than several small ones. If that is not
-true for your problem, use absolute error instead, and say so.
-\end{principle}
-\end{frame}
-
-\begin{frame}{Two ways to get an honest number}
-\begin{columns}[T]
-\begin{column}{0.48\textwidth}
-\textbf{Hold out once}\\[3pt]
-Split the rows, fit on most, score on the rest. Simple, and the score depends on which rows
-happened to be held out.
-\end{column}
-\begin{column}{0.48\textwidth}
-\textbf{Cross-validate}\\[3pt]
-Split into $k$ folds. Fit on $k-1$, score on the one left out, rotate, average. Every row gets
-scored exactly once, by a model that never saw it.
-\end{column}
-\end{columns}
-\vspace{0.5em}
-\begin{principle}{same rule either way}
-Anything you learned from the data counts as fitting. Choosing depth, choosing which columns to
-keep, even choosing the scaling. If it happened before scoring, it has to happen inside the fold.
-\end{principle}
-\end{frame}
-
-\begin{frame}{AIC and BIC: paying for parameters}
-A \textbf{probability model} can report how likely your data was under the fitted model. Call
-that the likelihood $L$. Bigger is better, but adding parameters always makes it bigger, so a
-raw comparison always picks the biggest model.
-\[
-\text{AIC} \;=\; 2k - 2\ln L
-\qquad\qquad
-\text{BIC} \;=\; k\ln n - 2\ln L
-\]
-\begin{itemize}\small
-  \item $k$ is how many parameters you estimated, $n$ is how many rows you have.
-  \item The second term rewards fit. The first charges you for the parameters that bought it.
-  \item \textbf{Lower is better.} The raw value means nothing on its own, only differences do.
-\end{itemize}
-\end{frame}
-
-\begin{frame}{AIC, worked on the cars}
-$n = 392$. Three nested models, each fit to the same rows.
-\begin{center}\small
-\begin{tabular}{L{0.30\textwidth} L{0.08\textwidth} L{0.14\textwidth} L{0.30\textwidth}}
-\toprule
-\textbf{Model} & \textbf{$k$} & \textbf{$\ln L$} & \textbf{AIC $= 2k - 2\ln L$} \\
-\midrule
-mpg on weight & 2 & $-1130.0$ & $4 + 2260.0 = 2264.0$ \\
-\quad + horsepower & 3 & $-1121.0$ & $6 + 2242.0 = 2248.0$ \\
-\quad + model year & 4 & $-1037.4$ & $8 + 2074.8 = 2082.8$ \\
-\bottomrule
-\end{tabular}
-\end{center}
-\begin{itemize}\small
-  \item Horsepower buys 16 points of AIC, and model year buys another 165. Both are worth their
-        one parameter.
-  \item BIC charges $\ln(392) = 5.97$ per parameter instead of 2, so it prefers smaller models,
-        and the gap widens as $n$ grows.
-\end{itemize}
-\end{frame}
-
-\begin{frame}{Which comparison to use}
-\begin{center}\small
-\begin{tabular}{L{0.26\textwidth} L{0.30\textwidth} L{0.32\textwidth}}
-\toprule
- & \textbf{AIC and BIC} & \textbf{Out-of-sample error} \\
-\midrule
-Needs a likelihood & yes, so probability models only & no, works on anything \\
-Data used & all of it, once & held out, or rotated in folds \\
-Cost & one fit per model & $k$ fits per model \\
-Compares across families & no & yes \\
-\bottomrule
-\end{tabular}
-\end{center}
-\begin{trap}{comparing numbers that are not comparable}
-An AIC of 2082 and a cross-validated MSE of 11.63 are different quantities on different scales,
-and neither one is ``better'' than the other. Pick one method and use it for every candidate, on
-identical rows.
 \end{trap}
 \end{frame}
 
