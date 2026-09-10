@@ -53,7 +53,7 @@ about in your head.""",
  "backwards, since more data makes it smaller."),
 
 ("An experiment on 5 million users finds a 0.4 second difference in session time with "
- "$p < 10^{-8}$, and your manager calls it a major finding.",
+ "$p < 10^{-8}$. Your manager calls it a major finding. Do you agree?",
  ["Agree, since a p-value that small is about as strong as statistical evidence ever gets.",
   "Disagree, since with 5 million users a result this extreme is almost certainly a false alarm.",
   "Disagree, since the t-test stops being valid once the sample runs into the millions and the "

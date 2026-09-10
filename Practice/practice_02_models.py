@@ -21,7 +21,8 @@ ask, and how the job you were given narrows the choice. No computer needed.""",
  "likelihood is what standard errors, p-values, confidence intervals and AIC are all made of. "
  "Option D names a fitting method, which comes after the distribution rather than instead of it."),
 
-("A colleague asks for the p-value on the most important variable in a random forest.",
+("A colleague asks for the p-value on the most important variable in a random forest. What do "
+ "you tell them?",
  ["It is in the model output, and you just have to ask the library to print it for you.",
   "Bootstrap the forest a thousand times and read the p-value off the spread of the importances.",
   "There isn't one, because the forest never states a distribution for the outcome.",
@@ -65,7 +66,8 @@ ask, and how the job you were given narrows the choice. No computer needed.""",
  "decide against a forest, the reason is never the outcome. It is that somebody needs to read a "
  "number out of the model."),
 
-("A lasso keeps 12 of 200 candidate variables. You report those coefficients with their p-values.",
+("A lasso keeps 12 of 200 candidate variables and you report those coefficients with their "
+ "p-values. What is wrong with that?",
  ["Nothing is wrong, since the lasso reports valid standard errors alongside its coefficients.",
   "They were shrunk toward zero on purpose, and the 12 were picked by looking at the data.",
   "Ridge would have been the correct choice here, since it keeps every variable in the model.",
@@ -97,17 +99,6 @@ ask, and how the job you were given narrows the choice. No computer needed.""",
  "Flexibility is bought with sample size. At 300 rows and 80 columns a flexible model fits "
  "beautifully and predicts badly, because most of what it is fitting is noise. Regularized "
  "regression is the sensible move, used to cut 80 columns down to a few you can defend."),
-
-("Your forest beats your regression by five points of cross-validated error. What do you do next?",
- ["Ship the forest, since it won the comparison on the measure you agreed to use.",
-  "Average the two models together, which usually beats either one on its own.",
-  "Ship the regression anyway, because a simpler model is the safer choice in every case.",
-  "Find out what the forest is using that the regression is missing."],
- 3,
- "A gap that size is information rather than a verdict. Usually the forest has found an "
- "interaction or a threshold you can name, and once you add it to the regression the gap closes "
- "and you ship the model you can explain. If it does not close, you have learned the structure is "
- "genuinely complicated, which is also worth knowing."),
 
 ("A depth-10 tree scores 0.44 training error and 13.19 cross-validated. A straight line scores "
  "11.59 and 12.23. Which model is better?",

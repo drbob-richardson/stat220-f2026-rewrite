@@ -34,7 +34,7 @@ ask, and how the job you were given narrows the choice. No computer needed.
 \textbf{Answer: A.} A probability model commits to where the data came from: normal around a line, Bernoulli with some probability, Poisson with some rate. That commitment produces a likelihood, and the likelihood is what standard errors, p-values, confidence intervals and AIC are all made of. Option D names a fitting method, which comes after the distribution rather than instead of it.
 \vspace{4pt}
 
-\item A colleague asks for the p-value on the most important variable in a random forest.
+\item A colleague asks for the p-value on the most important variable in a random forest. What do you tell them?
 
 \begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
   \item It is in the model output, and you just have to ask the library to print it for you.
@@ -86,7 +86,7 @@ ask, and how the job you were given narrows the choice. No computer needed.
 \textbf{Answer: D.} The outcome type eliminates probability models one at a time, and eliminates nothing on the other side, because trees, forests and boosting all have a classification mode. So when you decide against a forest, the reason is never the outcome. It is that somebody needs to read a number out of the model.
 \vspace{4pt}
 
-\item A lasso keeps 12 of 200 candidate variables. You report those coefficients with their p-values.
+\item A lasso keeps 12 of 200 candidate variables and you report those coefficients with their p-values. What is wrong with that?
 
 \begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
   \item Nothing is wrong, since the lasso reports valid standard errors alongside its coefficients.
@@ -123,19 +123,6 @@ ask, and how the job you were given narrows the choice. No computer needed.
 
 \vspace{2pt}
 \textbf{Answer: C.} Flexibility is bought with sample size. At 300 rows and 80 columns a flexible model fits beautifully and predicts badly, because most of what it is fitting is noise. Regularized regression is the sensible move, used to cut 80 columns down to a few you can defend.
-\vspace{4pt}
-
-\item Your forest beats your regression by five points of cross-validated error. What do you do next?
-
-\begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
-  \item Ship the forest, since it won the comparison on the measure you agreed to use.
-  \item Average the two models together, which usually beats either one on its own.
-  \item Ship the regression anyway, because a simpler model is the safer choice in every case.
-  \item Find out what the forest is using that the regression is missing.
-\end{enumerate}
-
-\vspace{2pt}
-\textbf{Answer: D.} A gap that size is information rather than a verdict. Usually the forest has found an interaction or a threshold you can name, and once you add it to the regression the gap closes and you ship the model you can explain. If it does not close, you have learned the structure is genuinely complicated, which is also worth knowing.
 \vspace{4pt}
 
 \item A depth-10 tree scores 0.44 training error and 13.19 cross-validated. A straight line scores 11.59 and 12.23. Which model is better?
