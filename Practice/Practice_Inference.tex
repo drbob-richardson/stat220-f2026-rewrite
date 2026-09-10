@@ -13,221 +13,221 @@
 {\large Midterm practice questions, with answers}\\[6pt]
 \end{center}
 
-Practice questions on signal versus noise, $p$-values, confidence intervals, power, and the
-assumptions a $t$-test rests on. No computer and no tables. Where a number is needed it is small
-enough to reason about in your head. Work each one before reading the answer.
+Practice on signal against noise, p-values, confidence intervals, power, and the assumptions a
+t-test rests on. No computer and no tables. Where a number is needed it is small enough to reason
+about in your head.
 
 \vspace{8pt}
 \hrule
 \vspace{10pt}
 
 \begin{enumerate}[itemsep=14pt]
-\item A team runs an A/B test with 40 users per arm and reports a 60\% lift with $p = 0.04$. A colleague wants to ship it today. What is the strongest statistical reason to wait?
+\item An A/B test on 40 users per arm reports a 60 percent lift, $p = 0.04$. Why wait before shipping?
 
 \begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
-  \item The $p$-value of 0.04 is above the 0.01 threshold, so the result is not significant.
-  \item With only 40 users per arm the test had little power, so a result large enough to clear significance almost certainly got help from luck, and the 60\% is overstated.
-  \item A 60\% lift is too large to be real, so the data must contain an error.
-  \item The team should have used a one-sided test, which would have given a smaller $p$-value.
+  \item The p-value is above the usual 0.01 bar.
+  \item A one-sided test would have been the right call.
+  \item At that sample size, only lucky results clear the bar.
+  \item A 60 percent lift is impossible, so the data is wrong.
 \end{enumerate}
 
 \vspace{2pt}
-\textbf{Answer: B.} This is the winner's curse. When power is low, the only estimates that reach significance are the ones that landed high, so the reported effect is biased upward. Ask for the confidence interval and a replication before shipping. Option A invents a threshold, C rejects data for being inconvenient, and D would be chasing a smaller $p$-value rather than a better answer.
+\textbf{Answer: C.} This is the winner's curse. When power is low, the only estimates that reach significance are the ones that happened to land high, so the reported effect is biased upward. Ask for the confidence interval and a replication. Option A invents a threshold and option D throws out data for being inconvenient.
 \vspace{4pt}
 
-\item A drug trial reports $p = 0.04$. A journalist writes that there is only a 4\% chance the drug does not work. What is wrong with that sentence?
+\item A trial reports $p = 0.04$. A journalist writes that there is a 4 percent chance the drug does not work. What is wrong?
 
 \begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
-  \item Nothing is wrong. That is what a $p$-value measures.
-  \item The $p$-value should be doubled because the test was two-sided.
-  \item The $p$-value is computed assuming the drug does nothing, so it cannot also be the probability that the drug does nothing.
-  \item The claim is fine as long as patients were randomized.
+  \item The p-value assumes the drug does nothing.
+  \item It should have been doubled for a two-sided test.
+  \item Nothing, that is what a p-value measures.
+  \item It is fine if patients were randomized.
 \end{enumerate}
 
 \vspace{2pt}
-\textbf{Answer: C.} The journalist reversed the conditional. A $p$-value is the probability of data this extreme given that the null is true, not the probability the null is true given the data. The correct reading is that if the drug truly did nothing, results this extreme would show up about 4\% of the time. Getting the probability of the hypothesis requires a prior, which is Unit 12.
+\textbf{Answer: A.} The p-value is computed assuming the null is true, so it cannot also be the probability that the null is true. That reverses the conditional. The honest reading: if the drug did nothing, results this extreme would turn up about 4 percent of the time. Getting the probability of a hypothesis needs a prior, which is Unit 12.
 \vspace{4pt}
 
-\item Two studies test the same blood-pressure drug. Study A estimates a 10-point drop with $\mathrm{SE} = 8$. Study B estimates a 2-point drop with $\mathrm{SE} = 0.5$. Which is the stronger evidence that the drug does something?
+\item Study A: a 10-point drop, $\mathrm{SE} = 8$. Study B: a 2-point drop, $\mathrm{SE} = 0.5$. Which is stronger evidence?
 
 \begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
-  \item Study A, because a 10-point drop is five times larger than a 2-point drop.
-  \item Study B, because its estimate sits 4 standard errors from zero while Study A's sits 1.25.
-  \item Neither on its own. The two studies have to be pooled before either can be read.
-  \item Study A, because a larger standard error means the study collected more data.
+  \item A, since a bigger standard error means more data.
+  \item B, at four standard errors from zero.
+  \item Neither until they are pooled.
+  \item A, since a 10-point drop is five times larger.
 \end{enumerate}
 
 \vspace{2pt}
-\textbf{Answer: B.} Evidence is the estimate measured against its own noise, not the raw size of the estimate. $10/8 = 1.25$ and $2/0.5 = 4$. Study A's interval comfortably includes zero, so it is consistent with the drug doing nothing at all. Option D has the standard error backwards, since more data makes it smaller.
+\textbf{Answer: B.} Evidence is the estimate measured against its own noise. Ten over eight is 1.25, and two over half is 4. Study A's interval comfortably includes zero, so it is consistent with the drug doing nothing. Option A has the standard error backwards, since more data makes it smaller.
 \vspace{4pt}
 
-\item An experiment on 5 million users finds a 0.4 second difference in session time with $p < 10^{-8}$. A manager calls it a major finding. What is the right response?
+\item Five million users, a 0.4 second difference, $p < 10^{-8}$. Your manager calls it major.
 
 \begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
-  \item Agree. A $p$-value that small is as strong as evidence gets.
-  \item Disagree. With 5 million users the result is almost certainly a false positive.
-  \item The effect is real but probably trivial. $|t|$ grows with $\sqrt{n}$, so at this sample size even a meaningless difference clears any threshold.
-  \item The $t$-test is not valid at this sample size and should be rerun.
+  \item Agree, a p-value that small is as strong as it gets.
+  \item The test is invalid at that sample size.
+  \item Disagree, it is almost certainly a false positive.
+  \item It is real and probably trivial.
 \end{enumerate}
 
 \vspace{2pt}
-\textbf{Answer: C.} A tiny $p$-value at huge $n$ is a statement about the sample size, not about importance. Move the conversation to the effect size and its interval, then ask whether 0.4 seconds is worth anyone's engineering time. Note that B goes wrong in the opposite direction: large samples make false positives less likely, not more.
+\textbf{Answer: D.} A tiny p-value at huge n is a statement about the sample size, not about importance, since the t-statistic grows with the square root of n. Move the conversation to the effect size and whether 0.4 seconds is worth anyone's engineering time. Note that C goes wrong in the opposite direction: large samples make false positives less likely.
 \vspace{4pt}
 
-\item A team tests 20 different page colors against conversion. Green comes back at $p = 0.04$ and the other 19 show nothing. How excited should you be?
+\item Twenty page colours are tested. Green comes back at $p = 0.04$ and the rest show nothing.
 
 \begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
-  \item Very. The result cleared the standard 0.05 bar.
-  \item Not very. If nothing were going on, the chance that at least one of 20 tests lands under 0.05 is $1 - 0.95^{20}$, or about 64\%.
-  \item Not very, because 0.04 sits too close to 0.05 to be trusted.
-  \item Very, because 19 tests showing nothing makes green stand out as special.
+  \item Excited, it cleared the 0.05 bar.
+  \item Not excited, since 0.04 is too near 0.05 to trust.
+  \item Excited, since 19 nulls make green stand out.
+  \item Not excited, that is what noise looks like.
 \end{enumerate}
 
 \vspace{2pt}
-\textbf{Answer: B.} This is multiplicity. Each test has its own 5\% false-alarm budget, and running 20 of them means one significant result is roughly what pure noise produces. The fix is a multiplicity adjustment or picking the one test you care about in advance. Option C is a different mistake, treating 0.05 as a cliff where 0.04 and 0.06 mean opposite things.
+\textbf{Answer: D.} Each test carries its own 5 percent false-alarm budget, so across 20 the chance of at least one hit is about 64 percent. A lone significant result out of 20 is roughly what pure noise produces. Option B is a different mistake, treating 0.05 as a cliff where 0.04 and 0.06 mean opposite things.
 \vspace{4pt}
 
-\item A study on 10 participants reports $p = 0.40$, and the authors conclude the treatment has no effect. What is the problem, and what would you ask to see?
+\item A study on 10 people reports $p = 0.40$ and concludes there is no effect.
 
 \begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
-  \item No problem. A high $p$-value is how you demonstrate that something does not work.
-  \item Absence of evidence is not evidence of absence. At $n = 10$ the study could miss a large real effect, so ask for the confidence interval.
-  \item The conclusion is fine, but they should have run a one-sided test.
-  \item The conclusion is backwards. A $p$-value of 0.40 is evidence that the effect is large.
+  \item Correct, a high p-value shows something does not work.
+  \item Wrong, that p-value actually supports a large effect.
+  \item Underpowered, so ask for the interval.
+  \item Right, though a one-sided test would have been better.
 \end{enumerate}
 
 \vspace{2pt}
-\textbf{Answer: B.} A test that fails to reject has not shown the effect is zero, only that this study could not resolve it. The confidence interval separates the two cases. An interval from $-3\%$ to $+12\%$ means the study was inconclusive, while a narrow interval hugging zero would actually support the no-meaningful-effect reading.
+\textbf{Answer: C.} Failing to reject is not the same as showing the effect is zero. At n = 10 the study could miss a large real effect entirely. The confidence interval separates the two cases: running from minus 3 to plus 12 percent means inconclusive, while a narrow interval hugging zero would genuinely support no meaningful effect.
 \vspace{4pt}
 
-\item Which statement correctly describes a 95\% confidence interval?
+\item Which statement describes a 95 percent confidence interval?
 
 \begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
-  \item There is a 95\% probability that the true value lies inside this particular interval.
-  \item About 95\% of the observations in the sample fall inside the interval.
-  \item If the study were repeated many times, about 95\% of the intervals built this way would contain the true value.
-  \item The interval contains the sample mean 95\% of the time.
+  \item About 95 percent of the observed data falls inside it.
+  \item 95 percent of such intervals cover the truth.
+  \item There is a 95 percent chance the truth is in this one.
+  \item It holds the sample mean 95 percent of the time.
 \end{enumerate}
 
 \vspace{2pt}
-\textbf{Answer: C.} The 95\% describes the long-run behavior of the procedure, not this one interval. Once the interval is computed, the true value either is in it or is not. Option A is the single most common misstatement, and it describes a credible interval, which needs a prior. Option B confuses a confidence interval with the spread of the data, which is a much wider thing.
+\textbf{Answer: B.} The 95 percent describes the long-run behaviour of the procedure, not this one interval. Once computed, the interval either contains the true value or it does not. Option C is the most common misstatement and actually describes a credible interval, which needs a prior. Option A confuses it with the spread of the data, which is far wider.
 \vspace{4pt}
 
-\item A dashboard shows conversion rising from 2.0\% to 2.4\% week over week. Before anyone explains why, what should you check?
+\item Conversion moves from 2.0 to 2.4 percent week over week. What do you check?
 
 \begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
-  \item Nothing. A 20\% relative gain is large enough to announce.
-  \item Run a $t$-test on the two percentages and report the $p$-value.
-  \item The counts and the interval first, then whether the traffic mix or volume changed, then whether anything about how conversion is recorded changed that week.
-  \item Compare against the same week last year and draw the conclusion from that.
+  \item Announce it, a 20 percent relative gain is large.
+  \item Run a t-test on the two percentages.
+  \item Counts, then the denominator, then the tracking.
+  \item Compare with the same week last year.
 \end{enumerate}
 
 \vspace{2pt}
-\textbf{Answer: C.} Work outward from the most boring explanation. On a small base, a jump from 2.0 to 2.4 can easily be noise. If it is not noise, a change in the denominator or in the tracking definition explains far more dashboard movements than a real behavioral shift does. Looking for causes before ruling those out is how teams end up explaining artifacts.
+\textbf{Answer: C.} Work outward from the most boring explanation. On a small base, 2.0 to 2.4 can easily be noise. If it is not, a shift in traffic mix or a change in how conversion is recorded explains far more dashboard movement than real behaviour does. Hunting for causes before ruling those out is how teams end up explaining artifacts.
 \vspace{4pt}
 
-\item A colleague watches an A/B test on a live dashboard and stops it the moment $p$ drops below 0.05. What does this do to the false-positive rate?
+\item Someone watches a live A/B dashboard and stops the moment $p$ drops below 0.05.
 
 \begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
-  \item Nothing, as long as the $p$-value is below 0.05 when the test stops.
-  \item It makes the test more conservative, so the false-positive rate falls below 5\%.
-  \item Every look is another chance to cross the line, so the true false-positive rate ends up far above 5\%, easily 20 to 30\% with frequent checks.
-  \item It only matters when the sample size is small.
+  \item It only matters when the sample is small.
+  \item It makes the test more conservative.
+  \item Nothing, as long as p is below 0.05 at the end.
+  \item Every look is another chance to cross.
 \end{enumerate}
 
 \vspace{2pt}
-\textbf{Answer: C.} Optional stopping is multiplicity wearing a disguise. An experiment with no real effect will wander across the 0.05 line eventually if you keep watching, and stopping at that moment guarantees you record it. Fix it by setting the sample size in advance or by using a sequential method built for repeated looks.
+\textbf{Answer: D.} Optional stopping is multiplicity in disguise. An experiment with no real effect will wander across the line eventually if you keep watching, and stopping right then guarantees you record it. The true false-positive rate climbs well above 5 percent, easily to 20 or 30 with frequent checks. Fix the sample size in advance, or use a method built for repeated looks.
 \vspace{4pt}
 
-\item You compare conversion between two cities by pooling all 400{,}000 individual sessions and get $t = 31$. What is your first concern?
+\item Two cities are compared by pooling 400,000 sessions, giving $t = 31$. First concern?
 
 \begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
-  \item No concern. More data gives a more reliable answer.
-  \item Sessions from the same user, and users within the same city, are correlated, so the number of genuinely independent observations is far smaller than 400{,}000.
-  \item A $t$ statistic that large indicates a computational error.
-  \item The two cities should have been compared with a paired test.
+  \item Nothing, more data is better.
+  \item A t that large means a computational error.
+  \item The sessions are not 400,000 independent facts.
+  \item It should have been a paired test.
 \end{enumerate}
 
 \vspace{2pt}
-\textbf{Answer: B.} This is the unit-of-analysis problem. The standard error divides by $\sqrt{n}$, so counting 400{,}000 correlated sessions as 400{,}000 independent facts makes the standard error far too small and inflates $t$. Aggregate to the level that is actually independent, which here is the user or the city, and analyze those numbers instead.
+\textbf{Answer: C.} Sessions from the same user, and users within the same city, are correlated. The standard error divides by the square root of n, so counting correlated rows as independent ones makes it far too small and inflates t. Aggregate to the level that is genuinely independent, the user or the city, and analyse those numbers instead.
 \vspace{4pt}
 
-\item Two designs: (a) 30 people measured before and after a training program, and (b) 30 people who took the training compared with 30 who did not. Which tests apply?
+\item (a) 30 people measured before and after training. (b) 30 trained compared with 30 untrained.
 
 \begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
-  \item Both unpaired, since each compares two sets of numbers.
-  \item Both paired, since both involve the same training program.
-  \item (a) is paired because both measurements come from the same person, and (b) is unpaired because the two groups are different people.
-  \item (a) is unpaired and (b) is paired.
+  \item Both unpaired, each compares two sets of numbers.
+  \item (a) unpaired, (b) paired.
+  \item Both paired, both involve the training.
+  \item (a) paired, (b) unpaired.
 \end{enumerate}
 
 \vspace{2pt}
-\textbf{Answer: C.} Pairing is about whether the two numbers being compared are linked at the level of the individual. In (a) they are, so take each person's difference and run a one-sample test, which also strips out person-to-person variation and gains power. In (b) there is no link between any particular trained person and any particular untrained one, so Welch's unpaired test is right.
+\textbf{Answer: D.} Pairing is about whether the two numbers are linked at the level of one individual. In (a) they are, so take each person's difference and run a one-sample test, which also strips out person-to-person variation and gains power. In (b) no particular trained person is linked to any particular untrained one.
 \vspace{4pt}
 
-\item Group A has 2{,}000 observations with a small spread. Group B has 80 observations with a large spread. Which two-sample test should you use?
+\item Group A: 2,000 observations, small spread. Group B: 80 observations, large spread.
 
 \begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
-  \item The pooled Student $t$-test, because it has more power.
-  \item Welch's $t$-test, because unequal variances combined with unequal group sizes is exactly the case where the pooled version is miscalibrated.
-  \item A paired $t$-test, to account for the different group sizes.
-  \item No test is valid until the groups are made the same size.
+  \item Welch's test.
+  \item The pooled Student test, which has more power.
+  \item A paired test, to handle the different sizes.
+  \item No test until the groups are the same size.
 \end{enumerate}
 
 \vspace{2pt}
-\textbf{Answer: B.} The pooled test forces a single common spread onto two groups that plainly do not share one, and when the group sizes are also lopsided it reports more certainty than it has earned. Welch costs essentially nothing and fixes the problem, which is why it is a sensible default even when you are not sure the variances differ.
+\textbf{Answer: A.} The pooled test forces one common spread onto two groups that plainly do not share one, and with lopsided group sizes it reports more certainty than it has earned. Welch costs essentially nothing and fixes it, which is why it is a sensible default even when you are unsure whether the variances differ.
 \vspace{4pt}
 
-\item A researcher runs a $t$-test on 18 revenue observations, one of which is a single enormous purchase, and reports $p = 0.02$. Which assumptions are under the most strain?
+\item A t-test on 18 revenue figures, one of them enormous, gives $p = 0.02$. Which assumptions are strained?
 
 \begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
   \item Independence and equal variance.
-  \item Small-sample normality of the estimate, since the central limit theorem has not rescued a heavy right tail at $n = 18$, and the condition that no single point dominates.
-  \item Random assignment and blinding.
-  \item None. With $n = 18$ the $t$-test is comfortably valid.
+  \item Random assignment and blinding of the analyst.
+  \item None of them, since n = 18 is fine for a t-test.
+  \item Normality of the estimate, and no one point dominating.
 \end{enumerate}
 
 \vspace{2pt}
-\textbf{Answer: B.} At $n = 18$ the average of a heavily skewed variable is still skewed, so the reference distribution is wrong. The single large purchase also moves the mean and inflates $s$ at the same time. Two checks you can run without a computer: ask what happens to the conclusion if that one observation is dropped, and compare the mean against the median to see how far the tail is pulling.
+\textbf{Answer: D.} At n = 18 the average of a heavily skewed variable is still skewed, so the reference distribution is wrong. The single huge purchase moves the mean and inflates s at the same time. Two checks you can run in your head: ask what happens to the conclusion if that observation goes, and compare the mean against the median.
 \vspace{4pt}
 
-\item Rank the failure of these four $t$-test assumptions by how much damage each does: equal variances, independence, normality of the raw data, no extreme outliers.
+\item Rank these by how much damage their failure does: equal variance, independence, normality of the raw data, outliers.
 
 \begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
-  \item Normality does the most damage, because the $t$-test is built on the normal distribution.
-  \item Equal variances does the most damage, because unequal spread biases the estimate.
-  \item Independence by a wide margin, then outliers, then equal variance, and normality of the raw data last.
-  \item All four do about the same amount of damage.
+  \item Normality first, the t-test is built on it.
+  \item Independence, then outliers, then variance, then normality.
+  \item Equal variance first, unequal spread biases the estimate.
+  \item All four do about the same damage.
 \end{enumerate}
 
 \vspace{2pt}
-\textbf{Answer: C.} Independence is worst because its failure is invisible in any plot and it makes you more confident rather than less. Outliers come next since one point can move both the estimate and the spread. Unequal variance is close to free to fix with Welch. Normality of the raw data matters least for means at moderate $n$, because the central limit theorem is working on the average rather than on the individual observations.
+\textbf{Answer: B.} Independence is worst because its failure leaves no trace in any plot and it makes you more confident rather than less. Outliers come next, since one point moves both the estimate and the spread. Unequal variance is nearly free to fix with Welch. Normality of the raw data matters least for means at moderate n, because the CLT works on the average.
 \vspace{4pt}
 
-\item Why are $p$-values uniformly distributed between 0 and 1 when the null hypothesis is true?
+\item Why are p-values uniform between 0 and 1 when the null is true?
 
 \begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
-  \item Because the null hypothesis is true about half the time.
-  \item Because the $p$-value is the tail area of the test statistic's own null distribution, so every value between 0 and 1 is equally likely.
-  \item Because of the central limit theorem.
-  \item Because the sample size is large.
+  \item Because of the central limit theorem at large n.
+  \item Because the null is true about half the time.
+  \item Because the sample is large.
+  \item It is the null distribution's own tail area.
 \end{enumerate}
 
 \vspace{2pt}
-\textbf{Answer: B.} Under the null the test statistic follows a known distribution, and the $p$-value is just that distribution's own tail area evaluated at the observed statistic. Feeding a distribution back through itself gives a flat result. The practical consequence is that $p < 0.05$ happens in exactly 5\% of null studies by construction, so roughly 20 tests on nothing produce one significant result. The 5\% is a false-alarm budget you chose, not evidence you found.
+\textbf{Answer: D.} Under the null the test statistic follows a known distribution, and the p-value is that distribution's tail area at the observed value. Feeding a distribution back through itself gives a flat result. So p below 0.05 happens in exactly 5 percent of null studies by construction: the 5 percent is a budget you chose, not evidence you found.
 \vspace{4pt}
 
-\item A manager says the result was not significant, so the team can stop investigating. What are the two situations that could have produced that result, and how do you tell them apart?
+\item A manager says the result was not significant, so stop investigating.
 
 \begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
-  \item Only one situation is possible. A non-significant result means there is no effect.
-  \item Either there is no meaningful effect, or the study lacked the power to detect one, and the width of the confidence interval separates the two.
-  \item The manager is wrong because the test should have been one-sided.
-  \item Non-significance always means the sample was too small.
+  \item Non-significance always means too small a sample.
+  \item No effect, or no power. The interval separates them.
+  \item Correct, a non-significant result means no effect.
+  \item Wrong, the test should have been one-sided.
 \end{enumerate}
 
 \vspace{2pt}
-\textbf{Answer: B.} A narrow interval sitting tightly around zero genuinely supports the claim that any effect is too small to matter. A wide interval spanning large positive and large negative values means the study could not resolve the question at all, and the honest summary is that you still do not know. Both produce the same $p$-value, and only the interval distinguishes them.
+\textbf{Answer: B.} A narrow interval sitting tightly around zero genuinely supports the claim that any effect is too small to matter. A wide interval spanning large positive and negative values means the study could not resolve the question, and the honest summary is that you still do not know. Both give the same p-value.
 \vspace{4pt}
 
 \end{enumerate}
