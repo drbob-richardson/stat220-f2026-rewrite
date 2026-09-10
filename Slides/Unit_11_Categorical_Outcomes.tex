@@ -76,39 +76,7 @@ about the denominator.
 \end{principle}
 \end{frame}
 
-\begin{frame}{Live experiment: the rock-paper-scissors tournament}
-\begin{livedemo}{can you be random?}
-Pair up. Play \textbf{five rounds} of rock-paper-scissors. One person in each pair records
-\emph{only the first throw} of each round for both players.
-\begin{itemize}
-  \item We will collect every first throw on the board as three counts.
-  \item Then we test the hypothesis everyone assumes: that people throw each option one third of
-        the time.
-\end{itemize}
-\end{livedemo}
-\vspace{0.2em}
-{\tiny\textit{Materials: none. Time: 8 minutes including tallying the throws.}}
-\centering\small Winners of the most rounds, keep your hand up. We will come back to whether you
-were lucky or good.
-\end{frame}
-\begin{frame}{Stay here while they play: what the research says}
-\begin{columns}[c]
-\begin{column}{0.55\textwidth}
-\centering
-\includegraphics[width=\textwidth]{fig_m10_rps.pdf}
-\end{column}
-\begin{column}{0.45\textwidth}
-\small
-Across large studies of first throws:
-\begin{itemize}
-  \item \textbf{Rock} is thrown about 36\% of the time, scissors only about 29\%.
-  \item So ``always play paper'' beats a typical human opponent slightly more often than it loses.
-\end{itemize}
-The edge is small, but it is free, and it exists because people cannot generate randomness.
-\end{column}
-\end{columns}
-\end{frame}
-\begin{frame}{Testing our own counts}
+\begin{frame}{Testing the counts}
 Suppose the class produced $n$ throws with counts $O_{\text{rock}}, O_{\text{paper}},
 O_{\text{scissors}}$. Under ``all equally likely,'' each expected count is $E = n/3$.
 \[
@@ -409,21 +377,6 @@ the business.
 % ======================================================================
 \section{Decisions}
 % ======================================================================
-\begin{frame}{Live experiment: the inbox game}
-\begin{livedemo}{you are the spam filter}
-Each team gets the same list of 20 emails, with the model's spam score for each (0 to 1) and a
-short description. Your job: pick \textbf{one threshold}. Everything at or above it goes to the
-spam folder.
-\begin{itemize}
-  \item Missing a spam email (it lands in the inbox): costs you \textbf{1 point}.
-  \item Blocking a real email (a job offer in the spam folder): costs you \textbf{10 points}.
-\end{itemize}
-Write your threshold on the board. Lowest total cost wins.
-\end{livedemo}
-\vspace{0.2em}
-{\tiny\textit{Materials: the email table on the next slide. Time: 10 minutes.}}
-\centering\small Do not compute anything yet. Pick the number your gut says, then we will score it.
-\end{frame}
 \begin{frame}{The inbox: 20 emails and the model's spam score}
 \begin{columns}[T]
 \begin{column}{0.5\textwidth}
@@ -468,15 +421,6 @@ score & subject \\
 \vspace{0.4em}
 \centering\small
 One threshold per team. Miss a spam: 1 point. Block a real email: 10 points.
-\end{frame}
-\begin{frame}{Stay here while they choose: what will happen}
-\begin{itemize}
-  \item Teams that picked \textbf{0.5} because it is the default will do poorly.
-  \item Because blocking real mail is ten times worse, the winning threshold will be high,
-        somewhere around \textbf{0.9}: only block when you are very sure.
-  \item Now flip the costs. If we were filtering \emph{phishing attacks in a hospital}, missing
-        one is catastrophic and the threshold should be low.
-\end{itemize}
 \end{frame}
 \begin{frame}{Scoring the inbox game}
 \centering

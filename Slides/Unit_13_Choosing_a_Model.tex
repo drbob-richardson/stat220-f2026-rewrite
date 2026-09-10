@@ -351,22 +351,7 @@ The model was never the problem. The ratio of what you are estimating to what yo
 % ======================================================================
 \section{Activity}
 % ======================================================================
-\begin{frame}{Commit before you see the test set}
-\begin{livedemo}{the whole unit in ten minutes}
-On screen: 14 points, one predictor, one outcome. That is all anyone gets to look at.
-\begin{enumerate}\small
-  \item Each team writes a polynomial degree from 1 to 10 on a card and holds it up. Committed,
-        before anything else happens.
-  \item I fit every chosen degree live. Each team's curve goes on the plot. The high-degree curves
-        visibly pass closer to the points, and teams that chose 8 or 9 feel good about it.
-  \item I show the training error. The teams that chose high degrees are winning by a lot.
-  \item Then I reveal the 10 held-out points that were there the whole time, and rescore.
-\end{enumerate}
-\end{livedemo}
-Write the two leaderboards side by side on the board before revealing the second one.
-\end{frame}
-
-\begin{frame}{What happens every time we run this}
+\begin{frame}{Training rank and test rank disagree}
 \begin{itemize}
   \item The training leaderboard is almost perfectly ordered by degree. Highest degree wins.
   \item The test leaderboard is close to reversed at the top, and the winner is usually a team

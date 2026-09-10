@@ -114,23 +114,6 @@ A model that fits your data perfectly has told you nothing except what your data
 \end{columns}
 \end{frame}
 
-\begin{frame}{Live experiment: trust, then verify}
-\begin{livedemo}{predict shoe size from height}
-We need \textbf{10 volunteers} up front.
-\begin{itemize}
-  \item We can see each person's \textbf{height}, and we record it along with their
-        \textbf{shoe size}.
-  \item We fit a line that predicts shoe size from height.
-  \item Then we will check how good our line is.
-\end{itemize}
-\end{livedemo}
-\vspace{0.2em}
-{\tiny\textit{Materials: 10 volunteers, a tape measure if handy. Time: 12 minutes.}}
-\vspace{0.2em}
-\centering\small
-(If a tape measure is handy, height to arm span works even better. Otherwise height to shoe
-size needs no tools.)
-\end{frame}
 \begin{frame}{First, let's ``verify'' on the same 10 people}
 \begin{itemize}
   \item We feed each of our 10 volunteers' heights back into the line and compare the predicted
@@ -418,22 +401,7 @@ it's just overfitting.''
 % ======================================================================
 \section{Flexibility}
 % ======================================================================
-\begin{frame}{Live experiment: the class builds a tree}
-\begin{livedemo}{you build the tree, one split at a time}
-On the board: 30 cars with weight, horsepower, model year, and mpg. The goal is to predict mpg.
-\begin{enumerate}
-  \item By vote, pick \textbf{one variable and one cutoff} to split the 30 cars into two groups.
-  \item I compute the error after your split on those 30 cars, and also on \textbf{10 cars you
-        have not seen}.
-  \item Keep going. Each round, vote on which group to split next.
-\end{enumerate}
-\end{livedemo}
-\vspace{0.2em}
-{\tiny\textit{Materials: the board. Time: 15 minutes.}}
-\centering\small We stop when somebody in the room says stop. Then we look at the two error curves.
-\end{frame}
-
-\begin{frame}{What happens every time we run it}
+\begin{frame}{Why the two error curves diverge}
 \begin{itemize}
   \item The error on the 30 cars falls after \emph{every single split}. It has to: more groups
         means a closer fit to the points being fitted.
