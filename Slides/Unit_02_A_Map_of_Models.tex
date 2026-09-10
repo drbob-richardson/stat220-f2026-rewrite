@@ -777,8 +777,8 @@ On 300 rows that bet usually loses.
 \midrule
 1{,}100 loan applications, 12 clean columns, a regulator reviews every rejection
 & yes or no
-& Penalized logistic to pick the columns, then refit an ordinary logistic on the survivors so the
-  coefficients are defensible. Say that you screened first. \\
+& Penalized logistic. Twelve columns is few enough to defend, and the penalty keeps any one of
+  them from running away on a small sample. \\
 6 million ad impressions, 400 columns, only click rate matters
 & yes or no
 & Gradient boosting. Same type of $y$ as above and a completely different answer, because nobody
@@ -873,7 +873,9 @@ for one, and about what the output means.
   \item \textbf{Fit the simple one first.} It is your baseline and often your answer.
   \item \textbf{Fit a flexible one on the same folds}, compare with one method, and take the
         simpler model when they are close.
-  \item \textbf{Report on data you touched once}, and say what else you tried.
+  \item \textbf{Set aside a slice of the data at the very start} and do not fit, tune
+        or choose anything with it. Your final reported number comes from that slice, and
+        you say how many models you tried before landing on this one.
 \end{enumerate}
 \end{frame}
 

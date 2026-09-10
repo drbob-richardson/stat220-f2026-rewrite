@@ -563,7 +563,9 @@ for one, and about what the output means.
   \item \textbf{Fit a flexible one too, on the same folds.} Cross-validate both the same way.
   \item \textbf{If they are within one standard error, take the simpler one.} If they are not,
         find out what the flexible one is using.
-  \item \textbf{Report on data you touched once}, and say what else you tried.
+  \item \textbf{Set aside a slice of the data at the very start} and do not fit, tune
+        or choose anything with it. Your final reported number comes from that slice, and
+        you say how many models you tried before landing on this one.
 \end{enumerate}
 \end{frame}
 
