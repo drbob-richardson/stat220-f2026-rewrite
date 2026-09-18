@@ -54,7 +54,7 @@
   \begin{block}{\textbf{LLM check:} #1}}{\end{block}}
 
 \title{Linear Regression}
-\subtitle{Unit 3: Fitting It, Reading It, and Answering the Question You Were Asked}
+\subtitle{Unit 3: Fitting a Line and Reading a Coefficient}
 \author{Stat 220 \textbar{} Statistics for Data Science}
 \date{}
 
@@ -124,7 +124,7 @@ why?''
 \end{frame}
 
 % ======================================================================
-\section{Activity}
+\section{Regression to the mean}
 % ======================================================================
 \begin{frame}{Regression to the mean}
 \begin{principle}{selecting on an extreme score}
@@ -163,7 +163,7 @@ syntax:
         (assigned in an experiment, or just observed)?
   \item \textbf{Look first.} Plot it. Check the range, the outliers, and any obvious lurking variable.
   \item \textbf{Build the model the question needs.} Which predictors belong, and why each one?
-  \item \textbf{Check it.} Residuals, and the assumptions from Part 1.
+  \item \textbf{Check it.} Residuals, and the assumptions from Unit 1.
   \item \textbf{Read the answer.} The coefficient as a sentence, its uncertainty, and the
         caveats: confounding, extrapolation, causal or not.
 \end{enumerate}
@@ -203,7 +203,7 @@ That single number $b_1$ is usually the thing you actually care about.
 \end{itemize}
 \begin{principle}{interpretation is a sentence, not a number}
 Always state a slope as a full sentence with units and direction: ``each extra X is associated
-with $b_1$ more Y.'' If you can't say the sentence, you don't understand the model yet.
+with $b_1$ more Y.''
 \end{principle}
 \end{frame}
 
@@ -271,8 +271,7 @@ about the other two.
   \item Prediction uses the whole line. Explanation usually lives in a single slope.
 \end{itemize}
 \begin{principle}{keep the question in view}
-Before you read any coefficient, say the question it answers out loud. The math is the easy
-part. Knowing which slope answers your question is the skill.
+Before you read any coefficient, say the question it answers out loud.
 \end{principle}
 \end{frame}
 
@@ -323,7 +322,7 @@ then ask how surprising a slope this big would be.
 \begin{itemize}
   \item \textbf{Null:} $b_1 = 0$, meaning $x$ has no linear relationship with $y$.
   \item The software hands you $b_1$, its SE, the $t$, and a $p$-value. The $p$-value means
-        exactly what it did in Part 1: how surprising this slope would be if the true slope
+        exactly what it did in Unit 1: how surprising this slope would be if the true slope
         were 0.
   \item For our scatter: $b_1 = 1.43$, $\se = 0.13$, so $t \approx 11$ and $p$ is tiny. The
         upward relationship is not a fluke.
@@ -394,7 +393,7 @@ Code a yes/no variable as 1/0 and drop it in the model:
 \end{itemize}
 \begin{principle}{regression unifies the tests}
 A two-group $t$-test is a regression on a single 0/1 predictor. Same estimate, same SE, same
-$p$-value. Once you see this, the whole toolkit collapses into one idea.
+$p$-value.
 \end{principle}
 \end{frame}
 
@@ -426,7 +425,7 @@ A dummy shifts the line. An \textbf{interaction} (a $\text{group}\times x$ term)
   \item Lines are no longer parallel.
   \item Now ``the effect of $x$'' depends on the group.
 \end{itemize}
-We'll go deeper on interactions in Part 3.
+Unit 4 goes further with interactions.
 \end{column}
 \end{columns}
 \end{frame}
@@ -514,7 +513,7 @@ answers to \emph{different questions}. Neither is ``the truth'' on its own.
 \end{itemize}
 \begin{principle}{the question to always ask}
 Before trusting a slope as ``the effect of $x$,'' ask: what else moves with $x$ that also moves
-$y$? That third variable is where slopes go to die.
+$y$?
 \end{principle}
 \end{frame}
 
@@ -598,9 +597,8 @@ reach 60 mph.
   \item Alone, slower cars get \emph{better} mileage: $+1.2$ mpg per extra second. Sensible.
   \item Then a colleague says you have to control for engine power. Obviously right.
   \item You add horsepower, and acceleration \textbf{flips to $-0.61$}.
+  \item Both coefficients are overwhelmingly significant, and neither model is broken.
 \end{itemize}
-\centering\small
-Both coefficients are overwhelmingly significant. Neither model is broken, and this is not noise.
 \end{frame}
 
 \begin{frame}{Why it flipped}
@@ -701,7 +699,7 @@ about \$9{,}000 higher predicted price. This is associational, not necessarily c
 \onslide<2->{%
 \begin{principle}{verdict: no mistake}
 This one is right: it holds the other predictor fixed, says ``associated'' instead of
-``causes,'' and flags the causal caveat. Don't assume the model is always wrong.
+``causes,'' and flags the causal caveat.
 \end{principle}}
 \end{frame}
 
@@ -747,8 +745,6 @@ This one is right: it holds the other predictor fixed, says ``associated'' inste
   \item \textbf{Decide:} description or causal claim, and is the design strong enough to say so?
 \end{enumerate}
 \end{principle}
-\centering
-That structure works for a coffee chain, a rent model, or a neural network's last layer.
 \end{frame}
 
 \begin{frame}{What you should be able to do with software}
@@ -771,16 +767,13 @@ Transform a skewed variable & \texttt{np.log(y)}, then interpret on the log scal
 \bottomrule
 \end{tabular}
 \end{center}
-\vspace{0.2em}
-\centering\small
-If you cannot say what the output means, the fact that you produced it is worth nothing.
 \end{frame}
 
 \begin{frame}{Where we go next}
 \begin{itemize}
-  \item We held the model fixed and read one slope at a time. \textbf{Part 3} is about
+  \item We held the model fixed and read one slope at a time. \textbf{Unit 4} is about
         \emph{building} the model: several predictors at once, interactions, transformations,
-        and the constant tension between fitting the data and overfitting it.
+        and the tension between fitting the data and overfitting it.
   \item The thread continues: every coefficient is still an estimate with uncertainty, and the
         hardest questions are still about which variables belong.
 \end{itemize}

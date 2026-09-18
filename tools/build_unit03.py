@@ -6,14 +6,14 @@ from nblib import CodeNB, HW
 # CODE COMPANION
 # =====================================================================
 nb = CodeNB(3, "Linear Regression",
-            "What least squares actually minimizes, why a slope has a standard error, how a "
-            "dummy variable turns a t-test into a regression, and how a lurking variable "
-            "rewrites a coefficient in front of you.")
+            "Fitting a line, reading a slope with its units and its uncertainty, checking the "
+            "residuals, putting a category into a model, and watching a coefficient change when "
+            "another variable joins it.")
 
 nb.code("""import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import statsmodels.api as sm
+import statsmodels.formula.api as smf
 from scipy import stats
 
 rng = np.random.default_rng(220)
@@ -23,93 +23,138 @@ cars = pd.read_csv("https://richardson.byu.edu/220/cars.csv").dropna()
 print(cars.shape); cars.head()""")
 
 nb.section("1. A first fit, read out loud")
-nb.code("""X = sm.add_constant(cars[["weight"]])
-fit = sm.OLS(cars["mpg"], X).fit()
-b0, b1 = fit.params["const"], fit.params["weight"]
+nb.code("""fit = smf.ols("mpg ~ weight", data=cars).fit()
 print(fit.summary().tables[1])
-print(f"\\nSlope = {b1:.5f} mpg per pound.")
-print(f"Per 1000 lbs: {1000*b1:.2f} mpg.  <-- always rescale to units a human can feel")
-print(f"Weight range in the data: {cars.weight.min():.0f} to {cars.weight.max():.0f} lbs")""")
+
+b1 = fit.params["weight"]
+lo, hi = fit.conf_int().loc["weight"]
+print(f"\\nSlope      : {b1:.5f} mpg per pound")
+print(f"Per 1000 lb: {1000*b1:.2f} mpg, 95% interval {1000*lo:.2f} to {1000*hi:.2f}")
+print(f"Weight runs from {cars.weight.min():.0f} to {cars.weight.max():.0f} lb in this data")""")
 nb.md("The raw slope, $-0.0076$, looks like nothing. Per 1,000 pounds it is $-7.6$ mpg, which is "
-      "enormous. Same number, same model: the units decide whether anyone understands you.")
+      "large. Same number, same model. The units decide whether anyone understands you.")
 
 nb.section("2. What least squares actually minimizes",
            "Try a grid of candidate slopes and watch the sum of squared residuals bottom out at "
            "exactly the fitted value.")
-nb.code("""slopes = np.linspace(b1 - 0.004, b1 + 0.004, 200)
+nb.code("""b0 = fit.params["Intercept"]
+slopes = np.linspace(b1 - 0.004, b1 + 0.004, 200)
 sse = [((cars.mpg - (b0 + s*cars.weight))**2).sum() for s in slopes]
+
 plt.plot(slopes*1000, sse, color="#4878a8", lw=2)
-plt.axvline(b1*1000, color="#c0392b", lw=2, label=f"least-squares slope = {b1*1000:.2f}/1000lb")
-plt.xlabel("candidate slope (mpg per 1000 lbs)"); plt.ylabel("sum of squared residuals")
-plt.legend(); plt.title("The fit is the bottom of this bowl"); plt.show()""")
+plt.axvline(b1*1000, color="#c0392b", lw=2, label=f"least-squares slope = {b1*1000:.2f} per 1000 lb")
+plt.xlabel("candidate slope (mpg per 1000 lb)"); plt.ylabel("sum of squared residuals")
+plt.legend(); plt.show()""")
 
 nb.section("3. A slope is an estimate, so it wobbles",
-           "Resample the data and refit. The spread of the slopes IS the standard error.")
-nb.code("""boot_slopes = []
-for _ in range(2000):
-    samp = cars.sample(len(cars), replace=True)
-    boot_slopes.append(np.polyfit(samp.weight, samp.mpg, 1)[0])
-boot_slopes = np.array(boot_slopes)
+           "Here we know the truth because we made it up. Simulate the same study many times and "
+           "the spread of the slopes is what the standard error is estimating.")
+nb.code("""def one_study(n=200, true_slope=1.5):
+    x = rng.normal(0, 1, n)
+    y = 3 + true_slope*x + rng.normal(0, 2, n)
+    return smf.ols("y ~ x", data=pd.DataFrame({"x": x, "y": y})).fit()
 
-print(f"bootstrap SE of the slope : {boot_slopes.std()*1000:.3f} (per 1000 lbs)")
-print(f"statsmodels SE            : {fit.bse['weight']*1000:.3f} (per 1000 lbs)")
-print(f"t = slope/SE              : {fit.tvalues['weight']:.1f}   <-- the Unit 1 template again")""")
+one = one_study()
+many = np.array([one_study().params["x"] for _ in range(1000)])
 
-nb.section("4. A dummy variable IS a two-group comparison",
-           "Regression on a 0/1 predictor reproduces the two-sample t-test exactly.")
+print(f"true slope                      : 1.500")
+print(f"one study's estimate            : {one.params['x']:.3f}")
+print(f"that study's reported SE         : {one.bse['x']:.3f}")
+print(f"SD of 1000 estimates (the truth) : {many.std():.3f}")
+plt.hist(many, bins=30, color="#4878a8", edgecolor="white")
+plt.axvline(1.5, color="#c0392b", lw=2, label="true slope")
+plt.xlabel("estimated slope"); plt.legend(); plt.show()""")
+nb.md("The standard error printed by a single fit is an estimate of that spread, computed without "
+      "ever rerunning the study. The $t$-statistic is the same ratio as in Unit 1: the estimate "
+      "divided by its standard error.")
+
+nb.section("4. Look at what the model missed",
+           "Residuals against fitted values. A shapeless cloud is what you want.")
+nb.code("""plt.scatter(fit.fittedvalues, fit.resid, s=12, alpha=0.6, color="#4878a8")
+plt.axhline(0, color="#c0392b", lw=1.5)
+plt.xlabel("fitted mpg"); plt.ylabel("residual (actual minus fitted)"); plt.show()
+
+print(f"R-squared   : {fit.rsquared:.3f}")
+print(f"residual SD : {np.sqrt(fit.scale):.2f} mpg")""")
+nb.md("The residuals bend: they sit above zero at both ends and below it in the middle, so the "
+      "line under-predicts the lightest and heaviest cars. That is a straight line fitted to a "
+      "relationship that curves. The residual SD says a typical car sits about that many mpg off "
+      "the line, which is the number to quote when someone asks how good the model is.")
+
+nb.section("5. A 0/1 predictor is a two-group comparison",
+           "Regression on a dummy variable reproduces the two-sample t-test exactly.")
 nb.code("""cars["is_american"] = (cars["origin"] == "American").astype(int)
-d = sm.OLS(cars["mpg"], sm.add_constant(cars[["is_american"]])).fit()
+d = smf.ols("mpg ~ is_american", data=cars).fit()
 
 amer = cars.loc[cars.is_american == 1, "mpg"]
 other = cars.loc[cars.is_american == 0, "mpg"]
 
-print(f"regression intercept (non-American mean) : {d.params['const']:.3f}")
-print(f"actual non-American mean                 : {other.mean():.3f}")
-print(f"regression dummy coefficient (difference): {d.params['is_american']:.3f}")
-print(f"actual difference in means               : {amer.mean() - other.mean():.3f}")
-print(f"\\nregression t = {d.tvalues['is_american']:.3f}")
-print(f"pooled two-sample t = {stats.ttest_ind(amer, other, equal_var=True).statistic:.3f}")""")
-nb.md("They are the same procedure. Everything you learned about two-group tests in Unit 1 "
-      "transfers directly to regression coefficients. Only the packaging changed.")
+print(f"intercept (mean of the 0 group)  : {d.params['Intercept']:.3f}")
+print(f"actual mean of the 0 group       : {other.mean():.3f}")
+print(f"dummy coefficient (difference)   : {d.params['is_american']:.3f}")
+print(f"actual difference in means       : {amer.mean() - other.mean():.3f}")
+print(f"\\nregression t        : {d.tvalues['is_american']:.3f}")
+print(f"pooled two-sample t : {stats.ttest_ind(amer, other, equal_var=True).statistic:.3f}")""")
+nb.md("Same estimate, same standard error, same $p$-value. The two-group comparison from Unit 1 "
+      "is a regression with one 0/1 predictor.")
 
-nb.section("5. Omitted-variable bias, where you know the truth",
-           "Simulate a world in which x has NO effect on y, but both are driven by z.")
+nb.section("6. A category with more than two levels",
+           "One level becomes the baseline and every other coefficient is read against it.")
+nb.code("""m = smf.ols("mpg ~ C(origin)", data=cars).fit()
+print(m.params.round(2), "\\n")
+print("baseline is the level that is missing from that list:",
+      sorted(cars.origin.unique())[0])
+print(cars.groupby("origin").mpg.mean().round(2))""")
+nb.md("Each coefficient is that origin versus the baseline, not versus zero and not versus the "
+      "other levels. Add the baseline mean to a coefficient and you get that group's mean.")
+
+nb.section("7. When the slope itself differs by group: an interaction")
+nb.code("""inter = smf.ols("mpg ~ weight * is_american", data=cars).fit()
+print(inter.params.round(6), "\\n")
+
+b_w = inter.params["weight"]
+b_wa = inter.params["weight:is_american"]
+print(f"slope for non-American cars : {1000*b_w:.2f} mpg per 1000 lb")
+print(f"slope for American cars     : {1000*(b_w + b_wa):.2f} mpg per 1000 lb")
+print(f"p-value on the interaction  : {inter.pvalues['weight:is_american']:.3f}")""")
+nb.md("With the interaction in the model, the coefficient on `weight` is the slope for the group "
+      "coded 0, not an overall slope. The interaction term is the gap between the two slopes.")
+
+nb.section("8. A coefficient changes when another variable joins it",
+           "First in a made-up world where we know the answer, then in the real data.")
 nb.code("""n = 3000
 z = rng.normal(0, 1, n)                    # the lurking variable
 x = 0.8*z + rng.normal(0, 0.6, n)          # x is driven by z
 y = 2.0*z + rng.normal(0, 1.0, n)          # y is driven by z, NOT by x
+sim = pd.DataFrame({"x": x, "y": y, "z": z})
 
-naive = sm.OLS(y, sm.add_constant(x)).fit()
-adjusted = sm.OLS(y, sm.add_constant(np.column_stack([x, z]))).fit()
-
-print(f"TRUE effect of x on y            : 0.000")
-print(f"naive slope on x                 : {naive.params[1]:.3f}  (t = {naive.tvalues[1]:.1f})")
-print(f"slope on x, controlling for z    : {adjusted.params[1]:.3f}  (t = {adjusted.tvalues[1]:.1f})")""")
+naive = smf.ols("y ~ x", data=sim).fit()
+adjusted = smf.ols("y ~ x + z", data=sim).fit()
+print(f"true effect of x on y         : 0.000")
+print(f"slope on x, z left out        : {naive.params['x']:.3f}  (t = {naive.tvalues['x']:.1f})")
+print(f"slope on x, z included        : {adjusted.params['x']:.3f}  (t = {adjusted.tvalues['x']:.1f})")""")
 nb.md("The naive regression reports a large, overwhelmingly significant effect of something that "
-      "does nothing. No amount of data fixes it: with more rows the t-statistic just grows. Only "
-      "including z fixes it, and in real work you have to *know* to look for z.")
+      "does nothing. More rows would only make the $t$-statistic bigger. Including $z$ is what "
+      "fixes it, and in real work you have to know to look for $z$.")
 
-nb.section("6. The same thing, in real data",
-           "Do slower-accelerating cars really get better mileage?")
-nb.code("""raw = sm.OLS(cars["mpg"], sm.add_constant(cars[["acceleration"]])).fit()
-adj = sm.OLS(cars["mpg"], sm.add_constant(cars[["acceleration", "weight"]])).fit()
+nb.code("""raw = smf.ols("mpg ~ acceleration", data=cars).fit()
+adj = smf.ols("mpg ~ acceleration + weight", data=cars).fit()
 
-print(f"raw slope on acceleration            : {raw.params['acceleration']:+.3f} mpg per second")
-print(f"controlling for weight               : {adj.params['acceleration']:+.3f} mpg per second")
-print(f"the raw association shrank by        : "
-      f"{100*(1 - adj.params['acceleration']/raw.params['acceleration']):.0f}%")
+print(f"slope on acceleration, alone          : {raw.params['acceleration']:+.3f} mpg per second")
+print(f"slope on acceleration, with weight    : {adj.params['acceleration']:+.3f} mpg per second")
+print(f"share of the raw association left     : "
+      f"{100*adj.params['acceleration']/raw.params['acceleration']:.0f}%")
 print(f"\\ncorr(acceleration, weight) = {cars.acceleration.corr(cars.weight):+.2f}")""")
-nb.md("Heavy cars are both slow to accelerate and thirsty. Most of the raw relationship was weight "
-      "under another name. We did **not** prove that acceleration has no effect. We showed "
+nb.md("Heavy cars are both slow to accelerate and thirsty, so most of the raw relationship was "
+      "weight under another name. This does not show that acceleration has no effect. It shows "
       "that the raw number was mostly something else.")
 
-nb.section("7. Significant does not mean useful")
-nb.code("""m = sm.OLS(cars["mpg"], sm.add_constant(cars[["acceleration"]])).fit()
-print(f"p-value on acceleration : {m.pvalues['acceleration']:.2e}")
-print(f"R-squared               : {m.rsquared:.3f}")
-print(f"residual SD             : {np.sqrt(m.scale):.2f} mpg")
-print("\\nOverwhelmingly significant, and it explains under a fifth of the variation.")
-print("Those two facts answer different questions and neither one is 'is the model good'.")""")
+nb.section("9. Significant is not the same as useful")
+nb.code("""print(f"p-value on acceleration : {raw.pvalues['acceleration']:.2e}")
+print(f"R-squared               : {raw.rsquared:.3f}")
+print(f"residual SD             : {np.sqrt(raw.scale):.2f} mpg")""")
+nb.md("Overwhelmingly significant, and it explains under a fifth of the variation. The $p$-value, "
+      "the slope, and $R^2$ answer three different questions.")
 
 nb.write("Code_Unit03_Regression.ipynb")
 
@@ -118,120 +163,108 @@ nb.write("Code_Unit03_Regression.ipynb")
 # HOMEWORK
 # =====================================================================
 hw = HW(3, "Linear Regression",
-        """Answer each problem in the cell(s) provided. Replace *Your answer* with your response
-for written parts, and put code in the empty code cells.
+        """`housing_data.csv` is 1,000 home sales with `house_price`, `square_footage`,
+`num_bedrooms`, `has_garage` (1 or 0), and `neighborhood`.
 
-The first problem is a **simulation lab** where you set the true slope yourself, so you can see
-exactly what a regression can and cannot recover. The next three are **real modeling problems with
-a decision attached**. The last asks what your coefficients license you to claim.
-
-**Data** (all real):
-
-- `https://richardson.byu.edu/220/cars.csv`: fuel economy and engine specs for 392 cars.
-- `https://richardson.byu.edu/220/housing_data.csv`: house prices with size, bedrooms, garage,
-  and neighborhood.
-- `https://richardson.byu.edu/220/rent.csv`: rental listings across six cities.""")
-
-hw.code("""import numpy as np
-import pandas as pd
+```python
+import numpy as np, pandas as pd
 import matplotlib.pyplot as plt
-import statsmodels.api as sm
 import statsmodels.formula.api as smf
 
 rng = np.random.default_rng(220)
-cars = pd.read_csv("https://richardson.byu.edu/220/cars.csv").dropna()
 homes = pd.read_csv("https://richardson.byu.edu/220/housing_data.csv")
-rent = pd.read_csv("https://richardson.byu.edu/220/rent.csv")
-print(cars.shape, homes.shape, rent.shape)
-homes.head()""")
+homes.head()
+```""")
 
 # ---------------- P1: simulation lab ----------------
-hw.problem(1, """*Simulation lab: what a slope can and cannot recover.* You set the truth, then
-see what regression reports.""")
-hw.part("a", """Simulate $n = 3000$ observations where $y = 1.5x + \\varepsilon$ with
-$x \\sim N(0,1)$ and $\\varepsilon \\sim N(0,2)$. Fit the regression and confirm the slope estimate
-is close to 1.5. Report the estimate, its standard error, and a 95% interval.""")
-hw.part("b", """Repeat the whole simulation 1,000 times and plot the distribution of the estimated
-slope. Report its mean and standard deviation, and compare the standard deviation to the standard
-error your single fit reported in Part a.""")
-hw.part("c", """**Omitted-variable bias.** Now build a world where $x$ has *no* effect at all:
-let $z \\sim N(0,1)$, $x = 0.8z + \\text{noise}$, and $y = 2z + \\text{noise}$. Fit $y$ on $x$ alone
-and report the slope and its $t$-statistic. Then fit $y$ on $x$ and $z$ together and report the
-slope on $x$.""")
-hw.part("d", """In Part c the naive regression should report a large, highly significant effect of
-a variable that does nothing. Increase $n$ to 30,000 and refit the naive model. Does the bias get
-smaller? Explain what that tells you about the relationship between sample size and this kind of
-error.""")
-hw.part("e", """**Overcontrol.** Build a world where $x$ genuinely causes $m$, and $m$ causes $y$,
-with no other paths. Fit $y$ on $x$, and then $y$ on $x$ and $m$. Report both slopes on $x$ and
-explain why controlling for $m$ makes the effect disappear even though $x$ really does matter.""")
-hw.part("f", """From Parts c and e: adding a variable helped in one case and hurt in the other. In
-3 to 4 sentences, state what you must know about the world (not the data) to tell those two
-situations apart.""", "written")
+hw.problem(1, """*A slope you already know the answer to.* You set the truth, then see what the
+regression reports back.""")
+hw.given("a", "Run this. The true slope is 1.5. Report the estimate and its 95% interval, and say "
+              "whether the interval covers the truth.",
+'''n = 200
+x = rng.normal(0, 1, n)
+y = 3 + 1.5*x + rng.normal(0, 2, n)
 
-# ---------------- P2: real simple regression ----------------
-hw.problem(2, """*Real data: what does weight cost you in fuel economy?* Use `cars`. An engineering
-team wants a number they can use in design tradeoffs.""")
-hw.part("a", """Fit `mpg` on `weight`. Report the slope, its standard error, and a 95% confidence
-interval, **expressed per 1,000 pounds** rather than per pound.""")
-hw.part("b", """Write the one-sentence interpretation you would give the engineering team,
-including the units and the range of weights the data actually covers.""", "written")
-hw.part("c", """Plot the data with the fitted line, and plot residuals against fitted values.
-Describe any pattern you see in the residuals and what it suggests about the straight-line
-assumption.""")
-hw.part("d", """Report $R^2$ and the residual standard deviation. Explain what each one tells the
-team, and which is more useful for deciding whether the model is good enough to design with.""")
-hw.part("e", """The team asks for the predicted mpg of a proposed 6,000-pound vehicle. Produce the
-prediction, then explain in 2 to 3 sentences why you would refuse to hand over the number without a
-warning.""")
+fit = smf.ols("y ~ x", data=pd.DataFrame({"x": x, "y": y})).fit()
+print(f"estimated slope : {fit.params['x']:.3f}")
+print(f"standard error  : {fit.bse['x']:.3f}")
+print("95% interval    :", fit.conf_int().loc["x"].round(3).tolist())''')
+hw.given("b", "This repeats that study 500 times. Compare the spread of the 500 estimates to the "
+              "standard error one study reported in part a, and say what a standard error is "
+              "measuring.",
+'''slopes = []
+for _ in range(500):
+    xs = rng.normal(0, 1, n)
+    ys = 3 + 1.5*xs + rng.normal(0, 2, n)
+    slopes.append(smf.ols("y ~ x", data=pd.DataFrame({"x": xs, "y": ys})).fit().params["x"])
 
-# ---------------- P3: categorical + interaction ----------------
-hw.problem(3, """*Real data: pricing houses with categories.* Use `homes`, which has
-`house_price`, `square_footage`, `num_bedrooms`, `has_garage`, and `neighborhood`.""")
-hw.part("a", """Fit `house_price` on `square_footage` alone. Report the slope with units and a
-95% interval.""")
-hw.part("b", """Add `has_garage` (a 0/1 variable). Report its coefficient and write the sentence
-that interprets it. What exactly is being held fixed in that sentence?""")
-hw.part("c", """Add `neighborhood`, a categorical variable. Report the coefficients and explain
-what the omitted level (the baseline) is and how to read the others relative to it.""")
-hw.part("d", """Fit a model with an **interaction** between `square_footage` and `neighborhood`
-(for example with `smf.ols("house_price ~ square_footage * neighborhood", data=homes)`). Report
-the interaction terms and state, in plain language, what it would mean for the price-per-square-
-foot to differ by neighborhood.""")
-hw.part("e", """Compare the models from Parts c and d. Does the interaction earn its complexity?
-Justify your answer with something more than $R^2$ going up.""")
-hw.part("f", """A realtor asks: "so how much is a garage worth?" Write the 3 to 4 sentence answer
-you would give, including the number, its uncertainty, and the population it applies to.""", "written")
+print(f"mean of the 500 estimates : {np.mean(slopes):.3f}")
+print(f"SD of the 500 estimates   : {np.std(slopes):.3f}")''')
+hw.part("c", "In part b the estimates are centered on 1.5 but individually off by a fair amount. "
+             "A classmate says the regression is therefore unreliable. Answer them in two or "
+             "three sentences.", kind="markdown")
 
-# ---------------- P4: confounding in real data ----------------
-hw.problem(4, """*Real data: a coefficient that changes its mind.* Use `cars` again, and the
-deliberately naive question: does slower acceleration improve fuel economy?""")
-hw.part("a", """Fit `mpg` on `acceleration` alone. Report the slope, its $t$-statistic, and $R^2$.
-Interpret the slope in its units.""")
-hw.part("b", """Now fit `mpg` on `acceleration` and `weight`. Report the new acceleration
-coefficient and compute what fraction of the raw association survived.""")
-hw.part("c", """Report the correlation between `acceleration` and `weight`, and explain the
-mechanism: why does weight produce a spurious relationship between acceleration and mpg?""", "written")
-hw.part("d", """Split the cars into four weight bands with `pd.qcut` and fit the acceleration slope
-separately within each band. Report the four slopes and relate them to your Parts a and b.""")
-hw.part("e", """An executive proposes detuning engines so cars accelerate more slowly, in order to
-hit a fuel-economy target. Write the 3 to 4 sentence response you would give, using your results,
-and say what evidence would actually settle the question.""", "written")
+# ---------------- P2: a slope with a decision attached ----------------
+hw.problem(2, """*What is a square foot worth?* A homeowner is deciding whether to add 400 square
+feet and wants a number.""")
+hw.part("a", "Fit `house_price` on `square_footage` and report the slope with its units and its "
+             "95% confidence interval. (`smf.ols(\"house_price ~ square_footage\", data=homes)"
+             ".fit()`, then `.conf_int()`.)")
+hw.part("b", "Write the one sentence you would tell the homeowner, including the units and the "
+             "range of sizes the data actually covers.", kind="markdown")
+hw.given("c", "Here is what the model missed. Say whether you see a pattern, and what that means "
+              "for trusting the line.",
+'''fit2 = smf.ols("house_price ~ square_footage", data=homes).fit()
+plt.scatter(fit2.fittedvalues, fit2.resid, s=10, alpha=0.5)
+plt.axhline(0, color="red"); plt.xlabel("fitted price"); plt.ylabel("residual"); plt.show()
+
+print(f"R-squared   : {fit2.rsquared:.3f}")
+print(f"residual SD : {np.sqrt(fit2.scale):,.0f} dollars")''')
+hw.part("d", "The homeowner asks for the predicted price of a 6,000 square foot house. Look at "
+             "the range in your part a answer and say, in two or three sentences, what you would "
+             "tell them.", kind="markdown")
+
+# ---------------- P3: categories ----------------
+hw.problem(3, """*Adding a category.* The same homes, now with a garage and a neighborhood.""")
+hw.given("a", "Report the coefficient on `has_garage` and write the sentence that interprets it. "
+              "Say exactly what is being held fixed.",
+'''g = smf.ols("house_price ~ square_footage + has_garage", data=homes).fit()
+print(g.params.round(1))
+print("\\n95% interval on has_garage:", g.conf_int().loc["has_garage"].round(0).tolist())''')
+hw.given("b", "`neighborhood` has several levels. Name the baseline level, and explain how to "
+              "read one of the other coefficients.",
+'''nb_fit = smf.ols("house_price ~ square_footage + C(neighborhood)", data=homes).fit()
+print(nb_fit.params.round(1))
+print("\\nlevels in the data:", sorted(homes.neighborhood.unique()))''')
+hw.part("c", "A realtor asks what a garage is worth. Answer in two or three sentences, using the "
+             "number, its uncertainty, and the homes it applies to.", kind="markdown")
+
+# ---------------- P4: a coefficient that changes ----------------
+hw.problem(4, """*A coefficient that changes its mind.* Does an extra bedroom raise the price?""")
+hw.given("a", "Report the bedroom coefficient from each model and say how much of the first one "
+              "survived.",
+'''alone = smf.ols("house_price ~ num_bedrooms", data=homes).fit()
+with_size = smf.ols("house_price ~ num_bedrooms + square_footage", data=homes).fit()
+
+print(f"bedrooms alone          : {alone.params['num_bedrooms']:+,.0f} dollars per bedroom")
+print(f"bedrooms, with size in  : {with_size.params['num_bedrooms']:+,.0f} dollars per bedroom")
+print(f"\\ncorr(bedrooms, square footage) = "
+      f"{homes.num_bedrooms.corr(homes.square_footage):+.2f}")''')
+hw.part("b", "Explain the mechanism in two or three sentences: why does leaving square footage "
+             "out change the bedroom coefficient?", kind="markdown")
+hw.part("c", "A builder asks whether splitting the same floor space into more bedrooms would "
+             "raise the price. Which of the two numbers is closer to an answer for them, and what "
+             "would still worry you?", kind="markdown")
 
 # ---------------- P5: what can we say ----------------
-hw.problem(5, """*What can and cannot be said.* Written answers.""")
-hw.part("a", """For your Problem 2 weight coefficient, write (i) a statement that is fully
-supported by the analysis, and (ii) a statement that sounds similar but is not supported. Explain
-what separates them.""", "written")
-hw.part("b", """Your Problem 3 model includes `neighborhood`. Does its coefficient tell you what
-would happen to a house's price if you moved the house to a different neighborhood? Explain.""", "written")
-hw.part("c", """In Problem 4, the acceleration coefficient shrank by about 80% after adjusting for
-weight. Does that mean acceleration has no effect on fuel economy? State precisely what the
-analysis does and does not establish.""", "written")
-hw.part("d", """All three datasets are observational. For each one, name a variable that is not in
-the data but probably matters, and say which coefficient it would most distort.""", "written")
-hw.part("e", """A colleague summarizes your work as "we found that weight causes lower mpg, garages
-add value, and acceleration doesn't matter." Rewrite that sentence so that every claim in it is one
-your analyses actually support.""", "written")
+hw.problem(5, """*What can and cannot be said.* No computer.""")
+hw.part("a", "For your Problem 2 square footage slope, write one claim the analysis supports and "
+             "one that sounds similar but it does not. Say what separates them.", kind="markdown")
+hw.part("b", "Does the neighborhood coefficient in Problem 3 tell you what would happen to a "
+             "house's price if you picked it up and moved it to that neighborhood? Explain.",
+        kind="markdown")
+hw.part("c", "A colleague summarizes the assignment as \"we found that square footage causes "
+             "price to rise, garages add value, and bedrooms do not matter.\" Rewrite it so every "
+             "claim is one your analyses support.", kind="markdown")
 
 hw.write("Stat_220_HW_Unit03_Regression.ipynb")
