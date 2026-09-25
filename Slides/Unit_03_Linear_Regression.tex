@@ -425,7 +425,7 @@ A dummy shifts the line. An \textbf{interaction} (a $\text{group}\times x$ term)
   \item Lines are no longer parallel.
   \item Now ``the effect of $x$'' depends on the group.
 \end{itemize}
-Unit 4 goes further with interactions.
+Unit 4 uses the whole model to predict.
 \end{column}
 \end{columns}
 \end{frame}
@@ -771,9 +771,9 @@ Transform a skewed variable & \texttt{np.log(y)}, then interpret on the log scal
 
 \begin{frame}{Where we go next}
 \begin{itemize}
-  \item We held the model fixed and read one slope at a time. \textbf{Unit 4} is about
-        \emph{building} the model: several predictors at once, interactions, transformations,
-        and the tension between fitting the data and overfitting it.
+  \item We read one coefficient at a time. \textbf{Unit 4} uses the whole model at once:
+        predicting a case you have not seen, putting an honest interval on that prediction,
+        and deciding which predictors belong in the model.
   \item The thread continues: every coefficient is still an estimate with uncertainty, and the
         hardest questions are still about which variables belong.
 \end{itemize}

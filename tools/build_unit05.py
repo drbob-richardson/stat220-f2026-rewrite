@@ -1,265 +1,321 @@
 #!/usr/bin/env python3
-"""Unit 5: Prediction and Its Uncertainty. Code companion and homework."""
+"""Unit 5: Causal Claims and Where the Data Came From. Code companion and homework.
+
+Merged from the old Causal Thinking and Where the Data Comes From units. A
+collider and survivorship bias are the same mechanism, so they sit next to
+each other here on purpose.
+"""
 from nblib import CodeNB, HW
 
 # =====================================================================
 # CODE COMPANION
 # =====================================================================
-nb = CodeNB(5, "Prediction and Its Uncertainty",
-            "Separate the four layers of prediction error, build an interval out of the model's "
-            "own mistakes, check whether it covers what it claims, and watch regression to the "
-            "mean manufacture an effect that is not there.")
+nb = CodeNB(5, "Causal Claims and Where the Data Came From",
+            "Build a confounder, a collider, and a mediator in worlds where you set the truth, "
+            "then watch the same patterns show up in real data and in how the rows were "
+            "collected in the first place.")
 
 nb.code("""import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import statsmodels.api as sm
-from sklearn.linear_model import LinearRegression
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.model_selection import train_test_split
 
 rng = np.random.default_rng(220)
-plt.rcParams["figure.figsize"] = (7, 3.5)""")
+plt.rcParams["figure.figsize"] = (7, 3.5)
 
-nb.section("1. Two of the four layers, separated",
-           "Estimation uncertainty shrinks with data. Irreducible noise does not. Here is the "
-           "difference, measured.")
-nb.code("""def experiment(n):
-    x = rng.uniform(0, 10, n)
-    y = 3 + 2*x + rng.normal(0, 4, n)              # noise SD is 4, always
-    fit = np.polyfit(x, y, 1)
-    x0 = 5.0
-    return np.polyval(fit, x0)                     # our estimate of the LINE at x0
+rent = pd.read_csv("https://richardson.byu.edu/220/rent.csv")
+TRUTH = rent["Rent"].mean()
+print(f"treating the rent listings as a population: true mean rent = {TRUTH:,.0f}")""")
 
-truth_at_5 = 3 + 2*5
-for n in [20, 100, 1000, 10_000]:
-    ests = np.array([experiment(n) for _ in range(400)])
-    print(f"n = {n:>6}: SD of the fitted line at x=5 is {ests.std():.3f}   "
-          f"(irreducible noise is still 4.000)")""")
-nb.md("The first column collapses toward zero. The second never moves. More data tells you where "
-      "the line is, and tells you nothing about where the next individual point will fall. That "
-      "is why the two intervals below have such different widths.")
+nb.section("2. A confounder: an effect that is not there")
+nb.code("""n = 4000
+z = rng.normal(0, 1, n)                       # lurking variable
+x = 0.8*z + rng.normal(0, 0.6, n)             # treatment, driven by z
+y = 2.0*z + rng.normal(0, 1.0, n)             # outcome, driven by z, NOT by x
 
-nb.section("2. Confidence band vs prediction band")
-nb.code("""n = 200
-x = rng.uniform(0, 10, n)
-y = 3 + 2*x + rng.normal(0, 4, n)
-X = sm.add_constant(x)
-fit = sm.OLS(y, X).fit()
+naive = sm.OLS(y, sm.add_constant(x)).fit()
+adj = sm.OLS(y, sm.add_constant(np.column_stack([x, z]))).fit()
+print(f"TRUE effect of x on y      : 0.000")
+print(f"naive estimate             : {naive.params[1]:+.3f}  (t = {naive.tvalues[1]:6.1f})")
+print(f"controlling for z          : {adj.params[1]:+.3f}  (t = {adj.tvalues[1]:6.1f})")""")
 
-grid = np.linspace(0, 10, 100)
-pred = fit.get_prediction(sm.add_constant(grid))
-ci = pred.conf_int()                       # for the MEAN
-pi = pred.conf_int(obs=True)               # for a NEW OBSERVATION
+nb.section("1. A collider: making a correlation out of nothing",
+           "Two independent variables. Select on their sum, and they become related.")
+nb.code("""d1 = rng.integers(1, 7, 4000)
+d2 = rng.integers(1, 7, 4000)
+keep = (d1 + d2) >= 9
 
-plt.plot(x, y, "o", color="#7f8c8d", ms=3, alpha=.5)
-plt.plot(grid, pred.predicted_mean, color="#4878a8", lw=2)
-plt.fill_between(grid, pi[:, 0], pi[:, 1], color="#c0392b", alpha=.15, label="prediction band")
-plt.fill_between(grid, ci[:, 0], ci[:, 1], color="#4878a8", alpha=.45, label="confidence band")
-plt.legend(); plt.title("Same model, two very different questions"); plt.show()
+print(f"correlation among ALL rolls           : {np.corrcoef(d1, d2)[0,1]:+.3f}")
+print(f"correlation among rolls summing to 9+ : {np.corrcoef(d1[keep], d2[keep])[0,1]:+.3f}")
+print(f"\\n{keep.sum()} of {len(d1)} rolls survived the filter")""")
+nb.code("""# The same structure with continuous variables: hiring on test + interview.
+test = rng.normal(size=6000)
+interview = rng.normal(size=6000)
+hired = (test + interview) > 1.6
 
-mid = len(grid)//2
-print(f"width of the confidence band at x=5 : {ci[mid,1]-ci[mid,0]:.2f}")
-print(f"width of the prediction band at x=5 : {pi[mid,1]-pi[mid,0]:.2f}")
-print(f"ratio: {(pi[mid,1]-pi[mid,0])/(ci[mid,1]-ci[mid,0]):.1f}x wider")""")
+fig, axes = plt.subplots(1, 2, figsize=(11, 3.4))
+axes[0].plot(test, interview, ".", ms=2, color="#7f8c8d", alpha=.4)
+axes[0].set_title(f"all applicants: r = {np.corrcoef(test, interview)[0,1]:+.2f}")
+axes[1].plot(test[hired], interview[hired], ".", ms=3, color="#c0392b")
+axes[1].set_title(f"hired only: r = {np.corrcoef(test[hired], interview[hired])[0,1]:+.2f}")
+for ax in axes: ax.set_xlabel("test score"); ax.set_ylabel("interview score")
+plt.tight_layout(); plt.show()""")
+nb.md("An HR analyst studying current employees would conclude that test performance and interview "
+      "performance trade off against each other. They do not. The hiring rule created the pattern, "
+      "and it exists only inside the hired group.")
 
-nb.section("3. An interval made of the model's own mistakes",
-           "Real data, no distributional theory: predict bike demand, then size the interval from "
-           "held-out residuals.")
-nb.code("""bikes = pd.read_csv("https://richardson.byu.edu/220/bikes.csv")
-feats = ["Temperature", "Humidity", "Wind_speed", "Visibility", "Rainfall"]
-Xb, yb = bikes[feats].values, bikes["Count"].values
-Xtr, Xte, ytr, yte = train_test_split(Xb, yb, test_size=0.4, random_state=7)
+nb.section("3. Survivorship: studying only what came back")
+nb.code("""n = 20_000
+quality = rng.normal(0, 1, n)             # a startup's underlying quality
+luck = rng.normal(0, 1, n)
+survives = (quality + luck) > 1.2         # you only get to interview survivors
 
-model = RandomForestRegressor(n_estimators=300, random_state=0).fit(Xtr, ytr)
-resid = yte - model.predict(Xte)                    # errors on data it never saw
-lo, hi = np.percentile(resid, [5, 95])
+print(f"correlation(quality, luck) in ALL startups     : "
+      f"{np.corrcoef(quality, luck)[0,1]:+.3f}")
+print(f"correlation among SURVIVORS                    : "
+      f"{np.corrcoef(quality[survives], luck[survives])[0,1]:+.3f}")
+print(f"\\nmean quality, all startups : {quality.mean():+.3f}")
+print(f"mean quality, survivors      : {quality[survives].mean():+.3f}")
+print("\\nStudy only survivors and you will conclude that quality and luck are substitutes,")
+print("and you will badly overestimate how much quality the average founder had.")""")
 
-new_day = np.array([[20, 50, 2, 1500, 0]])
-point = model.predict(new_day)[0]
-print(f"point prediction for the new day : {point:,.0f} rentals")
-print(f"held-out residual percentiles    : {lo:,.0f} to {hi:,.0f}")
-print(f"90% prediction interval          : {point+lo:,.0f} to {point+hi:,.0f}")
-print(f"\\ntraining RMSE {np.sqrt(np.mean((ytr - model.predict(Xtr))**2)):,.0f} vs "
-      f"held-out RMSE {np.sqrt(np.mean(resid**2)):,.0f}")""")
-nb.md("Note the last line. If you had sized the interval from the *training* residuals it would "
-      "have been far too narrow, because the model has partly memorized those days.")
+nb.section("3. A mediator: controlling away a real effect")
+nb.code("""n = 4000
+train = rng.integers(0, 2, n)                 # randomized training
+skill = 1.5*train + rng.normal(0, 1, n)       # training raises skill
+sales = 2.0*skill + rng.normal(0, 1, n)       # skill raises sales; no other path
 
-nb.section("4. Is the interval honest? Count the coverage.")
-nb.code("""half = len(Xte)//2
-calib_resid = yte[:half] - model.predict(Xte[:half])
-lo_c, hi_c = np.percentile(calib_resid, [5, 95])
+total = sm.OLS(sales, sm.add_constant(train)).fit()
+direct = sm.OLS(sales, sm.add_constant(np.column_stack([train, skill]))).fit()
+print(f"TRUE total effect of training : {1.5*2.0:.2f}")
+print(f"estimated total effect        : {total.params[1]:.3f}   <-- correct")
+print(f"'controlling for skill'       : {direct.params[1]:.3f}   <-- the effect vanishes")""")
+nb.md("Training was randomized, so the total effect is unbiased. Controlling for skill blocks the "
+      "only channel through which training works and reports approximately zero. Adding a variable "
+      "is not a safe default: it is a claim about the causal structure.")
 
-check_pred = model.predict(Xte[half:])
-inside = ((yte[half:] >= check_pred + lo_c) & (yte[half:] <= check_pred + hi_c)).mean()
-print(f"nominal coverage : 90%")
-print(f"actual coverage  : {inside:.1%}   (on days used for neither fitting nor calibration)")
+nb.section("4. The same story in real data")
+nb.code("""cars = pd.read_csv("https://richardson.byu.edu/220/cars.csv").dropna()
+raw = sm.OLS(cars.mpg, sm.add_constant(cars[["acceleration"]])).fit()
+adj = sm.OLS(cars.mpg, sm.add_constant(cars[["acceleration", "weight"]])).fit()
+print(f"raw slope on acceleration       : {raw.params['acceleration']:+.3f} mpg per second")
+print(f"adjusting for weight            : {adj.params['acceleration']:+.3f} mpg per second")
+print(f"share of the raw association that survived: "
+      f"{adj.params['acceleration']/raw.params['acceleration']:.0%}")""")
 
-# The same check, done wrongly, using training residuals to size the interval.
-tr_resid = ytr - model.predict(Xtr)
-lo_t, hi_t = np.percentile(tr_resid, [5, 95])
-inside_bad = ((yte[half:] >= check_pred + lo_t) & (yte[half:] <= check_pred + hi_t)).mean()
-print(f"\\nif sized from TRAINING residuals instead: {inside_bad:.1%} coverage "
-      f"(interval width {hi_t-lo_t:,.0f} vs {hi_c-lo_c:,.0f})")""")
+nb.section("1. Four sampling designs, scored against the truth",
+           "Only one kind of error shrinks with effort. The other is baked in.")
+nb.code("""def simple(n):
+    return rent.sample(n).Rent.mean()
 
-nb.section("5. Regression to the mean, and the intervention it fakes",
-           "Nobody improves. Nothing is done. We will still measure a large 'effect'.")
-nb.code("""n_people = 2000
-skill = rng.normal(50, 8, n_people)          # true ability, FIXED all year
-q1 = skill + rng.normal(0, 10, n_people)     # quarter 1 = skill + luck
-q2 = skill + rng.normal(0, 10, n_people)     # quarter 2 = skill + fresh luck
+def convenience(n):
+    # a scraper that only indexed smaller units
+    small = rent[rent.Size <= rent.Size.median()]
+    return small.sample(n).Rent.mean()
 
-bottom = q1 < np.percentile(q1, 10)          # "our worst performers"
-top = q1 > np.percentile(q1, 90)             # "our stars"
+def cluster(n_cities=2, per=50):
+    cities = rng.choice(rent.City.unique(), n_cities, replace=False)
+    sub = rent[rent.City.isin(cities)]
+    return sub.sample(min(n_cities*per, len(sub))).Rent.mean()
 
-print(f"bottom 10% in Q1: averaged {q1[bottom].mean():.1f}, then {q2[bottom].mean():.1f} "
-      f"({q2[bottom].mean()-q1[bottom].mean():+.1f})   <-- 'the training worked!'")
-print(f"top 10%    in Q1: averaged {q1[top].mean():.1f}, then {q2[top].mean():.1f} "
-      f"({q2[top].mean()-q1[top].mean():+.1f})   <-- 'success went to their heads'")
-print(f"\\ntrue skill of the bottom group: {skill[bottom].mean():.1f} "
-      f"(vs {skill.mean():.1f} overall) --- they really are below average, just not that far")""")
-nb.md("Both stories write themselves, and both are wrong. Selecting on an extreme measurement "
-      "selects partly on luck, and luck does not repeat. Any evaluation that picks a group *because* "
-      "they scored badly and then measures improvement will find one.")
+def stratified(n=100):
+    parts = []
+    for city, g in rent.groupby("City"):
+        k = max(1, int(round(n * len(g)/len(rent))))
+        parts.append(g.sample(min(k, len(g))).Rent)
+    return pd.concat(parts).mean()
 
-nb.section("6. Extrapolation: two models that agree, until they do not")
-nb.code("""xs = np.linspace(1, 6, 40)
-ys = 2 + 1.2*xs + rng.normal(0, 0.4, 40)
+print(f"{'design':>14} {'mean estimate':>15} {'bias':>10} {'SD':>10} {'RMSE':>10}")
+for name, fn in [("simple random", lambda: simple(100)),
+                 ("convenience", lambda: convenience(100)),
+                 ("cluster", cluster),
+                 ("stratified", stratified)]:
+    est = np.array([fn() for _ in range(600)])
+    bias, sd = est.mean() - TRUTH, est.std()
+    print(f"{name:>14} {est.mean():>15,.0f} {bias:>10,.0f} {sd:>10,.0f} "
+          f"{np.sqrt(bias**2 + sd**2):>10,.0f}")""")
+nb.md("Simple and stratified are both unbiased, and stratified is tighter for the same cost. Cluster is "
+      "unbiased but far noisier, because two cities is closer to n=2 than n=100. Convenience is "
+      "in a different category: it is *wrong*, and no sample size fixes it.")
 
-lin = np.polyfit(xs, ys, 1)
-quad = np.polyfit(xs, ys, 2)
-future = np.linspace(1, 14, 200)
+nb.section("2. Bias does not shrink. Ever.")
+nb.code("""truth, bias = 0.50, 0.04
+ns = np.logspace(1, 6, 60)
+rmse_biased = np.sqrt(bias**2 + truth*(1-truth)/ns)
+rmse_clean = np.sqrt(truth*(1-truth)/ns)
 
-plt.plot(xs, ys, "o", color="#7f8c8d", ms=4, label="observed range")
-plt.plot(future, np.polyval(lin, future), color="#4878a8", lw=2, label="linear fit")
-plt.plot(future, np.polyval(quad, future), color="#c0392b", lw=2, label="quadratic fit")
-plt.axvspan(1, 6, color="#dfe6ec", alpha=.6)
-plt.legend(); plt.title("Both fit the data. They disagree by a factor of two at x=14."); plt.show()
+plt.loglog(ns, rmse_biased*100, color="#c0392b", lw=2.5, label="biased sample (4-point tilt)")
+plt.loglog(ns, rmse_clean*100, color="#4878a8", lw=2.5, label="true random sample")
+plt.xlabel("sample size"); plt.ylabel("typical error (percentage points)"); plt.legend(); plt.show()
 
-for x0 in [6, 10, 14]:
-    print(f"x = {x0:>2}: linear says {np.polyval(lin, x0):6.1f}, "
-          f"quadratic says {np.polyval(quad, x0):6.1f}")""")
+n_equiv = truth*(1-truth)/bias**2
+print(f"a RANDOM sample of {n_equiv:.0f} matches a biased sample of ANY size")
+big_n = 1_000_000
+se = np.sqrt(truth*(1-truth)/big_n)
+print(f"\\nwith n = {big_n:,} from the biased process:")
+print(f"  reported 95% CI half-width : {1.96*se*100:.3f} points")
+print(f"  actual distance from truth : {bias*100:.1f} points")
+print("  the interval is 25x too narrow to contain the truth. This is the dangerous case.")""")
 
-nb.write("Code_Unit05_Prediction.ipynb")
+nb.section("5. Missing values hiding as zeros, in real clinical data")
+nb.code("""dia = pd.read_csv("https://richardson.byu.edu/220/diabetes.csv")
+for col in ["Glucose", "BloodPressure", "SkinThickness", "Insulin", "BMI"]:
+    z = (dia[col] == 0).sum()
+    print(f"{col:>15}: {z:>4} zeros ({z/len(dia):5.1%}) "
+          f"{'  <-- physiologically impossible' if z > 0 else ''}")""")
+nb.code("""ins_all = dia["Insulin"]
+real = ins_all[ins_all > 0]
+imputed = pd.concat([real, pd.Series([real.mean()]*int((ins_all == 0).sum()))])
 
+print(f"{'approach':>28} {'mean':>9} {'SD':>9}")
+print(f"{'keep the zeros (wrong)':>28} {ins_all.mean():>9.1f} {ins_all.std():>9.1f}")
+print(f"{'drop them':>28} {real.mean():>9.1f} {real.std():>9.1f}")
+print(f"{'impute the mean':>28} {imputed.mean():>9.1f} {imputed.std():>9.1f}")
+print("\\nMean imputation keeps the mean and shrinks the SD: it invents precision.")
+
+# Is the missingness related to the outcome?
+rate_missing = dia.loc[dia.Insulin == 0, "Outcome"].mean()
+rate_present = dia.loc[dia.Insulin > 0, "Outcome"].mean()
+print(f"\\ndiabetes rate where insulin is MISSING : {rate_missing:.3f}")
+print(f"diabetes rate where insulin is present  : {rate_present:.3f}")
+print("If those differ, the missingness carries information and dropping rows changes the population.")""")
+
+nb.section("5. Difference in differences, and what breaks it")
+nb.code("""def did(treat_effect, common_trend, pre_gap=12.0, n=400, treated_drift=0.0):
+    \"\"\"treated_drift lets us violate parallel trends on purpose.\"\"\"
+    ctrl_pre  = rng.normal(30, 5, n)
+    ctrl_post = ctrl_pre + common_trend + rng.normal(0, 3, n)
+    trt_pre   = rng.normal(30 + pre_gap, 5, n)
+    trt_post  = trt_pre + common_trend + treated_drift + treat_effect + rng.normal(0, 3, n)
+    return ((trt_post.mean() - trt_pre.mean()) - (ctrl_post.mean() - ctrl_pre.mean()))
+
+print(f"true effect 7, parallel trends hold      : DiD = {did(7, 6):.2f}")
+print(f"true effect 0, parallel trends hold      : DiD = {did(0, 6):.2f}")
+print(f"true effect 0, treated region drifting +5: DiD = {did(0, 6, treated_drift=5):.2f}  <-- fake effect")
+print("\\nA before/after comparison in the treated region alone would have reported:")
+print(f"  {did(7, 6) + 6:.2f} instead of 7, crediting the common trend to the treatment.")""")
+
+
+nb.write("Code_Unit06_Causal_and_Provenance.ipynb")
 
 # =====================================================================
 # HOMEWORK
 # =====================================================================
-hw = HW(5, "Prediction and Its Uncertainty",
+hw = HW(5, "Causal Claims and Where the Data Came From",
         """Answer each problem in the cell(s) provided. Replace *Your answer* with your response
 for written parts, and put code in the empty code cells.
 
-The first problem is a **simulation lab** where you control the truth and can therefore separate
-the layers of error. The next three are **real forecasting problems with a decision attached**.
-The last asks how much your forecast should be trusted.
+The first problem is a **simulation lab** where you build each bias deliberately. The next three
+are **real questions where somebody wants to act on the answer**. The last asks what would have to
+be true for your estimate to be causal.
 
 **Data** (all real):
 
-- `https://richardson.byu.edu/220/bikes.csv`: 365 days of rentals with weather.
-- `https://richardson.byu.edu/220/housing_data.csv`: house prices with size and neighborhood.
-- `https://richardson.byu.edu/220/insurance_all.csv`: annual medical charges per person.""")
+- `https://richardson.byu.edu/220/cars.csv`: fuel economy and engine specs.
+- `https://richardson.byu.edu/220/insurance_all.csv`: charges with smoking status, age, BMI.
+- `https://richardson.byu.edu/220/credit_risk.csv`: loans with interest rate and default.""")
 
 hw.code("""import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import statsmodels.api as sm
-from sklearn.linear_model import LinearRegression
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.model_selection import train_test_split
+import statsmodels.formula.api as smf
 
 rng = np.random.default_rng(220)
-bikes = pd.read_csv("https://richardson.byu.edu/220/bikes.csv")
-homes = pd.read_csv("https://richardson.byu.edu/220/housing_data.csv")
+cars = pd.read_csv("https://richardson.byu.edu/220/cars.csv").dropna()
 ins = pd.read_csv("https://richardson.byu.edu/220/insurance_all.csv")
-print(bikes.shape, homes.shape, ins.shape)""")
+credit = pd.read_csv("https://richardson.byu.edu/220/credit_risk.csv")
+print(cars.shape, ins.shape, credit.shape)""")
 
-# ---------------- P1: simulation lab ----------------
-hw.problem(1, """*Simulation lab: separating the layers of error.* You choose the truth, so you can
-watch each source of error behave differently.""")
-hw.part("a", """Simulate from $y = 3 + 2x + \\varepsilon$ with $x \\sim U(0,10)$ and
-$\\varepsilon \\sim N(0, 4)$. For $n = 20, 100, 1000, 10000$, repeat 400 times and record the
-standard deviation of the fitted line's value at $x = 5$. Report the four numbers alongside the
-irreducible noise SD.""")
-hw.part("b", """Which layer shrank and which did not? Explain in 2 to 3 sentences what this implies
-for a manager who wants a more accurate forecast for one specific customer.""", "written")
-hw.part("c", """With $n = 200$, plot the fitted line with both a confidence band (for the mean) and
-a prediction band (for a new observation). Report the width of each at $x = 5$ and their ratio.""")
-hw.part("d", """**Model error, the quiet layer.** Now generate data from a genuinely curved truth,
-$y = 3 + 2x + 0.35x^2 + \\varepsilon$, and fit a straight line. Plot the residuals against $x$.
-Report the coverage of the model's nominal 95% prediction intervals, and explain why the software
-gave no warning.""")
-hw.part("e", """**Regression to the mean.** Simulate 2,000 employees whose true skill never
-changes, observed with noise in two quarters. Select the bottom 10% by Q1 and report their Q1 and
-Q2 averages, then do the same for the top 10%. Report both changes.""")
-hw.part("f", """Using Part e, write the two false headlines a manager could produce from those
-numbers, and the one sentence that corrects both.""", "written")
+hw.problem(1, """*Simulation lab: build all three biases on purpose.* In each part you know the
+true effect, so you can measure exactly how wrong each analysis is.""")
+hw.part("a", """**Confounder.** Simulate $z \\sim N(0,1)$, $x = 0.8z + \\text{noise}$, and
+$y = 2z + \\text{noise}$, so $x$ has *no* effect on $y$. Report the naive slope on $x$ with its
+$t$-statistic, and the slope after controlling for $z$.""")
+hw.part("b", """**Collider.** Simulate independent `test` and `interview` scores, then keep only
+applicants with `test + interview > 1.6`. Report the correlation in the full pool and among those
+"hired," and plot both.""")
+hw.part("c", """**Mediator.** Simulate randomized `training` that raises `skill`, where `skill`
+raises `sales` and there is no other path. Report the total effect of training, and the estimate
+you get when you control for `skill`. State which of the two answers the question *should we run
+the training*.""")
+hw.part("d", """Make a table summarizing Parts a--c: for each of the three structures, the true
+effect, the estimate without the third variable, and the estimate with it. Which structures does
+controlling help, and which does it hurt?""")
+hw.part("e", """**Randomization versus choice.** Simulate 6,000 customers with unmeasured
+engagement, where a feature has a true effect of 2.0. Compare the estimated effect when customers
+opt in (engaged ones choose it) against when you randomize assignment. Report both.""")
+hw.part("f", """In Part e the observational estimate is badly inflated even though nothing about
+the feature changed. Explain the mechanism, and say why collecting ten times more observational
+data would not help.""", "written")
 
-# ---------------- P2: real forecasting ----------------
-hw.problem(2, """*Real data: forecasting bike demand with honest error bars.* Use `bikes`,
-predicting `Count` from the weather variables. The operations team must decide how many bikes to
-deploy tomorrow morning.""")
-hw.part("a", """Split the data into training and held-out sets. Fit a model of your choice and
-report both the training RMSE and the held-out RMSE. Explain the gap.""")
-hw.part("b", """Build a 90% prediction interval from **held-out residuals**: take the 5th and 95th
-percentiles of the held-out errors and attach them to a point prediction for a day with
-temperature 20, humidity 50, wind 2, visibility 1500, rainfall 0. Report the point and the
-interval.""")
-hw.part("c", """Now check the interval honestly. Split your held-out set in two: use the first half
-to size the interval and the second half to measure how often the true count falls inside. Report
-the actual coverage against the nominal 90%.""")
-hw.part("d", """Repeat Part c but size the interval from **training** residuals instead. Report the
-coverage and the interval width, and explain the direction of the error.""")
-hw.part("e", """The team asks for a forecast for a day at 40 degrees, hotter than anything in the
-data. Produce the prediction, then explain what is dangerous about it and what you would tell the
-team instead.""")
+hw.problem(2, """*Real data: the effect of smoking on medical costs.* Use `ins`. An insurer wants
+to justify a smoker surcharge and would like to say smoking *causes* the extra cost.""")
+hw.part("a", """Report the raw difference in mean `charges` between smokers and non-smokers, with a
+bootstrap interval.""")
+hw.part("b", """Fit a regression of `charges` on `smoker`, `age`, `bmi`, `children`, and `region`.
+Report the smoker coefficient and compare it to the raw difference.""")
+hw.part("c", """Add a `smoker` by `bmi` interaction. Report the coefficients and describe in words
+how the estimated smoking penalty depends on BMI.""")
+hw.part("d", """Name two confounders that are **not** in this dataset. For each, say whether
+omitting it likely makes the smoker coefficient too large or too small, and why.""", "written")
+hw.part("e", """A randomized experiment on smoking is impossible. Describe the kinds of evidence
+epidemiologists used instead, and explain what made that evidence persuasive despite the absence
+of randomization.""", "written")
 
-# ---------------- P3: prediction vs explanation ----------------
-hw.problem(3, """*Real data: predicting one house versus locating an average.* Use `homes`.""")
-hw.part("a", """Fit `house_price` on `square_footage` and `neighborhood`. For a 2,000-square-foot
-house in a neighborhood of your choice, report both a 95% **confidence** interval for the mean
-price of such houses and a 95% **prediction** interval for one such house.""")
-hw.part("b", """Report the ratio of the two widths. Explain to a homeowner, in two sentences, why
-the number that matters to *them* is the wider one.""", "written")
-hw.part("c", """A bank wants to know the average value of a portfolio of 300 such houses. Which
-interval applies, and roughly how does its width change with the 300? Compute it.""")
-hw.part("d", """Compute the coverage of your prediction intervals on held-out houses. Are they
-honest? If not, say in which direction and propose a fix.""")
-hw.part("e", """Report the range of `square_footage` in the data, then predict the price of a
-6,000-square-foot house. Explain what the model is really doing when you ask that, and what you
-would say to whoever requested the number.""")
+hw.problem(3, """*Simulation lab: designs, bias, and missingness.* Treat the full `rent` dataset as
+the population, so you always know the right answer.""")
+hw.part("a", """Compute the population mean `Rent`. Then simulate 600 replications each of four
+designs at roughly 100 listings: simple random, convenience (only units at or below median
+`Size`), cluster (2 random cities, 50 each), and stratified by city in proportion to city size.
+Report bias, SD, and RMSE for each.""")
+hw.part("b", """Which designs are unbiased? Which is merely noisy, and which is actually wrong?
+Explain the difference in 2 to 3 sentences, and say which error a bigger budget can fix.""", "written")
+hw.part("c", """Show that bias does not shrink: for a true proportion of 0.50 with a 4-point
+systematic tilt, plot RMSE against $n$ on log-log axes for the biased and unbiased processes.
+Report the random sample size that matches the biased sample of any size.""")
+hw.part("d", """At $n = 1{,}000{,}000$ from the biased process, compute the reported 95% confidence
+interval and state whether it contains the truth. Explain why this is the most dangerous case
+rather than the safest.""")
+hw.part("e", """**Missingness mechanisms.** Simulate 5,000 people with a true mean income. Create
+three versions. First, values missing completely at random. Second, missing at random given age,
+where older people skip the question and you recorded age. Third, missing not at random, where
+high earners skip it. For
+each, report the mean after dropping missing rows and compare to the truth.""")
+hw.part("f", """For the missing-at-random case in Part e, show that including `age` in a model
+recovers the right answer while a simple mean does not. Explain why the third case cannot be
+fixed from the data alone.""")
 
-# ---------------- P4: the layers in a real disaster ----------------
-hw.problem(4, """*Real data: which layer is about to hurt you?* Use `ins` to predict `charges`.""")
-hw.part("a", """Fit a model predicting `charges` from `age`, `bmi`, `children`, `smoker`, and
-`region`. Report held-out RMSE and plot held-out residuals against predicted values.""")
-hw.part("b", """The residual plot should not look like an even band. Describe the pattern and say
-which of the four layers of error it points to.""", "written")
-hw.part("c", """Compute the coverage of nominal 90% prediction intervals separately for smokers and
-non-smokers. Report both. What does the difference tell you about a single interval width applied
-to everyone?""")
-hw.part("d", """Simulate distribution shift: refit the model using only non-smokers, then evaluate
-it on smokers. Report how much worse the RMSE gets, and connect it to a real scenario in which a
-deployed model would experience exactly this.""")
-hw.part("e", """Rank the four layers of error (noise, estimation, model structure, shift) by how
-much each threatens a deployed version of this model, and justify the ranking in 3 to 4
-sentences.""", "written")
+hw.problem(4, """*Real data: missing values in disguise.* Use `dia`.""")
+hw.part("a", """For `Glucose`, `BloodPressure`, `SkinThickness`, `Insulin`, and `BMI`, report the
+count and percentage of zeros. Which are physiologically impossible?""")
+hw.part("b", """Compute the mean and SD of `Insulin` three ways: keeping zeros, dropping them, and
+mean-imputing them. Report all six numbers and explain why imputation preserves the mean but
+shrinks the SD.""")
+hw.part("c", """Test whether the missingness is informative: compare the diabetes rate among rows
+with `Insulin == 0` and `Insulin > 0`, with a test of the difference. What missingness mechanism
+does this suggest?""")
+hw.part("d", """Fit two logistic regressions of `Outcome` on `Glucose`, `BMI`, and `Insulin`: one
+dropping the zero-insulin rows, and one keeping all rows with an added `insulin_missing`
+indicator. Compare the coefficients, the sample sizes, and the indicator's own coefficient.""")
+hw.part("e", """Which model would you report, and what would you say in the methods section about
+the zeros? Answer in 3 to 4 sentences.""", "written")
 
-# ---------------- P5: what can we say ----------------
 hw.problem(5, """*What can and cannot be said.* Written answers.""")
-hw.part("a", """Write the sentence you would put in a report to accompany your Problem 2 bike
-forecast: the point, the interval, what the interval means, and the condition under which it stops
-being valid.""", "written")
-hw.part("b", """A colleague reports "our model predicts \\$4.2M next quarter, 95% CI \\$4.15M to
-\\$4.25M." Given everything in this unit, list three questions you would ask before that number
-goes in a board deck.""", "written")
-hw.part("c", """Explain the difference between a model being *accurate* and a model being
-*calibrated*, using one of your results from this assignment as the example.""", "written")
-hw.part("d", """Your Problem 1e simulation produced a large apparent improvement with no
-intervention. Describe a real evaluation you have seen (in business, sports, education, or
-medicine) that is vulnerable to exactly this, and say what design would fix it.""", "written")
-hw.part("e", """Suppose your bike model is deployed and performs noticeably worse next spring than
-it did in testing. Write the diagnostic checklist you would work through, in order, and say what
-evidence would distinguish the possible causes.""", "written")
+hw.part("a", """For each analysis in this assignment, state whether the estimate is causal,
+associational, or somewhere between, and name the specific assumption that would have to hold to
+promote it.""", "written")
+hw.part("b", """A colleague's rule is "control for everything available, to be safe." Using your
+Problem 1 results, explain concretely why this is wrong, with one example where it helps and one
+where it hurts.""", "written")
+hw.part("c", """Explain why "we have millions of rows" does not address confounding, and contrast
+it with what a randomized experiment on 500 people would buy you.""", "written")
+hw.part("d", """Your company is about to launch a feature to everyone next quarter. Describe how to
+get a causal estimate at essentially zero cost, and what you would need to negotiate with the
+engineering team to make it happen.""", "written")
+hw.part("e", """Pick one claim you have personally believed from a news article or company blog
+post. State the causal claim, name the most plausible confounder or selection effect, and describe
+the study that would actually settle it.""", "written")
 
-hw.write("Stat_220_HW_Unit05_Prediction.ipynb")
+
+hw.write("Stat_220_HW_Unit06_Causal_and_Provenance.ipynb")

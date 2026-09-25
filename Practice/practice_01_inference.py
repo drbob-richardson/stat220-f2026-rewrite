@@ -38,7 +38,7 @@ about in your head.""",
  "The journalist reversed the conditional. A p-value is the probability of data this extreme "
  "given the null, not the probability of the null given the data. The honest reading is that if "
  "the drug did nothing, results this extreme would appear about 4 percent of the time. Getting "
- "the probability of a hypothesis needs a prior, which is Unit 12."),
+ "the probability of a hypothesis needs a prior, which is Unit 11."),
 
 ("Study A finds a 10-point drop with $\\mathrm{SE} = 8$. Study B finds a 2-point drop with "
  "$\\mathrm{SE} = 0.5$. Which is stronger evidence of a real effect?",

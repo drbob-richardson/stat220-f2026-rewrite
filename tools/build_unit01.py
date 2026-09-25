@@ -330,7 +330,7 @@ assumption of the $t$-test is under strain here, and does the sample size rescue
 hw.part("b", """Redo the Problem 3a comparison three ways, all of them $t$-tests: on the raw
 `Rent`, on $\\log(\\text{Rent})$, and on the raw rents after dropping the most extreme 1% of
 listings. Report all three and explain what each one is actually estimating, and why they do not
-answer quite the same question. (We get a fourth and better way, the bootstrap, in Unit 10.)""")
+answer quite the same question. (We get a fourth and better way, the bootstrap, in Unit 9.)""")
 hw.part("c", """Now the `bikes` data. Compute the lag-1 autocorrelation of `Count` across the
 year (`bikes["Count"].autocorr(1)`). Report it and explain what it means about the independence
 assumption behind Problem 2.""")

@@ -11,22 +11,21 @@ The reasoning behind this order is in `../Course_Rewrite/ALTERNATIVE_ORDER_model
 | # | Unit | Pages |
 |---|------|-------|
 | 1 | Statistical Inference | 49 |
-| 2 | A Map of Models | 24 |
-| 3 | Linear Regression | 47 |
-| 4 | Building and Trusting a Model | 53 |
-| 5 | Prediction and Its Uncertainty | 34 |
-| 6 | Causal Claims and Where the Data Came From | 51 |
+| 2 | A Map of Models | 51 |
+| 3 | Linear Regression | 46 |
+| 4 | Prediction and Choosing Predictors | 40 |
+| 5 | Causal Claims and Where the Data Came From | 51 |
 
 **Part II: The machinery, and two things that need it**
 
-| # | Unit | Frames | Was |
-|---|------|--------|-----|
-| 7 | Probability: Randomness, Conditioning, and Bayes | 42 | 2, first half |
-| 8 | Random Variables and Distributions | 26 | 2, second half |
-| 9 | The Normal Distribution and the CLT | 42 | 3 |
-| 10 | Estimation, Likelihood, and the Bootstrap | 39 | 4 |
-| 11 | Categorical Outcomes | 55 | 8 |
-| 12 | Bayesian Reasoning and Decisions | 36 | 10 |
+| # | Unit | Pages |
+|---|------|-------|
+| 6 | Probability: Randomness, Conditioning, and Bayes | 40 |
+| 7 | Random Variables and Distributions | 23 |
+| 8 | The Normal Distribution and the CLT | 40 |
+| 9 | Estimation, Likelihood, and the Bootstrap | 38 |
+| 10 | Categorical Outcomes | 51 |
+| 11 | Bayesian Reasoning and Decisions | 33 |
 
 Plus `Review_Capstone_Putting_It_Together` (39 frames), which is no longer a unit. It is material
 for the two review/exam days and the flex days, along with the scenario cards.
@@ -34,31 +33,34 @@ for the two review/exam days and the flex days, along with the scenario cards.
 ## What actually changed
 
 - **The old probability unit was split in two.** It was a merge of the original Modules 5 and 6, so
-  the seam was still clean. Everything through Bayes and base rates became Unit 7; everything from
-  the gamble auction onward became Unit 8. Each got its own closing material, traps list, question
+  the seam was still clean. Everything through Bayes and base rates became Unit 6; everything from
+  the gamble auction onward became Unit 7. Each got its own closing material, traps list, question
   bank, mastery checklist, and software table.
 - **Unit 1 gained a normal-distribution primer.** One frame giving the bell shape, 68-95-99.7, and
-  the $z$-score, stating openly that Part I is borrowing the result on credit and that Unit 9 pays
+  the $z$-score, stating openly that Part I is borrowing the result on credit and that Unit 8 pays
   it back. This is the "touch only on the normal distribution" part of the plan.
 - **Six decks got rewritten openers or closers**, because the transitions are the one thing
-  renumbering cannot infer. Unit 6 now ends by handing off to Part II, and Unit 9 now opens as the
+  renumbering cannot infer. Unit 5 now ends by handing off to Part II, and Unit 8 now opens as the
   payoff unit rather than as a prerequisite: "since Unit 1 we have written estimate plus or minus
   two standard errors and moved on, and this is where that gets earned."
-- **Every cross-reference was remapped**, so "Unit 10 turns this into a whole way of doing
+- **Every cross-reference was remapped**, so "Unit 9 turns this into a whole way of doing
   inference" now points at the right place.
 
 ## Known gaps in this build
 
-- **Unit 8 is thin at 26 frames**, because splitting the merged unit left the random-variables half
+- **The new Unit 4 has no code companion, homework, or practice questions yet.** The deck is
+  built; the three student-facing pieces are not. The old Unit 4 and Unit 5 versions of them are
+  in `Absorbed_into_Unit04/` and are the raw material.
+- **Unit 7 is thin at 23 pages**, because splitting the merged unit left the random-variables half
   smaller than the probability half. It needs roughly ten more frames to fill three days. The
   obvious candidates are worked expectation and variance examples, a second activity, and an
   LLM-check pair, all of which the other units have.
-- **Units 7 and 8 share a code companion and homework.** The notebooks were copied under both
+- **Units 6 and 7 share a code companion and homework.** The notebooks were copied under both
   numbers but not yet split along the same seam. The probability material is in the first half of
   each file and the random-variables material in the second, so the split is mechanical but has not
   been done.
-- **The homework in Units 11 and 12 assumes the old ordering in a few prompts** where it says
-  "as in Unit 8." Harmless, but worth a pass if you adopt this order.
+- **The homework in Units 10 and 11 assumes the old ordering in a few prompts** where it says
+  "as in Unit 7." Harmless, but worth a pass if you adopt this order.
 
 ## Everything else is unchanged
 
@@ -73,19 +75,18 @@ unit number they work with either ordering.
 `Slides/Unit_13_Choosing_a_Model.tex` (37 pages) and
 `Notebooks/Code_Unit13_Choosing_a_Model.ipynb`.
 
-Not part of the 12-unit calendar. It sits most naturally after Unit 4, once regression,
+Not part of the 11-unit calendar. It sits most naturally after Unit 4, once regression,
 model building, and prediction are all in hand and the four questions have each been
 answered for linear regression exactly once.
 
-The unit answers the question the other twelve leave open: when a more complicated model
+The unit answers the question the others leave open: when a more complicated model
 earns its keep. Unit 3 teaches how to *detect* the right complexity with cross-validation,
 but never says what *determines* it, and "bias-variance" appears once in the whole course.
 This unit names the tradeoff, shows what moves the optimum, and turns model choice into
 something a student can say out loud in order.
 
-It deliberately forward-references logistic regression (Unit 11) and count models
-(Units 7 and 8) rather than teaching them, so it works at slot 5 without needing
-probability first.
+It deliberately forward-references logistic regression (Unit 10) and count models
+(Units 6 and 7) rather than teaching them, so it does not need probability first.
 
 Figures come from `tools/make_unit13_slide_figs.py` and are computed, not drawn. The
 central one simulates a fixed true curve and varies only the sample size: the best
@@ -93,9 +94,12 @@ polynomial degree moves 3, 5, 8 as n goes 20, 50, 300.
 
 ## Part I is the finished half
 
-Units 1 through 6 are built to work together and are the current product. Unit 2 is new: it
+Units 1 through 5 are built to work together and are the current product. Unit 4 merges what
+were two units, prediction and model building, into one: predicting a new case with an honest
+interval, overfitting and underfitting, and choosing which predictors to keep. What it left
+behind is listed in `Absorbed_into_Unit04/README.md`. Unit 2 is new: it
 introduces the model families and the probability/algorithmic split before any one family gets
-taught in depth. Unit 3 is the deep dive on linear regression. Unit 6 merges the old Causal
+taught in depth. Unit 3 is the deep dive on linear regression. Unit 5 merges the old Causal
 Thinking and Where the Data Comes From decks, because both taught selection bias separately, once
 as a collider and once as survivorship.
 
@@ -103,4 +107,4 @@ Each of the six ships a deck, an executed code companion, a homework, and a mult
 practice guide with answers in `Practice/`. The live activities are no longer on the slides.
 They still happen, they are just introduced out loud so a deck can be taught without them.
 
-Units 7 through 12 are the earlier build and have not been revisited yet.
+Units 6 through 11 are the earlier build and have not been revisited yet.

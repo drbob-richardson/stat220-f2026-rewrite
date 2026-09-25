@@ -7,8 +7,8 @@ overwritten._
 ## The idea
 
 The current order builds the machinery first (probability, distributions, CLT, estimation) and
-then spends it on models. This alternative flips that: Unit 1 sets the habits, Units 2 through 6
-do the modeling with the machinery borrowed on credit, and Units 7 through 12 go back and pay for
+then spends it on models. This alternative flips that: Unit 1 sets the habits, Units 2 through 5
+do the modeling with the machinery borrowed on credit, and Units 6 through 11 go back and pay for
 what was borrowed, then spend it again on the two topics that genuinely need it.
 
 The argument for it is that the first half of the semester is the half students are most awake
@@ -32,14 +32,14 @@ against is that a few things get used before they are earned. Both are addressed
 
 | # | Unit | Was | Why here |
 |---|------|-----|----------|
-| 7 | Probability: Randomness, Conditioning, and Bayes | 2 (first half) | Sampling in Unit 6 raises "what does random mean," and this answers it. |
+| 7 | Probability: Randomness, Conditioning, and Bayes | 2 (first half) | Sampling in Unit 5 raises "what does random mean," and this answers it. |
 | 8 | Random Variables and Distributions | 2 (second half) | Expectation, variance, the distribution stories, the flaw of averages. |
 | 9 | The Normal Distribution and the CLT | 3 | The payoff unit. This is where the standard errors used since Unit 1 finally get justified. |
-| 10 | Estimation, Likelihood, and the Bootstrap | 4 | Needs the sampling distribution from Unit 9. |
+| 10 | Estimation, Likelihood, and the Bootstrap | 4 | Needs the sampling distribution from Unit 8. |
 | 11 | Categorical Outcomes | 8 | Logistic regression, and evaluation built on base rates. Needs conditional probability, so it cannot come earlier. |
 | 12 | Bayesian Reasoning and Decisions | 10 | Needs Bayes and distributions. A good finale: probability turned back into decisions. |
 
-The capstone deck (currently Unit 12, "Putting It Together") stops being a unit and becomes
+The capstone deck (currently Unit 11, "Putting It Together") stops being a unit and becomes
 **review-day material**. You have 2 exam/review days and about 4 flex days, and the interview
 bracket plus the scenario cards are exactly what those days want.
 
@@ -49,13 +49,13 @@ Three things get used before they are formally taught. Two are fine and one need
 
 **1. Standard errors and the $t$-distribution, from Unit 1 onward.** Unit 1 already introduces the
 sampling distribution and the standard error informally, without deriving them, and that is enough
-to carry Units 2 through 5. Unit 9 then closes the loop, and it lands better as a payoff
+to carry Units 2 through 4. Unit 8 then closes the loop, and it lands better as a payoff
 ("this is why everything you have been doing was legitimate") than as a prerequisite.
 
 **2. The normal distribution, mentioned in passing.** Regression diagnostics and prediction
 intervals refer to it. **Patch:** a single compact frame in Unit 1, "the normal, the version you
 need for now," giving the bell shape, 68-95-99.7, and the $z$-score, with an explicit promise that
-Unit 9 earns it properly. This is the "touching only on the normal distribution" you asked for.
+Unit 8 earns it properly. This is the "touching only on the normal distribution" you asked for.
 
 **3. Probability language inside the modeling units.** Causal thinking talks about confounders
 without conditional probability notation. This turns out to be fine, because the causal unit is
@@ -63,26 +63,26 @@ built on diagrams and comparisons rather than on $P(Y \mid X, Z)$.
 
 **What does not work:** moving Categorical Outcomes into Part I. That unit runs on odds, base
 rates, and predictive values, which are conditional probability wearing different hats. Putting it
-before Unit 7 would recreate exactly the ordering bug we just fixed inside the old Unit 2, where
+before Unit 6 would recreate exactly the ordering bug we just fixed inside the old Unit 2, where
 independence was defined using conditional probability three slides before conditional probability
 existed. If you want logistic regression earlier, the honest move is to pull the *modeling* half of
 it (the logistic curve, log-odds, reading a coefficient) into Unit 3 and leave the *evaluation*
-half (thresholds, precision and recall, calibration) at Unit 11. I can split it that way if you
+half (thresholds, precision and recall, calibration) at Unit 10. I can split it that way if you
 want.
 
 ## What changes mechanically
 
 - **The old Unit 2 splits back into two units** (7 and 8). It was itself a merge of the original
   Modules 5 and 6, and the seam is still clean: everything through Bayes and base rates becomes
-  Unit 7, everything from the gamble auction onward becomes Unit 8. This is what gets the count
+  Unit 6, everything from the gamble auction onward becomes Unit 7. This is what gets the count
   back to 12 after the capstone leaves.
 - **Renumbering**, which touches each deck's subtitle, its opening "where this fits," its closing
-  "where we go next," and about a dozen forward references such as "Unit 10 turns this into a whole
+  "where we go next," and about a dozen forward references such as "Unit 9 turns this into a whole
   way of doing inference."
 - **Homework and code companions renumber with their units.** Their content is per-topic and does
   not care about order, with one exception noted below.
 - **One homework dependency breaks and is already fixed.** Unit 1's homework used to ask for a
-  bootstrap, which now sits in Unit 10 rather than Unit 4. It was rewritten last week to use only
+  bootstrap, which now sits in Unit 9 rather than Unit 4. It was rewritten last week to use only
   Unit 1 tools, so it is safe in either ordering.
 
 ## Risks worth watching
@@ -93,7 +93,7 @@ want.
 - **Part II can feel like a step backward** if it is framed as new material. It should be framed as
   the explanation for what they have already been doing. Every unit in Part II should open by
   naming the thing from Part I that it is finally justifying.
-- **The exam split changes.** A midterm after Unit 6 covers modeling with almost no probability,
+- **The exam split changes.** A midterm after Unit 5 covers modeling with almost no probability,
   which is unusual for a stats course and worth deciding on deliberately rather than by accident.
 
 ## If you want to try it

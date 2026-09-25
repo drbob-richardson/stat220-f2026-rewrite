@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Unit 6 practice, multiple choice with answers inline. STUDENT-FACING."""
+"""Unit 5 practice, multiple choice with answers inline. STUDENT-FACING."""
 from build_questions import build_mc
 
 build_mc("Causal", "Causal Claims and Where the Data Came From",

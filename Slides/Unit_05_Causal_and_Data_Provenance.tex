@@ -1,14 +1,14 @@
 % =====================================================================
 % THIS FILE IS THE SOURCE. Rebuild with:
-%     bash tools/compile.sh Unit_06_Causal_and_Data_Provenance
+%     bash tools/compile.sh Unit_05_Causal_and_Data_Provenance
 %
-% Unit 6 merges the old Causal Thinking and Where the Data Comes From
+% Unit 5 merges the old Causal Thinking and Where the Data Comes From
 % decks. They both taught selection bias separately, once as a collider
 % and once as survivorship, so the merged unit teaches the mechanism once
 % and then shows both faces of it.
 % =====================================================================
 % THIS FILE IS THE SOURCE. Edit it, then rebuild the PDF with:
-%     bash tools/compile.sh Unit_05_Causal_Thinking
+%     bash tools/compile.sh Unit_04_Causal_Thinking
 % (run from the Course_Rewrite folder; it compiles twice and reports
 %  page count, overfull boxes, and em dashes)
 %
@@ -58,7 +58,7 @@
   \begin{block}{\textbf{LLM check:} #1}}{\end{block}}
 
 \title{Where the Data Came From}
-\subtitle{Unit 6: Causal Claims, Selection, and What You Are Allowed to Conclude}
+\subtitle{Unit 5: Causal Claims, Selection, and What You Are Allowed to Conclude}
 \author{Stat 220 \textbar{} Statistics for Data Science}
 \date{}
 
@@ -72,7 +72,7 @@
 
 \begin{frame}{Where this fits}
 \begin{itemize}
-  \item Units 3 through 5 built models, judged them honestly, and put error bars on what they
+  \item Units 3 through 4 built models, judged them honestly, and put error bars on what they
         predict. All of that assumed the rows in front of you were the rows you should have.
   \item This unit asks the two questions that come before any of it. Where did these rows come
         from, and does the pattern in them mean what it looks like?
@@ -426,7 +426,7 @@ the real frame is often enough to spot the problem.
 \end{itemize}
 \begin{trap}{cluster samples analyzed as if they were random}
 Surveying 20 stores with 50 customers each is not 1{,}000 independent observations. Treating it as
-such is the standard-error error from Unit 9, at scale.
+such is the standard-error error from Unit 8, at scale.
 \end{trap}
 \end{frame}
 
@@ -844,7 +844,7 @@ If you cannot say what the output means, the fact that you produced it is worth 
 \begin{itemize}
   \item That closes Part I. You can build a model, judge it honestly, say how wrong a prediction
         might be, and now ask whether the data ever supported the claim.
-  \item Part II goes back and earns the machinery. \textbf{Unit 7} starts with probability, which
+  \item Part II goes back and earns the machinery. \textbf{Unit 6} starts with probability, which
         is what the standard errors, the $p$-values, and the distributions have been resting on
         the whole time.
 \end{itemize}
