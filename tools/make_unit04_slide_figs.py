@@ -21,6 +21,11 @@ ROOT = Path(__file__).resolve().parent.parent
 SLIDES = ROOT / "Slides"
 BLUE, RED, GREY, GREEN = "#4878a8", "#c0392b", "#7f8c8d", "#2e7d5b"
 jobs = pd.read_csv(ROOT / "data" / "moving_jobs.csv")
+# The choosing-predictors half of the unit uses a smaller branch office, where the
+# question of how many predictors you can afford actually has teeth.
+branch = jobs.sample(60, random_state=5).reset_index(drop=True)
+REAL = ["volume_cuft", "crew_size", "stairs_flights", "miles", "packing_service"]
+JUNK = ["est_boxes", "dispatcher_rating", "weekend"]
 
 
 def save(fig, name):
@@ -139,19 +144,21 @@ def fig_sets():
     folds = KFold(5, shuffle=True, random_state=0)
     rmse = []
     for _, cols in sets:
-        mse = -cross_val_score(LinearRegression(), jobs[cols], jobs.hours, cv=folds,
+        mse = -cross_val_score(LinearRegression(), branch[cols], branch.hours, cv=folds,
                                scoring="neg_mean_squared_error").mean()
         rmse.append(np.sqrt(mse))
 
     fig, ax = plt.subplots(figsize=(7.4, 3.2))
     ypos = np.arange(len(sets))[::-1]
-    ax.barh(ypos, rmse, color=BLUE, alpha=0.8, height=0.6)
+    best = min(rmse)
+    ax.barh(ypos, rmse, color=[GREEN if r == best else BLUE for r in rmse], alpha=0.8, height=0.6)
     for yy, r in zip(ypos, rmse):
         ax.text(r + 0.01, yy, f"{r:.3f}", va="center", fontsize=9)
     ax.set_yticks(ypos); ax.set_yticklabels([s[0] for s in sets], fontsize=9)
-    ax.set_xlabel("cross-validated error (hours)")
+    ax.set_xlabel("cross-validated error (hours), 60 jobs")
     ax.set_xlim(0, max(rmse) * 1.18)
     save(fig, "fig_u4_sets.pdf")
+    print("   " + ", ".join(f"{n}: {r:.3f}" for (n, _), r in zip(sets, rmse)))
 
 
 def fig_extrap():
@@ -174,14 +181,89 @@ def fig_extrap():
     save(fig, "fig_u4_extrap.pdf")
 
 
+def fig_2d():
+    """A combination no job has had, although each value on its own is ordinary."""
+    fig = plt.figure(figsize=(7.6, 3.8))
+    gs = fig.add_gridspec(2, 2, width_ratios=(4, 1), height_ratios=(1, 3),
+                          wspace=0.05, hspace=0.05)
+    ax = fig.add_subplot(gs[1, 0])
+    top = fig.add_subplot(gs[0, 0], sharex=ax)
+    right = fig.add_subplot(gs[1, 1], sharey=ax)
+
+    ax.scatter(jobs.volume_cuft, jobs.est_boxes, s=10, color=GREY, alpha=0.5,
+               label="completed jobs")
+    ax.scatter([900], [35], s=110, color=RED, marker="X", zorder=5,
+               label="the job we were asked about: 900 cu ft, 35 boxes")
+    ax.set_xlabel("volume (cubic feet)"); ax.set_ylabel("estimated boxes")
+    ax.legend(fontsize=8, loc="upper left")
+
+    top.hist(jobs.volume_cuft, bins=40, color=BLUE, alpha=0.6)
+    top.axvline(900, color=RED, lw=2)
+    top.set_yticks([]); top.tick_params(labelbottom=False)
+    top.set_title("143 jobs are near that volume and 83 are near that box count, "
+                  "but not one job has both", fontsize=8.5)
+
+    right.hist(jobs.est_boxes, bins=40, orientation="horizontal", color=BLUE, alpha=0.6)
+    right.axhline(35, color=RED, lw=2)
+    right.set_xticks([]); right.tick_params(labelleft=False)
+    for a in (top, right):
+        a.set_frame_on(False)
+    save(fig, "fig_u4_2d.pdf")
+
+
+def fig_ladder():
+    """The same ladder of models, on 60 jobs and on all 600."""
+    from sklearn.preprocessing import PolynomialFeatures
+
+    def design(d, kind):
+        if kind == "volume":
+            return d[["volume_cuft"]].values
+        if kind == "mains":
+            return d[REAL].values
+        pf = PolynomialFeatures(2 if kind != "third" else 3, include_bias=False)
+        Z = pf.fit_transform(d[REAL])
+        names = pf.get_feature_names_out(REAL)
+        if kind == "squares":                      # main effects and squares, no products
+            keep = [i for i, nm in enumerate(names) if " " not in nm]
+            Z = Z[:, keep]
+        return Z
+
+    ladder = [("volume\nonly", "volume"), ("5 main\neffects", "mains"),
+              ("+ squared\nterms", "squares"), ("full second\norder", "second"),
+              ("third\norder", "third")]
+    folds = KFold(5, shuffle=True, random_state=0)
+    fig, ax = plt.subplots(figsize=(7.6, 3.5))
+    for d, label, color, mark in [(branch, "60 jobs (one branch)", RED, "s"),
+                                  (jobs, "600 jobs (the company)", BLUE, "o")]:
+        err, terms = [], []
+        for _, kind in ladder:
+            Z = design(d, kind)
+            mse = -cross_val_score(LinearRegression(), Z, d.hours, cv=folds,
+                                   scoring="neg_mean_squared_error").mean()
+            err.append(np.sqrt(mse)); terms.append(Z.shape[1])
+        ax.plot(range(len(ladder)), err, mark + "-", color=color, lw=2, label=label)
+        ax.scatter([int(np.argmin(err))], [min(err)], s=170, facecolors="none",
+                   edgecolors=GREEN, lw=2, zorder=5)
+        print(f"   {label}: " + ", ".join(f"{n.replace(chr(10), ' ')} ({t} terms) {e:.3f}"
+                                          for (n, _), t, e in zip(ladder, terms, err)))
+    ax.set_xticks(range(len(ladder)))
+    ax.set_xticklabels([n for n, _ in ladder], fontsize=8)
+    ax.set_ylim(0.7, 2.0)
+    ax.set_ylabel("cross-validated error (hours)")
+    ax.annotate("55.9, off the chart", xy=(4, 1.93), fontsize=8, color=RED, ha="right")
+    ax.set_title("green circle marks the best rung for that sample size", fontsize=9)
+    ax.legend(fontsize=8)
+    save(fig, "fig_u4_ladder.pdf")
+
+
 def fig_stepwise():
     """Forward selection let loose on 20 columns of pure noise."""
     rng = np.random.default_rng(11)
-    # a small sample, which is where a long search does the most damage
-    d = jobs.sample(50, random_state=2).reset_index(drop=True)
-    real = ["volume_cuft", "crew_size", "stairs_flights", "miles", "packing_service"]
-    noise = pd.DataFrame(rng.normal(size=(len(d), 40)),
-                         columns=[f"noise_{i+1}" for i in range(40)])
+    # the branch again: a long search does the most damage on a small sample
+    d = branch
+    real = REAL
+    noise = pd.DataFrame(rng.normal(size=(len(d), 60)),
+                         columns=[f"noise_{i+1}" for i in range(60)])
     X = pd.concat([d[real], noise], axis=1)
     y = d.hours.values
 
@@ -209,11 +291,12 @@ def fig_stepwise():
     ax.set_xticks(range(len(chosen)))
     ax.set_xticklabels([c.replace("_", " ") for c in chosen], rotation=40, ha="right", fontsize=7)
     ax.set_ylabel("$-\\log_{10}(p)$ in the final model")
-    ax.set_title(f"on 50 jobs, forward selection kept {len(chosen)} of 45 columns, "
+    ax.set_title(f"on 60 jobs, forward selection kept {len(chosen)} of 65 columns, "
                  f"{len(kept_noise)} of them pure noise (red)", fontsize=9)
     ax.legend(fontsize=8)
     save(fig, "fig_u4_stepwise.pdf")
     print(f"   kept {len(chosen)}: {chosen}")
+    print(f"   real predictors dropped: {[c for c in real if c not in chosen]}")
     print(f"   noise columns kept: {kept_noise}")
     print(f"   their p-values in the final model: "
           f"{[round(fit.pvalues[c], 4) for c in kept_noise]}")
@@ -221,23 +304,32 @@ def fig_stepwise():
 
 
 def fig_lasso():
-    """Coefficient paths as the penalty grows, plus the cross-validated choice."""
+    """Coefficient paths as the penalty grows, on the 60-job branch."""
     from sklearn.linear_model import Lasso, LassoCV
-    cols = ["volume_cuft", "crew_size", "stairs_flights", "miles", "packing_service",
-            "est_boxes", "dispatcher_rating", "weekend"]
-    Z = StandardScaler().fit_transform(jobs[cols])
-    y = jobs.hours.values
-    alphas = np.logspace(-3, 0.6, 60)
-    paths = np.array([Lasso(alpha=a, max_iter=10000).fit(Z, y).coef_ for a in alphas])
-    cv = LassoCV(alphas=alphas, cv=5, random_state=0, max_iter=10000).fit(Z, y)
+    cols = REAL + JUNK
+    Z = StandardScaler().fit_transform(branch[cols])
+    y = branch.hours.values
+    alphas = np.logspace(-3, 0.7, 80)
+    paths = np.array([Lasso(alpha=a, max_iter=50000).fit(Z, y).coef_ for a in alphas])
+    cv = LassoCV(alphas=alphas, cv=5, random_state=0, max_iter=50000).fit(Z, y)
+
+    # the largest penalty at which exactly the five sensible predictors survive
+    a_five = None
+    for a in alphas:
+        kept = {c for c, b in zip(cols, Lasso(alpha=a, max_iter=50000).fit(Z, y).coef_)
+                if abs(b) > 1e-9}
+        if kept == set(REAL):
+            a_five = a
 
     fig, axes = plt.subplots(1, 2, figsize=(10.4, 3.4))
     for j, col in enumerate(cols):
-        real = col in cols[:5]
+        real = col in REAL
         axes[0].plot(alphas, paths[:, j], lw=2 if real else 1.5,
                      color=BLUE if real else RED, alpha=0.9 if real else 0.8,
                      ls="-" if real else "--", label=col.replace("_", " "))
     axes[0].axvline(cv.alpha_, color=GREEN, ls=":", lw=2)
+    if a_five:
+        axes[0].axvline(a_five, color="black", ls="-.", lw=1.5)
     axes[0].set_xscale("log"); axes[0].axhline(0, color="black", lw=0.8)
     axes[0].set_xlabel("penalty size"); axes[0].set_ylabel("coefficient")
     axes[0].set_title("solid blue: the five that make sense.  dashed red: the three that do not",
@@ -245,16 +337,35 @@ def fig_lasso():
     axes[0].legend(fontsize=6.5, ncol=2, loc="upper right", framealpha=0.9)
 
     mse = cv.mse_path_.mean(axis=1)
-    axes[1].plot(cv.alphas_, np.sqrt(mse), color=BLUE, lw=2)
+    order = np.argsort(cv.alphas_)
+    axes[1].plot(cv.alphas_[order], np.sqrt(mse[order]), color=BLUE, lw=2)
     axes[1].axvline(cv.alpha_, color=GREEN, ls=":", lw=2,
-                    label=f"cross-validated pick: {cv.alpha_:.3f}")
+                    label=f"best error: penalty {cv.alpha_:.3f}")
+    if a_five:
+        axes[1].axvline(a_five, color="black", ls="-.", lw=1.5,
+                        label=f"only the sensible five left: {a_five:.3f}")
     axes[1].set_xscale("log")
     axes[1].set_xlabel("penalty size"); axes[1].set_ylabel("cross-validated error (hours)")
-    axes[1].legend(fontsize=8)
+    axes[1].legend(fontsize=7.5)
     save(fig, "fig_u4_lasso.pdf")
-    kept = [c for c, b in zip(cols, cv.coef_) if abs(b) > 1e-8]
-    print(f"   lasso alpha {cv.alpha_:.4f}; kept {kept}")
-    print("   coefficients:", dict(zip(cols, cv.coef_.round(3))))
+
+    print(f"   cross-validated penalty {cv.alpha_:.4f}, error {np.sqrt(mse.min()):.3f}")
+    print("   coefficients there:", dict(zip(cols, cv.coef_.round(3))))
+    if a_five:
+        m5 = Lasso(alpha=a_five, max_iter=50000).fit(Z, y)
+        err5 = np.sqrt(-cross_val_score(m5, Z, y, cv=KFold(5, shuffle=True, random_state=0),
+                                        scoring="neg_mean_squared_error").mean())
+        print(f"   penalty {a_five:.4f} keeps exactly the five; error {err5:.3f}")
+        print("   coefficients there:", dict(zip(cols, m5.coef_.round(3))))
+    # the order in which columns drop out
+    prev, order_out = set(cols), []
+    for a in alphas:
+        kept = {c for c, b in zip(cols, Lasso(alpha=a, max_iter=50000).fit(Z, y).coef_)
+                if abs(b) > 1e-9}
+        for gone in prev - kept:
+            order_out.append((gone, round(a, 3)))
+        prev = kept
+    print("   dropped, in order:", order_out)
 
 
 if __name__ == "__main__":
