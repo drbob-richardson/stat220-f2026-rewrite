@@ -15,7 +15,7 @@ import pandas as pd
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import KFold, cross_val_score, train_test_split
 from sklearn.pipeline import make_pipeline
-from sklearn.preprocessing import PolynomialFeatures
+from sklearn.preprocessing import PolynomialFeatures, StandardScaler
 
 ROOT = Path(__file__).resolve().parent.parent
 SLIDES = ROOT / "Slides"
@@ -47,9 +47,9 @@ def fig_intervals():
     fig, ax = plt.subplots(figsize=(7.2, 3.6))
     ax.scatter(x, y, s=12, color=GREY, alpha=0.55, label="completed jobs")
     ax.fill_between(grid, pred - 2*se_new, pred + 2*se_new, color=BLUE, alpha=0.16,
-                    label="where one new job lands")
+                    label="95% prediction interval (one new job)")
     ax.fill_between(grid, pred - 2*se_mean, pred + 2*se_mean, color=RED, alpha=0.40,
-                    label="where the line itself sits")
+                    label="95% confidence interval (the line)")
     ax.plot(grid, pred, color=RED, lw=2)
     ax.set_xlabel("volume (cubic feet)"); ax.set_ylabel("hours on site")
     ax.legend(fontsize=8, loc="upper left")
@@ -174,6 +174,89 @@ def fig_extrap():
     save(fig, "fig_u4_extrap.pdf")
 
 
+def fig_stepwise():
+    """Forward selection let loose on 20 columns of pure noise."""
+    rng = np.random.default_rng(11)
+    # a small sample, which is where a long search does the most damage
+    d = jobs.sample(50, random_state=2).reset_index(drop=True)
+    real = ["volume_cuft", "crew_size", "stairs_flights", "miles", "packing_service"]
+    noise = pd.DataFrame(rng.normal(size=(len(d), 40)),
+                         columns=[f"noise_{i+1}" for i in range(40)])
+    X = pd.concat([d[real], noise], axis=1)
+    y = d.hours.values
+
+    import statsmodels.api as sm
+    chosen, remaining = [], list(X.columns)
+    picked_p = []
+    while remaining:
+        best = None
+        for col in remaining:
+            fit = sm.OLS(y, sm.add_constant(X[chosen + [col]])).fit()
+            p = fit.pvalues[col]
+            if best is None or p < best[1]:
+                best = (col, p)
+        if best[1] >= 0.05:
+            break
+        chosen.append(best[0]); remaining.remove(best[0]); picked_p.append(best[1])
+
+    fit = sm.OLS(y, sm.add_constant(X[chosen])).fit()
+    kept_noise = [c for c in chosen if c.startswith("noise")]
+    fig, ax = plt.subplots(figsize=(7.4, 3.3))
+    colors = [RED if c.startswith("noise") else BLUE for c in chosen]
+    ax.bar(range(len(chosen)), [-np.log10(fit.pvalues[c]) for c in chosen], color=colors, alpha=0.85)
+    ax.axhline(-np.log10(0.05), color="black", ls="--", lw=1,
+               label="p = 0.05")
+    ax.set_xticks(range(len(chosen)))
+    ax.set_xticklabels([c.replace("_", " ") for c in chosen], rotation=40, ha="right", fontsize=7)
+    ax.set_ylabel("$-\\log_{10}(p)$ in the final model")
+    ax.set_title(f"on 50 jobs, forward selection kept {len(chosen)} of 45 columns, "
+                 f"{len(kept_noise)} of them pure noise (red)", fontsize=9)
+    ax.legend(fontsize=8)
+    save(fig, "fig_u4_stepwise.pdf")
+    print(f"   kept {len(chosen)}: {chosen}")
+    print(f"   noise columns kept: {kept_noise}")
+    print(f"   their p-values in the final model: "
+          f"{[round(fit.pvalues[c], 4) for c in kept_noise]}")
+    print(f"   R2 of the selected model: {fit.rsquared:.4f}")
+
+
+def fig_lasso():
+    """Coefficient paths as the penalty grows, plus the cross-validated choice."""
+    from sklearn.linear_model import Lasso, LassoCV
+    cols = ["volume_cuft", "crew_size", "stairs_flights", "miles", "packing_service",
+            "est_boxes", "dispatcher_rating", "weekend"]
+    Z = StandardScaler().fit_transform(jobs[cols])
+    y = jobs.hours.values
+    alphas = np.logspace(-3, 0.6, 60)
+    paths = np.array([Lasso(alpha=a, max_iter=10000).fit(Z, y).coef_ for a in alphas])
+    cv = LassoCV(alphas=alphas, cv=5, random_state=0, max_iter=10000).fit(Z, y)
+
+    fig, axes = plt.subplots(1, 2, figsize=(10.4, 3.4))
+    for j, col in enumerate(cols):
+        real = col in cols[:5]
+        axes[0].plot(alphas, paths[:, j], lw=2 if real else 1.5,
+                     color=BLUE if real else RED, alpha=0.9 if real else 0.8,
+                     ls="-" if real else "--", label=col.replace("_", " "))
+    axes[0].axvline(cv.alpha_, color=GREEN, ls=":", lw=2)
+    axes[0].set_xscale("log"); axes[0].axhline(0, color="black", lw=0.8)
+    axes[0].set_xlabel("penalty size"); axes[0].set_ylabel("coefficient")
+    axes[0].set_title("solid blue: the five that make sense.  dashed red: the three that do not",
+                      fontsize=8)
+    axes[0].legend(fontsize=6.5, ncol=2, loc="upper right", framealpha=0.9)
+
+    mse = cv.mse_path_.mean(axis=1)
+    axes[1].plot(cv.alphas_, np.sqrt(mse), color=BLUE, lw=2)
+    axes[1].axvline(cv.alpha_, color=GREEN, ls=":", lw=2,
+                    label=f"cross-validated pick: {cv.alpha_:.3f}")
+    axes[1].set_xscale("log")
+    axes[1].set_xlabel("penalty size"); axes[1].set_ylabel("cross-validated error (hours)")
+    axes[1].legend(fontsize=8)
+    save(fig, "fig_u4_lasso.pdf")
+    kept = [c for c, b in zip(cols, cv.coef_) if abs(b) > 1e-8]
+    print(f"   lasso alpha {cv.alpha_:.4f}; kept {kept}")
+    print("   coefficients:", dict(zip(cols, cv.coef_.round(3))))
+
+
 if __name__ == "__main__":
     fig_intervals()
     fig_flex()
@@ -181,3 +264,5 @@ if __name__ == "__main__":
     fig_cv()
     fig_sets()
     fig_extrap()
+    fig_stepwise()
+    fig_lasso()

@@ -78,7 +78,7 @@
 \textbf{Things to know}
 \begin{itemize}\small
   \item how to produce a prediction and an honest interval around it
-  \item the difference between an interval for the line and an interval for one new case
+  \item the difference between a confidence interval and a prediction interval
   \item why error measured on your own data is too small
   \item train/test splits and cross-validation
   \item what underfitting and overfitting look like
@@ -89,7 +89,7 @@
 \textbf{Mistakes to stop making}
 \begin{itemize}\small
   \item quoting a prediction with no interval
-  \item quoting the interval for the line when someone asked about one case
+  \item quoting a confidence interval when someone asked about one case
   \item reporting the fit on the rows you used to fit it
   \item adding predictors because $R^2$ went up
   \item searching many models and reporting the winner as if you had picked it in advance
@@ -154,16 +154,17 @@ predicted hours & 12.39 \\
 
 \begin{frame}{Two different questions, two different intervals}
 \begin{itemize}
-  \item \textbf{Interval for the line.} Where does the average outcome sit, for jobs like this
-        one? It shrinks as the sample grows, because it is about an estimate.
-  \item \textbf{Interval for one new case.} Where will \emph{this job} land? It includes the
-        job-to-job variation that no model removes, so it stays wide no matter how much data
+  \item \textbf{Confidence interval for the line.} Where does the average outcome sit, for jobs
+        like this one? It shrinks as the sample grows, because it is about an estimate.
+  \item \textbf{Prediction interval for one new case.} Where will \emph{this job} land? It adds
+        the job-to-job variation that no model removes, so it stays wide no matter how much data
         you collect.
+  \item The prediction interval is always the wider of the two, and it contains the confidence
+        interval.
 \end{itemize}
 \begin{principle}{which one to quote}
-If the question is about an average, use the interval for the line. If the question is about
-one case, use the interval for a new case. A dispatcher scheduling one crew is asking about
-one case.
+If the question is about an average, use the confidence interval. If the question is about one
+case, use the prediction interval. A dispatcher scheduling one crew is asking about one case.
 \end{principle}
 \end{frame}
 
@@ -173,8 +174,8 @@ one case.
 \toprule
 & \textbf{95\% interval} & \textbf{width} \\
 \midrule
-average job like this one & 12.25 to 12.54 & 0.3 hours \\
-this one job & 10.74 to 14.04 & 3.3 hours \\
+confidence interval, average job like this one & 12.25 to 12.54 & 0.3 hours \\
+prediction interval, this one job & 10.74 to 14.04 & 3.3 hours \\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -191,11 +192,13 @@ it reaches a customer.
 
 \begin{frame}{The two intervals, drawn}
 \centering
-\includegraphics[width=0.86\textwidth]{fig_u4_intervals.pdf}
-\vspace{0.2em}
-\small
-The dark band is where the line sits. The pale band is where a single new job lands, and
-about 95\% of the completed jobs fall inside it.
+\includegraphics[width=0.84\textwidth]{fig_u4_intervals.pdf}\par
+\vspace{0.6em}
+\begin{minipage}{0.86\textwidth}\small
+The narrow dark band is the \textbf{confidence interval} for the line. The wide pale band is
+the \textbf{prediction interval} for a single new job, and about 95\% of the completed jobs
+fall inside it.
+\end{minipage}
 \end{frame}
 
 \begin{frame}{Your turn \#1}
@@ -212,8 +215,8 @@ Decide with a neighbor which of the three needs the interval for one new case.
 
 \begin{frame}{Your turn \#1: answer}
 \begin{itemize}
-  \item \textbf{(1) The line.} It asks about an average over many jobs.
-  \item \textbf{(2) One new case.} One move, one crew, one Tuesday. This is the wide interval,
+  \item \textbf{(1) Confidence interval.} It asks about an average over many jobs.
+  \item \textbf{(2) Prediction interval.} One move, one crew, one Tuesday. This is the wide one,
         and the one people most often get wrong.
   \item \textbf{(3) Neither.} That is a question about a coefficient, which is Unit 3. It asks
         what the model says about a relationship, not what will happen next.
@@ -323,11 +326,12 @@ from the same data you chose with.
 
 \begin{frame}{The same 40 jobs, three models}
 \centering
-\includegraphics[width=\textwidth]{fig_u4_flex.pdf}
-\vspace{0.2em}
-\small
+\includegraphics[width=\textwidth]{fig_u4_flex.pdf}\par
+\vspace{0.5em}
+\begin{minipage}{0.92\textwidth}\small
 Left: a straight line misses the bend at the high end. Middle: one curve, about right.
 Right: degree 14 passes near almost every point, and the wiggles are noise.
+\end{minipage}
 \end{frame}
 
 \begin{frame}{Training error and held-out error, as complexity grows}
@@ -457,30 +461,200 @@ buys something you can point at.
 
 \begin{frame}{Searching through variables is itself a way to overfit}
 \begin{itemize}
-  \item Try enough predictors and some will look useful by chance. With 20 useless columns and
-        a 0.05 cutoff, about one shows up ``significant.''
-  \item \textbf{Stepwise selection} adds or drops variables by $p$-value, over and over. The
-        model it lands on is the winner of a long search, and its $p$-values are no longer
-        the $p$-values of a test you planned.
-  \item The junk columns above had $p$-values of 0.13, 0.30, and 0.80. That is the pattern to
-        expect from columns unrelated to the outcome, and the reason not to keep hunting until
-        one of them dips under 0.05.
+  \item Every candidate column gets a chance to look good by luck. With 20 columns that have
+        nothing to do with the outcome and a 0.05 cutoff, about one of them clears the bar.
+  \item So a variable that survives a long search is not the same as a variable that passed a
+        test you planned in advance.
+  \item The junk columns in the table above had $p$-values of 0.13, 0.30, and 0.80. That is what
+        unrelated columns normally look like. The danger is in what happens when you keep hunting.
 \end{itemize}
 \end{frame}
 
-\begin{frame}{Penalized regression, in one slide}
+\begin{frame}{What stepwise selection does}
+\textbf{Stepwise selection} builds the model by repeatedly adding or dropping one variable.
+\begin{center}\small
+\begin{tabular}{L{0.24\textwidth} L{0.66\textwidth}}
+\toprule
+\textbf{Version} & \textbf{The loop} \\
+\midrule
+forward & start with nothing. Add whichever remaining variable helps most. Stop when none helps \\
+backward & start with everything. Drop the weakest variable. Stop when dropping hurts \\
+both directions & alternate: add the best, then reconsider dropping what is already in \\
+\bottomrule
+\end{tabular}
+\end{center}
+\vspace{0.3em}
+``Helps most'' is usually the smallest $p$-value, sometimes the biggest drop in AIC. The
+procedure runs without your judgment, which is why it is popular and where the trouble
+starts.
+\end{frame}
+
+\begin{frame}{What that looks like when you run it}
+\textbf{Setup.} 50 jobs. The five predictors that make sense, plus 40 columns of pure noise that
+we generated ourselves, so we know for a fact they mean nothing. Then forward selection, adding
+whatever has the smallest $p$-value, stopping at 0.05.
+\begin{center}\small
+\begin{tabular}{lc}
+\toprule
+columns offered & 45 \\
+columns kept & 5 \\
+of those, pure noise & 1 \\
+$p$-value of the noise column in the final model & 0.045 \\
+real predictor dropped along the way & \texttt{miles} \\
+$R^2$ of the selected model & 0.94 \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{frame}
+
+\begin{frame}{The selected model, as it would be reported}
+\centering
+\includegraphics[width=0.74\textwidth]{fig_u4_stepwise.pdf}\par
+\vspace{0.4em}
+\begin{minipage}{0.88\textwidth}\small
+Written up, this model has five predictors, all significant, and an $R^2$ of 0.94. Nothing in
+the output says that one of them is a column of random numbers, or that a real predictor was
+thrown out to make room for it.
+\end{minipage}
+\end{frame}
+
+\begin{frame}{Why the $p$-values stop meaning what they say}
 \begin{itemize}
-  \item Ordinary least squares picks coefficients to make the residuals small. \textbf{Lasso}
-        adds a charge for the size of the coefficients.
-  \item The effect is that weak predictors shrink toward zero, and some land exactly on zero,
-        which drops them from the model.
-  \item One number, the size of the charge, controls how aggressive it is. You choose it by
-        cross-validation.
+  \item A $p$-value answers: if this variable did nothing, how often would a result this strong
+        appear? That question assumes you picked the variable \emph{before} looking.
+  \item In a search you did not pick it. You picked the best of 45, and the best of 45 is
+        extreme by construction.
+  \item The same applies to $R^2$ and to the coefficient. All three are reported as if the model
+        arrived in one step, when it is the survivor of a tournament.
 \end{itemize}
-\begin{practice}{on the moving data}
-Lasso set \texttt{weekend} to exactly zero and shrank \texttt{dispatcher\_rating} to nearly
-nothing. It kept \texttt{est\_boxes}, which is a rough copy of volume, so the two of them
-split the credit.
+\begin{trap}{what to listen for}
+``We started with everything we had and let the procedure decide.'' When you hear that, ask how
+many variables went in, and whether the model was checked on data that had no part in choosing it.
+\end{trap}
+\end{frame}
+
+\begin{frame}{What to do instead, and what to ask}
+\begin{columns}[T]
+\begin{column}{0.5\textwidth}
+\textbf{Instead}
+\begin{itemize}\small
+  \item write down a few candidate sets, each with a reason, and compare those
+  \item judge them on held-out data, where a lucky column gets no credit
+  \item let subject knowledge decide the borderline cases
+  \item if you do search, do the searching inside the cross-validation, not before it
+\end{itemize}
+\end{column}
+\begin{column}{0.5\textwidth}
+\textbf{Ask, of someone else's model}
+\begin{itemize}\small
+  \item how many variables were considered, not how many are in the model
+  \item was the final model checked on data that played no part in choosing it
+  \item does each variable have a reason beyond having survived
+  \item would the same procedure on last year's data produce the same model
+\end{itemize}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Penalized regression: pay for the size of your coefficients}
+\begin{itemize}
+  \item Least squares picks coefficients to make the squared residuals as small as possible, and
+        nothing stops a coefficient from growing to chase noise.
+  \item \textbf{Penalized regression} adds a charge for the size of the coefficients, so a
+        variable has to earn its keep against that charge.
+\end{itemize}
+\[
+  \underbrace{\sum (y_i - \hat{y}_i)^2}_{\text{fit the data}}
+  \;+\;
+  \lambda \underbrace{\sum_j |b_j|}_{\text{charge for size}}
+\]
+\begin{itemize}
+  \item $\lambda$ is the size of the charge. At $\lambda = 0$ you are back to ordinary least
+        squares. As $\lambda$ grows, every coefficient is pulled toward zero.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Ridge and lasso}
+\begin{center}\small
+\begin{tabular}{L{0.16\textwidth} L{0.26\textwidth} L{0.46\textwidth}}
+\toprule
+\textbf{Name} & \textbf{Charge} & \textbf{What it does} \\
+\midrule
+ridge & $\lambda \sum b_j^2$ & shrinks every coefficient toward zero, but never all the way.
+Keeps all the variables \\
+lasso & $\lambda \sum |b_j|$ & shrinks, and sends weak coefficients \emph{exactly} to zero,
+which drops those variables \\
+\bottomrule
+\end{tabular}
+\end{center}
+\begin{itemize}\small
+  \item Lasso therefore does selection and fitting in one step, which is why it comes up in a
+        unit about choosing predictors.
+  \item Ridge is the better choice when predictors are highly correlated and you want to keep
+        them all, sharing the credit rather than picking one.
+  \item Both need the predictors on a common scale first, because the charge is on the size of
+        the coefficient, and a coefficient's size depends on its units.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Why a worse fit on your own data can be a better model}
+\begin{itemize}
+  \item Shrinking always makes the fit on your own rows worse.
+  \item In exchange, the coefficients move around less from sample to sample, so the model does
+        better on the next job.
+  \item It is the complexity curve again, with $\lambda$ as the dial: too little penalty
+        overfits, too much underfits, and the best value is somewhere in between.
+\end{itemize}
+\begin{principle}{what the penalty buys}
+A penalty gives up accuracy on the data you have, for accuracy on the data you do not have yet.
+\end{principle}
+\end{frame}
+
+\begin{frame}{Choosing $\lambda$, and watching the coefficients shrink}
+\centering
+\includegraphics[width=0.94\textwidth]{fig_u4_lasso.pdf}\par
+\vspace{0.4em}
+\begin{minipage}{0.94\textwidth}\small
+Left: each line is one coefficient as the penalty grows. Right: cross-validated error for each
+penalty, which is how $\lambda$ gets chosen. The dotted line is the chosen value in both panels.
+\end{minipage}
+\end{frame}
+
+\begin{frame}{What lasso did with the moving data}
+\begin{center}\small
+\begin{tabular}{lcl}
+\toprule
+\textbf{Column} & \textbf{Coefficient} & \textbf{} \\
+\midrule
+volume & 2.62 & the main driver, barely shrunk \\
+packing service & 0.40 & kept \\
+stairs & 0.35 & kept \\
+crew size & $-0.36$ & kept \\
+miles & 0.09 & kept, small \\
+estimated boxes & 0.13 & kept, and it is mostly a copy of volume \\
+dispatcher rating & $-0.03$ & shrunk to almost nothing \\
+weekend & 0.00 & sent to exactly zero, and dropped \\
+\bottomrule
+\end{tabular}
+\end{center}
+\vspace{0.2em}
+\small
+It dropped one of the three junk columns outright and crushed a second. It kept estimated boxes,
+which duplicates volume, so the two of them split the credit between them.
+\end{frame}
+
+\begin{frame}{What a penalized coefficient is not}
+\begin{itemize}
+  \item \textbf{It is not an unbiased estimate.} It was deliberately pulled toward zero, so
+        reading it as the effect of that variable understates it.
+  \item \textbf{A zero is not proof of no relationship.} It means the variable did not earn its
+        keep against the penalty, in this sample, alongside these other variables.
+  \item \textbf{Being kept is not proof of importance either}, especially when two predictors
+        carry nearly the same information and the choice between them is close to a coin flip.
+\end{itemize}
+\begin{practice}{how to say it}
+``Lasso with the penalty chosen by cross-validation kept these six variables. I am using it to
+predict, not to claim which variables matter.''
 \end{practice}
 \end{frame}
 
@@ -564,7 +738,7 @@ the deciding number.
   \item \textbf{Fit the model} on the data you have.
   \item \textbf{Check the range.} Is the new case inside the data the model was fitted on?
   \item \textbf{Predict:} \texttt{fit.predict(new)}, with the same columns as the fit.
-  \item \textbf{Decide which interval} the question needs: the line, or one new case.
+  \item \textbf{Decide which interval} the question needs: confidence, or prediction.
   \item \textbf{Measure error honestly}, on held-out rows or by cross-validation.
   \item \textbf{Report the number with its interval}, and say what it is an interval for.
 \end{enumerate}
@@ -574,7 +748,7 @@ the deciding number.
 \begin{trap}{the ones that bite most often}
 \begin{itemize}
   \item Reporting a prediction with no interval.
-  \item Quoting the interval for the line when the question was about one case.
+  \item Quoting a confidence interval when the question was about one case.
   \item Reporting $R^2$ or error from the rows the model was fitted on.
   \item Adding predictors because $R^2$ rose.
   \item Running a long search and reporting the winner's $p$-value as if it were planned.
