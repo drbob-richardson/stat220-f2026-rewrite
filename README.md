@@ -48,9 +48,6 @@ for the two review/exam days and the flex days, along with the scenario cards.
 
 ## Known gaps in this build
 
-- **The new Unit 4 has no code companion, homework, or practice questions yet.** The deck is
-  built; the three student-facing pieces are not. The old Unit 4 and Unit 5 versions of them are
-  in `Absorbed_into_Unit04/` and are the raw material.
 - **Unit 7 is thin at 23 pages**, because splitting the merged unit left the random-variables half
   smaller than the probability half. It needs roughly ten more frames to fill three days. The
   obvious candidates are worked expectation and variance examples, a second activity, and an

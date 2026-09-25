@@ -62,8 +62,8 @@ def fig_intervals():
 
 
 def fig_flex():
-    """Too simple, about right, too flexible, on the same 40 jobs."""
-    d = jobs.sample(40, random_state=7).sort_values("volume_cuft")
+    """Too simple, about right, too flexible, on the 60 branch jobs."""
+    d = branch.sort_values("volume_cuft")
     x, y = d.volume_cuft.values, d.hours.values
     grid = np.linspace(x.min(), x.max(), 300)
 
@@ -83,7 +83,7 @@ def fig_flex():
 
 def fig_curve():
     """Training error keeps falling, held-out error turns back up."""
-    d = jobs.sample(60, random_state=3)
+    d = branch
     x, y = d.volume_cuft.values.reshape(-1, 1), d.hours.values
     x = (x - x.mean()) / x.std()      # so a high-degree polynomial stays numerically sane
 

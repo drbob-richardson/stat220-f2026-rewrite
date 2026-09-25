@@ -233,9 +233,9 @@ Decide with a neighbor which of the three needs the interval for one new case.
 \small
 \begin{itemize}
   \item The line was fitted on jobs from 300 to 900 cubic feet.
-  \item Asked about a 1,400-cubic-foot job, it answers without complaint.
-  \item The jobs that size, when they came in, took longer than the line said. Nothing in the
-        fitted data could have told you that.
+  \item Asked about a 1,250-cubic-foot job, it answers without complaint.
+  \item The 21 jobs that big, when they came in, took longer than the line said. Nothing in
+        the fitted data could have told you that.
 \end{itemize}
 \end{column}
 \end{columns}
@@ -361,34 +361,6 @@ from the same data you chose with.
 \end{itemize}
 \end{frame}
 
-\begin{frame}{The same 40 jobs, three models}
-\centering
-\includegraphics[width=\textwidth]{fig_u4_flex.pdf}\par
-\vspace{0.5em}
-\begin{minipage}{0.92\textwidth}\small
-Left: a straight line misses the bend at the high end. Middle: one curve, about right.
-Right: degree 14 passes near almost every point, and the wiggles are noise.
-\end{minipage}
-\end{frame}
-
-\begin{frame}{Training error and held-out error, as complexity grows}
-\begin{columns}[c]
-\begin{column}{0.58\textwidth}
-\centering
-\includegraphics[width=\textwidth]{fig_u4_curve.pdf}
-\end{column}
-\begin{column}{0.42\textwidth}
-\small
-\begin{itemize}
-  \item Error on the fitted rows falls as you add flexibility, and keeps falling.
-  \item Error on held-out rows falls, bottoms out, then climbs. Here it runs off the top of
-        the chart.
-  \item The bottom of the red curve is the complexity you want.
-\end{itemize}
-\end{column}
-\end{columns}
-\end{frame}
-
 \begin{frame}{What ``simple'' and ``complicated'' mean for a regression}
 So far complexity has meant the degree of a polynomial in one predictor. With several predictors
 there are three separate dials.
@@ -450,6 +422,46 @@ full third order & \multicolumn{3}{c}{everything up to cubic} & \textbf{55} \\
 \end{center}
 \end{frame}
 
+\begin{frame}{A smaller office, where these questions bite}
+\begin{itemize}
+  \item The examples from here on use one branch of the company: \textbf{60 completed jobs},
+        not 600.
+  \item Same business, same five predictors that make sense, same three columns that do not.
+  \item With 600 jobs there is enough data that extra complexity costs almost nothing. With 60
+        the cost is visible, which is the situation most real projects are in.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{The same 60 jobs, three models}
+\centering
+\includegraphics[width=\textwidth]{fig_u4_flex.pdf}\par
+\vspace{0.5em}
+\begin{minipage}{0.92\textwidth}\small
+Left: a straight line misses the bend at the high end. Middle: degree 2, about right.
+Right: degree 14 chases individual points, and those wiggles are noise.
+\end{minipage}
+\end{frame}
+
+\begin{frame}{Training error and held-out error, as complexity grows}
+\begin{columns}[c]
+\begin{column}{0.58\textwidth}
+\centering
+\includegraphics[width=\textwidth]{fig_u4_curve.pdf}
+\end{column}
+\begin{column}{0.42\textwidth}
+\small
+\begin{itemize}
+  \item Error on the fitted rows falls as you add flexibility, and keeps falling.
+  \item Error on held-out rows climbs almost immediately, and runs off the top of the chart.
+  \item With 60 jobs the best choice is the straight line. There is not enough data here to
+        pay for a bend, even though the relationship really does bend.
+  \item The bottom of the red curve is the complexity you want. Where it falls depends on how
+        much data you have.
+\end{itemize}
+\end{column}
+\end{columns}
+\end{frame}
+
 \begin{frame}{The same ladder, on two sample sizes}
 \centering
 \includegraphics[width=0.80\textwidth]{fig_u4_ladder.pdf}\par
@@ -503,16 +515,6 @@ Is this underfitting or overfitting, and what would you change first?
 % ======================================================================
 \section{Choosing predictors}
 % ======================================================================
-\begin{frame}{A smaller office, where the question bites}
-\begin{itemize}
-  \item The rest of this unit uses one branch of the company: \textbf{60 completed jobs},
-        not 600.
-  \item Same business, same five predictors that make sense, same three columns that do not.
-  \item With 600 jobs there is enough data that a few useless columns cost almost nothing. With
-        60 the cost is visible, which is the situation most real projects are in.
-\end{itemize}
-\end{frame}
-
 \begin{frame}{Adding a predictor never hurts the fit on your own data}
 \begin{itemize}
   \item $R^2$ cannot go down when you add a variable. Even a column of random numbers nudges

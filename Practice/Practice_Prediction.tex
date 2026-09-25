@@ -1,0 +1,182 @@
+\documentclass[11pt]{article}
+\usepackage[margin=0.9in,letterpaper]{geometry}
+\usepackage{enumitem}
+\usepackage{amsmath}
+\usepackage{parskip}
+\usepackage[colorlinks=true,linkcolor=black]{hyperref}
+\setlist[enumerate]{itemsep=7pt, topsep=5pt}
+\pagestyle{plain}
+\begin{document}
+
+\begin{center}
+{\Large\textbf{Stat 220: Prediction and Choosing Predictors}}\\[3pt]
+{\large Midterm practice questions, with answers}\\[6pt]
+\end{center}
+
+Practice on predicting a new case, putting the right interval on it, measuring error honestly,
+and deciding which predictors belong. No computer needed.
+
+\vspace{8pt}
+\hrule
+\vspace{10pt}
+
+\begin{enumerate}[itemsep=14pt]
+\item A dispatcher asks how many hours to block on the schedule for one specific move. Which interval should you give them?
+
+\begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
+  \item The confidence interval, since it is the interval the software reports first.
+  \item The prediction interval, because the question is about one job rather than an average.
+  \item Either one, since both are built from the same fitted model and the same data.
+  \item The confidence interval, because a narrower interval is a more useful answer.
+\end{enumerate}
+
+\vspace{2pt}
+\textbf{Answer: B.} The confidence interval describes where the average outcome sits for jobs like this one. The dispatcher is scheduling a single crew on a single Tuesday, so the job-to-job variation is part of their question. That variation is exactly what the prediction interval includes and the confidence interval leaves out.
+\vspace{4pt}
+
+\item You collect ten times as much data and refit. What happens to the two intervals?
+
+\begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
+  \item Both shrink toward zero width at about the same rate.
+  \item Both stay about the same, since the model has not changed.
+  \item The confidence interval shrinks, and the prediction interval stays wide.
+  \item The prediction interval shrinks, and the confidence interval stays wide.
+\end{enumerate}
+
+\vspace{2pt}
+\textbf{Answer: C.} More data pins down where the line sits, so the confidence interval keeps narrowing. The prediction interval also contains the spread of individual cases around the line, and no amount of data removes that. It settles toward the residual spread and stops.
+\vspace{4pt}
+
+\item Why is the error a model reports on the rows it was fitted on too small?
+
+\begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
+  \item Because the rows used for fitting are cleaner than the ones collected later.
+  \item Because the software reports the error before the fitting has converged.
+  \item Because the coefficients were chosen to make the residuals small on those rows.
+  \item Because any sample is smaller than the population that it was drawn from.
+\end{enumerate}
+
+\vspace{2pt}
+\textbf{Answer: C.} Fitting picks the coefficients that minimize the residuals for the rows in front of it, so measuring on those same rows grades the model on the work it optimized. A new job gets no such treatment. The gap between the two widens as the model gains flexibility.
+\vspace{4pt}
+
+\item What does 5-fold cross-validation give you that a single train/test split does not?
+
+\begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
+  \item An average over five splits, so the estimate rests less on a lucky division.
+  \item A guarantee that the model will perform the same way on data collected later.
+  \item A larger training set, which by itself produces a more accurate final model.
+  \item A p-value for whether the model predicts better than nothing at all.
+\end{enumerate}
+
+\vspace{2pt}
+\textbf{Answer: A.} One split gives one number, and that number moves depending on which rows happened to land in the test set. Five folds average over that, and every row is held out exactly once. It is a steadier estimate of the same quantity, not a guarantee about the future.
+\vspace{4pt}
+
+\item A model has an $R^2$ of 0.98 on its own rows and a typical error four times larger on new data. What is going on?
+
+\begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
+  \item The model is underfitting, and adding more predictors would close the gap.
+  \item The newer data must have been collected or recorded incorrectly.
+  \item This is ordinary, since the two numbers describe the same quantity.
+  \item The model is overfitting: it followed noise in the rows it was fitted on.
+\end{enumerate}
+
+\vspace{2pt}
+\textbf{Answer: D.} A nearly perfect fit on its own rows next to poor performance on new ones is the signature of overfitting. The model has enough flexibility to bend around individual points, and those bends do not repeat in the next sample. Fewer predictors or less flexibility is the fix.
+\vspace{4pt}
+
+\item Polynomial regression fits $y$ on $x$, $x^2$, and $x^3$. Is it still linear regression?
+
+\begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
+  \item No, because the curve that it fits is no longer a straight line.
+  \item Yes, because it is linear in the coefficients, and powers are just columns.
+  \item No, because least squares no longer applies once powers are involved.
+  \item Yes, but only when the degree of the polynomial is 2 or lower.
+\end{enumerate}
+
+\vspace{2pt}
+\textbf{Answer: B.} Linear regression means linear in the coefficients, not in the predictors. Each power is computed and handed to the same fitting procedure as an ordinary column, and least squares neither knows nor cares that one column is the square of another.
+\vspace{4pt}
+
+\item With 5 predictors, how many terms does a full second-order model have, counting main effects, squares, and pairwise products?
+
+\begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
+  \item 10, which is the five main effects plus their five squares.
+  \item 15, which is the five main effects plus the ten products.
+  \item 25, which is the five predictors multiplied by five again.
+  \item 20, five main effects, five squares, and ten products.
+\end{enumerate}
+
+\vspace{2pt}
+\textbf{Answer: D.} Five main effects, five squares, and ten pairwise products, which is 5 choose 2. Each is an ordinary column. The count matters because twenty coefficients estimated from a small sample is a lot of flexibility, and that is where the fit starts chasing noise.
+\vspace{4pt}
+
+\item Adding three useless columns raises $R^2$ from 0.920 to 0.925. What does that tell you?
+
+\begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
+  \item The columns carry a small amount of real information worth keeping.
+  \item Nothing useful, because $R^2$ cannot fall when you add a column.
+  \item The model was underfitting before, so the additions helped.
+  \item The sample is too small for $R^2$ to be computed reliably.
+\end{enumerate}
+
+\vspace{2pt}
+\textbf{Answer: B.} $R^2$ never decreases when you add a predictor, even one made of random numbers, because the fit can always use it a little. That is why the rise tells you nothing on its own. Adjusted $R^2$, AIC, BIC, or cross-validated error will all charge you for the extra columns.
+\vspace{4pt}
+
+\item A colleague ran stepwise selection over 65 columns, kept the 11 with $p < 0.05$, and reports that every predictor in the final model is significant. What is the problem?
+
+\begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
+  \item Nothing at all, as long as every p-value in the final model is below 0.05.
+  \item The p-values should have been computed before the final model was fitted.
+  \item Each p-value assumes the variable was chosen in advance, and these won a search.
+  \item Eleven predictors is too many for a model of this kind to be trustworthy.
+\end{enumerate}
+
+\vspace{2pt}
+\textbf{Answer: C.} A p-value answers how often a result this strong would appear if the variable did nothing, and that question assumes you picked the variable without looking. Picking the best of 65 guarantees extreme-looking results, so the reported values understate how easily noise could produce them.
+\vspace{4pt}
+
+\item A lasso fit sends the coefficient on `weekend` to exactly zero. What does that establish?
+
+\begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
+  \item That weekends have no effect at all on how long one of these jobs takes.
+  \item That an ordinary regression would also put the weekend coefficient at zero.
+  \item That weekends are unrelated to each of the other predictors in the model.
+  \item That the column did not earn its keep against the penalty, beside these others.
+\end{enumerate}
+
+\vspace{2pt}
+\textbf{Answer: D.} A zero from lasso is a decision, not a finding. Change the penalty, the sample, or the other columns in the model and the same variable can come back. It says the column was not worth its cost here, which is a much narrower claim than having no effect.
+\vspace{4pt}
+
+\item Every predictor for a new case is inside its own range in the data. Is the prediction safe?
+
+\begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
+  \item Not necessarily, since the combination of values may never have occurred.
+  \item Yes, that check is exactly what guards against extrapolation.
+  \item Yes, as long as the model's $R^2$ is reasonably high.
+  \item Not necessarily, but only if the predictors are uncorrelated with each other.
+\end{enumerate}
+
+\vspace{2pt}
+\textbf{Answer: A.} A 900 cubic foot move is ordinary and 35 boxes is ordinary, but if no job has ever had both, the model is filling that gap with nothing but the shape you assumed. Correlated predictors make this worse: the pairs off the diagonal are empty, and a one-variable check never sees it.
+\vspace{4pt}
+
+\item You are choosing between a model with 5 predictors and one with 20. Their cross-validated errors are 0.84 and 0.83 hours. Which do you ship?
+
+\begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
+  \item The 20-predictor model, since it came out with the lower error of the two.
+  \item Neither, since a difference that small means the comparison was done wrong.
+  \item The 5-predictor model, since the gain is tiny and it costs less to live with.
+  \item Whichever of the two turns out to have the higher $R^2$ on the full data.
+\end{enumerate}
+
+\vspace{2pt}
+\textbf{Answer: C.} A hundredth of an hour is thirty-six seconds, against fifteen extra columns to collect, explain, and maintain. When the scores are this close the tie-breaker is everything other than the score. A smaller model is also less exposed to a column that changes meaning next year.
+\vspace{4pt}
+
+\end{enumerate}
+
+\end{document}
