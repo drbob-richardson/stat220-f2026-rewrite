@@ -821,8 +821,8 @@ predict, not to claim which variables matter.''
 
 \begin{frame}{Your turn \#3}
 \begin{yourturn}{is the new column worth keeping?}
-The company starts recording \textbf{elevator (yes/no)}. Adding it moves $R^2$ from 0.9197 to
-0.9206, AIC from 1493.9 to 1492.1, and cross-validated error from 0.840 to 0.835.
+The branch starts recording \textbf{elevator (yes/no)}. Adding it to the five moves $R^2$ from
+0.9233 to 0.9251, AIC from 165.9 to 164.6, and cross-validated error from 1.012 to 1.004.
 \vspace{0.2em}
 
 Keep it or not? What would you want to know before deciding?
@@ -833,7 +833,7 @@ Keep it or not? What would you want to know before deciding?
 \begin{itemize}
   \item Every number moved the right way, and unlike the junk columns, AIC improved rather
         than got worse. That is mild evidence the column carries real information.
-  \item The gain is 0.005 hours, about 20 seconds. The case for keeping it is that stairs and
+  \item The gain is 0.008 hours, about 30 seconds. The case for keeping it is that stairs and
         elevators plainly affect a move, not that the numbers jumped.
   \item Worth knowing: is it recorded for every job, and is it recorded \emph{before} the
         quote? A predictor you will not have at prediction time is useless, however well it
@@ -862,7 +862,7 @@ new job. The right answer is a cross-validated error and a prediction interval.
 
 \begin{frame}{LLM check: mistake or not? (2 of 2)}
 \begin{llmcheck}{same data, a different answer}
-\textbf{We told it:} ``Adding three more columns raised $R^2$ from 0.9197 to 0.9202. Should I
+\textbf{We told it:} ``Adding three more columns raised $R^2$ from 0.9233 to 0.9246. Should I
 keep them?''\\[4pt]
 \textbf{It answered:} ``That rise is what $R^2$ does when you add any column. Check a criterion
 that charges for complexity, such as AIC, or compare cross-validated error, and keep the

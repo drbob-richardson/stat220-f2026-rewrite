@@ -48,6 +48,18 @@ and deciding which predictors belong. No computer needed.""",
  "the test set. Five folds average over that, and every row is held out exactly once. It is a "
  "steadier estimate of the same quantity, not a guarantee about the future."),
 
+("You try twenty models, keep the one with the lowest held-out error, and report that error as "
+ "your final number. What is wrong with doing that?",
+ ["Nothing at all, since the error was measured on data held out from the fitting.",
+  "Twenty models is far too many to compare against any one held-out sample.",
+  "It is the best of twenty, so it flatters the model the way training error does.",
+  "Held-out error is only valid when the models are nested inside each other."],
+ 2,
+ "Choosing with held-out data is fine and normal. Reporting the winner's score as your estimate "
+ "is not, because you picked the model that did best on those particular rows. If the choice "
+ "mattered, keep a slice you never touched, or say plainly that the number came from the same "
+ "data you chose with."),
+
 ("A model has an $R^2$ of 0.98 on its own rows and a typical error four times larger on new "
  "data. What is going on?",
  ["The model is underfitting, and adding more predictors would close the gap.",
@@ -58,6 +70,18 @@ and deciding which predictors belong. No computer needed.""",
  "A nearly perfect fit on its own rows next to poor performance on new ones is the signature of "
  "overfitting. The model has enough flexibility to bend around individual points, and those "
  "bends do not repeat in the next sample. Fewer predictors or less flexibility is the fix."),
+
+("The same ladder of models is fitted twice, once on 60 jobs and once on 600. On 60 the best "
+ "choice is five plain predictors; on 600 it is those five plus their squared terms. Why?",
+ ["The larger sample has less noise in it, so curvature becomes easier to see.",
+  "More data supports more complexity, so the squared terms become affordable.",
+  "The relationship genuinely changes shape once you collect more of the data.",
+  "The smaller sample must have been drawn in some unrepresentative way."],
+ 1,
+ "The truth is the same in both: the relationship really does bend. With 60 jobs there is not "
+ "enough data to estimate the extra coefficients well, so the squared terms cost more in wobble "
+ "than they return in shape. With 600 the same terms pay for themselves. How much complexity "
+ "you can afford is a fact about your sample size, not only about the world."),
 
 ("Polynomial regression fits $y$ on $x$, $x^2$, and $x^3$. Is it still linear regression?",
  ["No, because the curve that it fits is no longer a straight line.",
@@ -80,7 +104,7 @@ and deciding which predictors belong. No computer needed.""",
  "ordinary column. The count matters because twenty coefficients estimated from a small sample "
  "is a lot of flexibility, and that is where the fit starts chasing noise."),
 
-("Adding three useless columns raises $R^2$ from 0.920 to 0.925. What does that tell you?",
+("Adding three useless columns raises $R^2$ from 0.9233 to 0.9246. What does that tell you?",
  ["The columns carry a small amount of real information worth keeping.",
   "Nothing useful, because $R^2$ cannot fall when you add a column.",
   "The model was underfitting before, so the additions helped.",
@@ -101,6 +125,17 @@ and deciding which predictors belong. No computer needed.""",
  "that question assumes you picked the variable without looking. Picking the best of 65 "
  "guarantees extreme-looking results, so the reported values understate how easily noise could "
  "produce them."),
+
+("What is the practical difference between ridge and lasso?",
+ ["Ridge shrinks coefficients toward zero but keeps every predictor; lasso can zero them out.",
+  "Ridge works on correlated predictors, while lasso requires them to be independent.",
+  "Ridge is for prediction problems, while lasso is only for explaining an effect.",
+  "Ridge needs the predictors scaled first, and lasso can be run on the raw columns."],
+ 0,
+ "Both add a charge for the size of the coefficients, and both need the predictors on a common "
+ "scale first. The difference is the shape of the charge: lasso can drive a coefficient to "
+ "exactly zero, which drops the variable, while ridge shrinks everything and keeps it. When two "
+ "predictors carry nearly the same information, ridge tends to split the credit between them."),
 
 ("A lasso fit sends the coefficient on `weekend` to exactly zero. What does that establish?",
  ["That weekends have no effect at all on how long one of these jobs takes.",

@@ -73,6 +73,19 @@ and deciding which predictors belong. No computer needed.
 \textbf{Answer: A.} One split gives one number, and that number moves depending on which rows happened to land in the test set. Five folds average over that, and every row is held out exactly once. It is a steadier estimate of the same quantity, not a guarantee about the future.
 \vspace{4pt}
 
+\item You try twenty models, keep the one with the lowest held-out error, and report that error as your final number. What is wrong with doing that?
+
+\begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
+  \item Nothing at all, since the error was measured on data held out from the fitting.
+  \item Twenty models is far too many to compare against any one held-out sample.
+  \item It is the best of twenty, so it flatters the model the way training error does.
+  \item Held-out error is only valid when the models are nested inside each other.
+\end{enumerate}
+
+\vspace{2pt}
+\textbf{Answer: C.} Choosing with held-out data is fine and normal. Reporting the winner's score as your estimate is not, because you picked the model that did best on those particular rows. If the choice mattered, keep a slice you never touched, or say plainly that the number came from the same data you chose with.
+\vspace{4pt}
+
 \item A model has an $R^2$ of 0.98 on its own rows and a typical error four times larger on new data. What is going on?
 
 \begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
@@ -84,6 +97,19 @@ and deciding which predictors belong. No computer needed.
 
 \vspace{2pt}
 \textbf{Answer: D.} A nearly perfect fit on its own rows next to poor performance on new ones is the signature of overfitting. The model has enough flexibility to bend around individual points, and those bends do not repeat in the next sample. Fewer predictors or less flexibility is the fix.
+\vspace{4pt}
+
+\item The same ladder of models is fitted twice, once on 60 jobs and once on 600. On 60 the best choice is five plain predictors; on 600 it is those five plus their squared terms. Why?
+
+\begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
+  \item The larger sample has less noise in it, so curvature becomes easier to see.
+  \item More data supports more complexity, so the squared terms become affordable.
+  \item The relationship genuinely changes shape once you collect more of the data.
+  \item The smaller sample must have been drawn in some unrepresentative way.
+\end{enumerate}
+
+\vspace{2pt}
+\textbf{Answer: B.} The truth is the same in both: the relationship really does bend. With 60 jobs there is not enough data to estimate the extra coefficients well, so the squared terms cost more in wobble than they return in shape. With 600 the same terms pay for themselves. How much complexity you can afford is a fact about your sample size, not only about the world.
 \vspace{4pt}
 
 \item Polynomial regression fits $y$ on $x$, $x^2$, and $x^3$. Is it still linear regression?
@@ -112,7 +138,7 @@ and deciding which predictors belong. No computer needed.
 \textbf{Answer: D.} Five main effects, five squares, and ten pairwise products, which is 5 choose 2. Each is an ordinary column. The count matters because twenty coefficients estimated from a small sample is a lot of flexibility, and that is where the fit starts chasing noise.
 \vspace{4pt}
 
-\item Adding three useless columns raises $R^2$ from 0.920 to 0.925. What does that tell you?
+\item Adding three useless columns raises $R^2$ from 0.9233 to 0.9246. What does that tell you?
 
 \begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
   \item The columns carry a small amount of real information worth keeping.
@@ -136,6 +162,19 @@ and deciding which predictors belong. No computer needed.
 
 \vspace{2pt}
 \textbf{Answer: C.} A p-value answers how often a result this strong would appear if the variable did nothing, and that question assumes you picked the variable without looking. Picking the best of 65 guarantees extreme-looking results, so the reported values understate how easily noise could produce them.
+\vspace{4pt}
+
+\item What is the practical difference between ridge and lasso?
+
+\begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
+  \item Ridge shrinks coefficients toward zero but keeps every predictor; lasso can zero them out.
+  \item Ridge works on correlated predictors, while lasso requires them to be independent.
+  \item Ridge is for prediction problems, while lasso is only for explaining an effect.
+  \item Ridge needs the predictors scaled first, and lasso can be run on the raw columns.
+\end{enumerate}
+
+\vspace{2pt}
+\textbf{Answer: A.} Both add a charge for the size of the coefficients, and both need the predictors on a common scale first. The difference is the shape of the charge: lasso can drive a coefficient to exactly zero, which drops the variable, while ridge shrinks everything and keeps it. When two predictors carry nearly the same information, ridge tends to split the credit between them.
 \vspace{4pt}
 
 \item A lasso fit sends the coefficient on `weekend` to exactly zero. What does that establish?
