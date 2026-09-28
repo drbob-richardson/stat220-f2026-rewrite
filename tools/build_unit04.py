@@ -132,7 +132,12 @@ hw = HW(4, "Prediction and Choosing Predictors",
 route took. The predictors that make sense are `stops`, `packages`, `miles`, `downtown`, and
 `rain`. The company also records `van_age_years`, `dispatcher_rating`, and `month`.
 
-Run the next cell first. It loads the data and everything else here needs it.""")
+Run the next two cells first. The first one installs what you need, and the second loads the
+data that everything else here uses.""")
+
+# Colab already has all of these, so this finishes in a second and prints nothing.
+# On your own machine it installs anything you are missing.
+hw.code("""%pip install -q numpy pandas statsmodels scikit-learn matplotlib""")
 
 hw.code(f"""import numpy as np
 import pandas as pd
