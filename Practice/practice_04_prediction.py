@@ -15,8 +15,8 @@ and deciding which predictors belong. No computer needed.""",
  1,
  "The confidence interval describes where the average outcome sits for jobs like this one. The "
  "dispatcher is scheduling a single crew on a single Tuesday, so the job-to-job variation is "
- "part of their question. That variation is exactly what the prediction interval includes and "
- "the confidence interval leaves out."),
+ "part of their question. The prediction interval includes that variation and the confidence "
+ "interval leaves it out."),
 
 ("You collect ten times as much data and refit. What happens to the two intervals?",
  ["Both shrink toward zero width at about the same rate.",
@@ -46,7 +46,7 @@ and deciding which predictors belong. No computer needed.""",
  0,
  "One split gives one number, and that number moves depending on which rows happened to land in "
  "the test set. Five folds average over that, and every row is held out exactly once. It is a "
- "steadier estimate of the same quantity, not a guarantee about the future."),
+ "steadier estimate of the same quantity. It does not promise anything about future data."),
 
 ("You try twenty models, keep the one with the lowest held-out error, and report that error as "
  "your final number. What is wrong with doing that?",
@@ -67,9 +67,9 @@ and deciding which predictors belong. No computer needed.""",
   "This is ordinary, since the two numbers describe the same quantity.",
   "The model is overfitting: it followed noise in the rows it was fitted on."],
  3,
- "A nearly perfect fit on its own rows next to poor performance on new ones is the signature of "
+ "A nearly perfect fit on its own rows beside poor performance on new ones points to "
  "overfitting. The model has enough flexibility to bend around individual points, and those "
- "bends do not repeat in the next sample. Fewer predictors or less flexibility is the fix."),
+ "bends do not repeat in the next sample. Cutting predictors or flexibility usually fixes it."),
 
 ("The same ladder of models is fitted twice, once on 60 jobs and once on 600. On 60 the best "
  "choice is five plain predictors; on 600 it is those five plus their squared terms. Why?",
@@ -91,7 +91,7 @@ and deciding which predictors belong. No computer needed.""",
  1,
  "Linear regression means linear in the coefficients, not in the predictors. Each power is "
  "computed and handed to the same fitting procedure as an ordinary column, and least squares "
- "neither knows nor cares that one column is the square of another."),
+ "treats it like any other."),
 
 ("With 5 predictors, how many terms does a full second-order model have, counting main effects, "
  "squares, and pairwise products?",
@@ -123,8 +123,8 @@ and deciding which predictors belong. No computer needed.""",
  2,
  "A p-value answers how often a result this strong would appear if the variable did nothing, and "
  "that question assumes you picked the variable without looking. Picking the best of 65 "
- "guarantees extreme-looking results, so the reported values understate how easily noise could "
- "produce them."),
+ "produces a strong-looking result either way, so the reported values understate how easily "
+ "noise could have produced them."),
 
 ("What is the practical difference between ridge and lasso?",
  ["Ridge shrinks coefficients toward zero but keeps every predictor; lasso can zero them out.",
@@ -143,13 +143,13 @@ and deciding which predictors belong. No computer needed.""",
   "That weekends are unrelated to each of the other predictors in the model.",
   "That the column did not earn its keep against the penalty, beside these others."],
  3,
- "A zero from lasso is a decision, not a finding. Change the penalty, the sample, or the other "
- "columns in the model and the same variable can come back. It says the column was not worth "
- "its cost here, which is a much narrower claim than having no effect."),
+ "A zero from lasso is the result of a choice about the penalty. Change the penalty, the "
+ "sample, or the other columns and the same variable can come back. It says the column was not "
+ "worth its cost here, which is a narrower claim than having no effect."),
 
 ("Every predictor for a new case is inside its own range in the data. Is the prediction safe?",
  ["Not necessarily, since the combination of values may never have occurred.",
-  "Yes, that check is exactly what guards against extrapolation.",
+  "Yes, checking each range is what guards against extrapolation.",
   "Yes, as long as the model's $R^2$ is reasonably high.",
   "Not necessarily, but only if the predictors are uncorrelated with each other."],
  0,

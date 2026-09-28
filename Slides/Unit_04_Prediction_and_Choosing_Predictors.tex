@@ -147,8 +147,8 @@ predicted hours & 12.39 \\
 \begin{itemize}
   \item That is the model's best single guess for this job.
   \item The dispatcher's actual question is different: \emph{how long could this job run?}
-  \item Two customers with identical numbers do not take identical time. The model knows that,
-        and it can tell you how much they vary.
+  \item Two customers with identical numbers do not take identical time, and the model can
+        report how much they vary.
 \end{itemize}
 \end{frame}
 
@@ -181,8 +181,8 @@ prediction interval, this one job & 10.74 to 14.04 & 3.3 hours \\
 \end{center}
 \begin{itemize}\small
   \item Same model, same customer, same prediction of 12.39 hours.
-  \item The first interval is eleven times narrower. Quoting it to a dispatcher would promise
-        a precision the model never had.
+  \item The first interval is eleven times narrower. It describes the average, so it says
+        nothing about how far one job can land from it.
 \end{itemize}
 \begin{trap}{the default output}
 Software often prints the narrow one first. Check which interval you are looking at before
@@ -233,7 +233,7 @@ Decide with a neighbor which of the three needs the interval for one new case.
 \small
 \begin{itemize}
   \item The line was fitted on jobs from 300 to 900 cubic feet.
-  \item Asked about a 1,250-cubic-foot job, it answers without complaint.
+  \item Asked about a 1,250-cubic-foot job, it returns a number anyway.
   \item The 21 jobs that big, when they came in, took longer than the line said. Nothing in
         the fitted data could have told you that.
 \end{itemize}
@@ -247,8 +247,8 @@ Decide with a neighbor which of the three needs the interval for one new case.
         on the combinations that actually occurred.
   \item A 900 cubic foot move with only 35 boxes is a big house of furniture and almost nothing
         packed. Both numbers are ordinary. Together they never happened.
-  \item The model still returns an answer, and it is built entirely from jobs that looked
-        nothing like this one.
+  \item The model still returns an answer for it, built from jobs that had a different
+        mix of furniture and boxes.
 \end{itemize}
 \end{frame}
 
@@ -269,8 +269,8 @@ one-variable check.
         combination of values, not just this volume and, separately, this box count?
   \item Correlated predictors are where this bites. Volume and box count travel together, so
         the pairs off that diagonal are empty.
-  \item If there are no neighbours, say so. A prediction with no comparable cases behind it is a
-        guess the model is not entitled to make.
+  \item If there are no neighbours, say so. With no comparable jobs behind it, the number
+        rests on the straight-line shape you assumed and nothing else.
 \end{itemize}
 \begin{trap}{the one-variable check}
 ``Every value is within range, so we are fine.'' That check passes for combinations the data has
@@ -289,8 +289,8 @@ never contained.
   \item The fix is to measure on rows the model has not seen.
 \end{itemize}
 \begin{principle}{the only honest number}
-Report error on data the model was not fitted on. Every other number is a description of how
-well it memorized.
+Report error on data the model was not fitted on. Every other number describes how well it fit
+rows it had already seen.
 \end{principle}
 \end{frame}
 
@@ -308,8 +308,8 @@ on the rows held back & 0.93 hours \\
 \end{center}
 \begin{itemize}\small
   \item The gap here is modest, because this model is simple and the sample is large.
-  \item The gap grows with model flexibility, and it is largest exactly when you are most
-        pleased with your fit.
+  \item The gap grows with model flexibility, and it is largest for the models that fit their
+        own rows best.
 \end{itemize}
 \end{frame}
 
@@ -390,7 +390,7 @@ difference.
         Degree 1 is a straight line, degree 2 a parabola, and so on.
   \item Each power is just another column, so this is the same fitting procedure as always.
   \item Degree is the flexibility dial from the earlier plot. Higher degree means the curve can
-        bend more times, and bending more times is how it starts following noise.
+        bend more times, which is how it starts to follow noise.
 \end{itemize}
 \begin{practice}{in code}
 \texttt{smf.ols("hours $\sim$ volume\_cuft + I(volume\_cuft**2)", data=jobs)}, or
@@ -468,7 +468,8 @@ Right: degree 14 chases individual points, and those wiggles are noise.
 \vspace{0.4em}
 \begin{minipage}{0.90\textwidth}\small
 With 600 jobs the squared terms pay for themselves. With 60 they do not, and the full second-order
-model is worse than five plain predictors. Same company, same truth, different amount of data.
+model is worse than five plain predictors. The relationship behind both is the same one. Only
+the amount of data differs.
 \end{minipage}
 \end{frame}
 
@@ -487,7 +488,7 @@ few rows, noisy outcome & a simple model, and honest error bars \\
 \end{center}
 \vspace{0.3em}
 There is no complexity that is right in general. The ladder on the last slide bottomed out at
-10 terms with 600 jobs and at 5 terms with 60, which is the same statement with numbers on it.
+10 terms with 600 jobs and at 5 terms with 60.
 \end{frame}
 
 \begin{frame}{Your turn \#2}
@@ -507,8 +508,8 @@ Is this underfitting or overfitting, and what would you change first?
         predictors for 200 jobs.
   \item \textbf{First change:} cut the model down to the handful of predictors that have a
         reason to be there, then compare by cross-validation.
-  \item A useful check: if a model has nearly as many predictors as it has rows, it can fit
-        almost anything, including noise.
+  \item A useful check: a model with nearly as many predictors as rows can fit almost any
+        pattern, including noise.
 \end{itemize}
 \end{frame}
 
@@ -576,8 +577,8 @@ those five plus three junk columns & \textbf{0.9246} & 0.9128 & 170.8 & 189.7 & 
 \vspace{0.2em}
 \begin{principle}{prefer the simpler model when the scores are close}
 A smaller model is easier to explain, cheaper to collect data for, and less exposed to a column
-that quietly changes meaning next quarter. Take the extra complexity only when it buys something
-you can point at.
+whose meaning changes later. Take the extra complexity only when the gain is one you can point
+to.
 \end{principle}
 \end{frame}
 
@@ -607,8 +608,7 @@ both directions & alternate: add the best, then reconsider dropping what is alre
 \end{center}
 \vspace{0.3em}
 ``Helps most'' is usually the smallest $p$-value, sometimes the biggest drop in AIC. The
-procedure runs without your judgment, which is why it is popular and where the trouble
-starts.
+procedure runs without your judgment, which is why it is popular.
 \end{frame}
 
 \begin{frame}{What that looks like when you run it}
@@ -644,10 +644,10 @@ were thrown out to make room for them.
 \begin{itemize}
   \item A $p$-value answers: if this variable did nothing, how often would a result this strong
         appear? That question assumes you picked the variable \emph{before} looking.
-  \item In a search you did not pick it. You picked the best of 65, and the best of 65 is
-        extreme for that reason alone.
-  \item The same applies to $R^2$ and to the coefficient. All three are reported as if the model
-        arrived in one step, when it is the survivor of a tournament.
+  \item In a search you did not pick it. You picked the best of 65, and the best of 65 looks
+        strong whether or not anything is there.
+  \item The same applies to $R^2$ and to the coefficient. All three are reported as if the
+        model had been written down in advance, when it was selected out of many.
 \end{itemize}
 \begin{trap}{what to listen for}
 ``We started with everything we had and let the procedure decide.'' When you hear that, ask how
@@ -728,7 +728,7 @@ which drops those variables \\
         overfits, too much underfits, and the best value is somewhere in between.
 \end{itemize}
 \begin{principle}{what the penalty buys}
-A penalty gives up accuracy on the data you have, for accuracy on the data you do not have yet.
+A penalty trades accuracy on the rows you have for accuracy on the rows you do not have yet.
 \end{principle}
 \end{frame}
 
@@ -755,13 +755,13 @@ where only the five sensible predictors are left.
 0.159 & \texttt{stairs\_flights} & real \\
 0.245 & \texttt{miles}, \texttt{crew\_size} & real \\
 0.467 & \texttt{packing\_service} & real \\
-3.256 & \texttt{volume\_cuft} & the last one standing \\
+3.256 & \texttt{volume\_cuft} & real, and the last to go \\
 \bottomrule
 \end{tabular}
 \end{center}
 \vspace{0.2em}
-All three junk columns go before any real predictor does. Lasso is ranking the columns by how
-long they survive, and that ranking is worth more than the coefficients at any single penalty.
+All three junk columns go before any real predictor does. The order they leave in is a ranking
+of the columns, and it tells you more than the coefficients at any one penalty.
 \end{frame}
 
 \begin{frame}{Two defensible answers from the same fit}
@@ -788,7 +788,7 @@ cross-validated error & \textbf{1.014} & 1.062 \\
 \small
 The best error keeps all eight, with the junk at coefficients near zero. Pushing the penalty a
 little further drops exactly the three junk columns and costs 0.05 hours, about three minutes.
-Which you ship depends on whether anyone has to read the model.
+Either is defensible, and the choice depends on whether anyone has to read the model.
 \end{frame}
 
 \begin{frame}{What a penalized coefficient is not}
@@ -797,8 +797,8 @@ Which you ship depends on whether anyone has to read the model.
         reading it as the effect of that variable understates it.
   \item \textbf{A zero is not proof of no relationship.} It means the variable did not earn its
         keep against the penalty, in this sample, alongside these other variables.
-  \item \textbf{Being kept is not proof of importance either}, especially when two predictors
-        carry nearly the same information and the choice between them is close to a coin flip.
+  \item \textbf{Being kept is not proof of importance either.} When two predictors carry
+        nearly the same information, which one survives can come down to chance.
 \end{itemize}
 \begin{practice}{how to say it}
 ``Lasso with the penalty chosen by cross-validation kept these six variables. I am using it to
@@ -836,7 +836,7 @@ Keep it or not? What would you want to know before deciding?
   \item The gain is 0.008 hours, about 30 seconds. The case for keeping it is that stairs and
         elevators plainly affect a move, not that the numbers jumped.
   \item Worth knowing: is it recorded for every job, and is it recorded \emph{before} the
-        quote? A predictor you will not have at prediction time is useless, however well it
+        quote? A predictor you will not have at prediction time cannot be used, whatever it
         scores.
 \end{itemize}
 \end{frame}
