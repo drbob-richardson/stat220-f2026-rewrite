@@ -39,12 +39,12 @@ and deciding which predictors belong. No computer needed.
 \begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
   \item Both shrink toward zero width at about the same rate.
   \item Both stay about the same, since the model has not changed.
-  \item The confidence interval shrinks, and the prediction interval stays wide.
-  \item The prediction interval shrinks, and the confidence interval stays wide.
+  \item The confidence interval keeps shrinking, and the prediction interval levels off.
+  \item The prediction interval keeps shrinking, and the confidence interval levels off.
 \end{enumerate}
 
 \vspace{2pt}
-\textbf{Answer: C.} More data pins down where the line sits, so the confidence interval keeps narrowing. The prediction interval also contains the spread of individual cases around the line, and no amount of data removes that. It settles toward the residual spread and stops.
+\textbf{Answer: C.} More data pins down where the line sits, so the confidence interval keeps narrowing. The prediction interval also contains the spread of individual jobs around the line, which more data does not remove. It narrows a little and then levels off near that spread.
 \vspace{4pt}
 
 \item Why is the error a model reports on the rows it was fitted on too small?
@@ -102,7 +102,7 @@ and deciding which predictors belong. No computer needed.
 \item The same ladder of models is fitted twice, once on 60 jobs and once on 600. On 60 the best choice is five plain predictors; on 600 it is those five plus their squared terms. Why?
 
 \begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
-  \item The larger sample has less noise in it, so curvature becomes easier to see.
+  \item The larger sample was collected more carefully, so its measurements are cleaner.
   \item More data supports more complexity, so the squared terms become affordable.
   \item The relationship genuinely changes shape once you collect more of the data.
   \item The smaller sample must have been drawn in some unrepresentative way.

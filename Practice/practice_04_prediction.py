@@ -21,12 +21,12 @@ and deciding which predictors belong. No computer needed.""",
 ("You collect ten times as much data and refit. What happens to the two intervals?",
  ["Both shrink toward zero width at about the same rate.",
   "Both stay about the same, since the model has not changed.",
-  "The confidence interval shrinks, and the prediction interval stays wide.",
-  "The prediction interval shrinks, and the confidence interval stays wide."],
+  "The confidence interval keeps shrinking, and the prediction interval levels off.",
+  "The prediction interval keeps shrinking, and the confidence interval levels off."],
  2,
  "More data pins down where the line sits, so the confidence interval keeps narrowing. The "
- "prediction interval also contains the spread of individual cases around the line, and no "
- "amount of data removes that. It settles toward the residual spread and stops."),
+ "prediction interval also contains the spread of individual jobs around the line, which more "
+ "data does not remove. It narrows a little and then levels off near that spread."),
 
 ("Why is the error a model reports on the rows it was fitted on too small?",
  ["Because the rows used for fitting are cleaner than the ones collected later.",
@@ -73,7 +73,7 @@ and deciding which predictors belong. No computer needed.""",
 
 ("The same ladder of models is fitted twice, once on 60 jobs and once on 600. On 60 the best "
  "choice is five plain predictors; on 600 it is those five plus their squared terms. Why?",
- ["The larger sample has less noise in it, so curvature becomes easier to see.",
+ ["The larger sample was collected more carefully, so its measurements are cleaner.",
   "More data supports more complexity, so the squared terms become affordable.",
   "The relationship genuinely changes shape once you collect more of the data.",
   "The smaller sample must have been drawn in some unrepresentative way."],

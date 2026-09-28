@@ -157,8 +157,8 @@ predicted hours & 12.39 \\
   \item \textbf{Confidence interval for the line.} Where does the average outcome sit, for jobs
         like this one? It shrinks as the sample grows, because it is about an estimate.
   \item \textbf{Prediction interval for one new case.} Where will \emph{this job} land? It adds
-        the job-to-job variation that no model removes, so it stays wide no matter how much data
-        you collect.
+        the job-to-job variation that no model removes. More data narrows it only so far, and it
+        settles at roughly the spread of jobs around the line.
   \item The prediction interval is always the wider of the two, and it contains the confidence
         interval.
 \end{itemize}
@@ -288,7 +288,7 @@ never contained.
         case, not the typical case.
   \item The fix is to measure on rows the model has not seen.
 \end{itemize}
-\begin{principle}{the only honest number}
+\begin{principle}{which error to report}
 Report error on data the model was not fitted on. Every other number describes how well it fit
 rows it had already seen.
 \end{principle}
@@ -422,7 +422,7 @@ full third order & \multicolumn{3}{c}{everything up to cubic} & \textbf{55} \\
 \end{center}
 \end{frame}
 
-\begin{frame}{A smaller office, where these questions bite}
+\begin{frame}{A smaller office, with 60 jobs}
 \begin{itemize}
   \item The examples from here on use one branch of the company: \textbf{60 completed jobs},
         not 600.
@@ -806,7 +806,7 @@ predict, not to claim which variables matter.''
 \end{practice}
 \end{frame}
 
-\begin{frame}{A recipe you can defend}
+\begin{frame}{How to choose, in order}
 \begin{enumerate}
   \item \textbf{Start from the question.} Predicting, or explaining a particular effect?
         The answer changes which variables must be in the model.

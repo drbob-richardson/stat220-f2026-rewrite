@@ -38,11 +38,17 @@ nb.md("`mean_ci` is the **confidence interval** for the average job like this on
       "the **prediction interval** for this one job. The prediction interval is the wide one, "
       "and it is the one a dispatcher needs.")
 
-nb.section("4. Has the company done jobs like this one?")
-nb.code("""similar = jobs[(jobs.volume_cuft > 700) & (jobs.volume_cuft < 900) & (jobs.crew_size == 3)]
-print("completed jobs with a similar volume and the same crew:", len(similar))""")
-nb.md("Check the combination, not just each value. A volume can be ordinary and a crew size can "
-      "be ordinary while the two together never happened.")
+nb.section("4. Has the company done jobs like this one?",
+           "The slides asked about a 900 cubic foot move with only 35 boxes. Check each value, "
+           "then check the two together.")
+nb.code("""big_enough = jobs.volume_cuft.between(800, 1000)
+few_boxes = jobs.est_boxes.between(27, 43)
+
+print("jobs near that volume     :", big_enough.sum())
+print("jobs near that box count  :", few_boxes.sum())
+print("jobs near both at once    :", (big_enough & few_boxes).sum())""")
+nb.md("Each value on its own is ordinary. The combination has never happened, so a prediction "
+      "for it rests on the shape of the model rather than on any comparable job.")
 
 nb.section("5. Error on the rows you fitted on is too small")
 nb.code("""X = jobs[["volume_cuft", "crew_size", "stairs_flights", "miles", "packing_service"]]
@@ -103,11 +109,13 @@ nb.md("The relationship really does bend, but 60 jobs cannot pay for the bend. W
 nb.section("12. Lasso shrinks the weak columns toward zero")
 nb.code("""from sklearn.linear_model import LassoCV
 from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import make_pipeline
 
-scaled = StandardScaler().fit_transform(branch[sensible + junk])
-las = LassoCV(cv=5, random_state=0, max_iter=50000).fit(scaled, branch.hours)
+# the scaler goes inside the pipeline, so each fold is scaled using only its own rows
+model = make_pipeline(StandardScaler(), LassoCV(cv=5, random_state=0, max_iter=50000))
+model.fit(branch[sensible + junk], branch.hours)
 
-pd.Series(las.coef_.round(3), index=sensible + junk)""")
+pd.Series(model[-1].coef_.round(3), index=sensible + junk)""")
 nb.md("The three junk columns come back near zero. Raise the penalty and they hit exactly zero "
       "before any of the five real predictors does.")
 
@@ -124,16 +132,17 @@ hw = HW(4, "Prediction and Choosing Predictors",
 route took. The predictors that make sense are `stops`, `packages`, `miles`, `downtown`, and
 `rain`. The company also records `van_age_years`, `dispatcher_rating`, and `month`.
 
-```python
-import numpy as np, pandas as pd
+Run the next cell first. It loads the data and everything else here needs it.""")
+
+hw.code(f"""import numpy as np
+import pandas as pd
 import statsmodels.formula.api as smf
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import KFold, cross_val_score, train_test_split
 
 routes = pd.read_csv("{DELIVERY_URL}")
 folds = KFold(5, shuffle=True, random_state=0)
-routes.head()
-```""")
+routes.head()""")
 
 # ---------------- P1: a route, with the right interval ----------------
 hw.problem(1, """*Planning tomorrow's schedule.* Tomorrow's route has 45 stops, 110 packages,
