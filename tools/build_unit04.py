@@ -13,8 +13,7 @@ nb = CodeNB(4, "Prediction and Choosing Predictors",
             "compare a few sets of predictors. Short cells, meant to be run one at a time.")
 
 nb.section("Setup")
-nb.code(f"""import numpy as np
-import pandas as pd
+nb.code(f"""import pandas as pd
 import statsmodels.formula.api as smf
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import KFold, cross_val_score, train_test_split
@@ -25,7 +24,7 @@ jobs.head()""")
 nb.section("1. Fit the model")
 nb.code("""fit = smf.ols("hours ~ volume_cuft + crew_size + stairs_flights + miles + packing_service",
               data=jobs).fit()
-fit.params.round(4)""")
+fit.params.round(3)""")
 
 nb.section("2. Predict one new job")
 nb.md("A new customer: 800 cubic feet, a crew of 3, two flights of stairs, 12 miles, and packing.")
@@ -33,90 +32,84 @@ nb.code("""new = pd.DataFrame({"volume_cuft": [800], "crew_size": [3], "stairs_f
                     "miles": [12], "packing_service": [1]})
 fit.predict(new)""")
 
-nb.section("3. The two intervals")
+nb.section("3. Both intervals at once")
 nb.code("""fit.get_prediction(new).summary_frame(alpha=0.05).round(2)""")
-nb.md("`mean_ci_lower` and `mean_ci_upper` are the **confidence interval** for the average job "
-      "like this one. `obs_ci_lower` and `obs_ci_upper` are the **prediction interval** for this "
-      "one job. The prediction interval is the wide one, and it is the one a dispatcher needs.")
+nb.md("`mean_ci` is the **confidence interval** for the average job like this one. `obs_ci` is "
+      "the **prediction interval** for this one job. The prediction interval is the wide one, "
+      "and it is the one a dispatcher needs.")
 
-nb.section("4. Is the new job inside the data?",
-           "Each value on its own, and then the combination.")
-nb.code("""print(jobs[["volume_cuft", "crew_size", "miles"]].describe().loc[["min", "max"]])
+nb.section("4. Has the company done jobs like this one?")
+nb.code("""similar = jobs[(jobs.volume_cuft > 700) & (jobs.volume_cuft < 900) & (jobs.crew_size == 3)]
+print("completed jobs with a similar volume and the same crew:", len(similar))""")
+nb.md("Check the combination, not just each value. A volume can be ordinary and a crew size can "
+      "be ordinary while the two together never happened.")
 
-near = jobs[(jobs.volume_cuft.between(700, 900)) & (jobs.crew_size == 3)]
-print(f"\\ncompleted jobs with a similar volume AND the same crew size: {len(near)}")""")
-nb.md("Both checks matter. A value can be ordinary on its own while the combination never "
-      "happened, and the model gives no warning when that is the case.")
-
-nb.section("5. Error on your own rows is too small")
+nb.section("5. Error on the rows you fitted on is too small")
 nb.code("""X = jobs[["volume_cuft", "crew_size", "stairs_flights", "miles", "packing_service"]]
 y = jobs["hours"]
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=0)
+model = LinearRegression().fit(X_train, y_train)
 
-m = LinearRegression().fit(X_train, y_train)
-print("error on the rows it was fitted on:", round(np.sqrt(((y_train - m.predict(X_train))**2).mean()), 2))
-print("error on the rows held back      :", round(np.sqrt(((y_test - m.predict(X_test))**2).mean()), 2))""")
+print("error on the rows it was fitted on:", round(((y_train - model.predict(X_train))**2).mean()**0.5, 2))
+print("error on the rows held back      :", round(((y_test - model.predict(X_test))**2).mean()**0.5, 2))""")
 
-nb.section("6. Cross-validation, so every row gets held out once")
+nb.section("6. Cross-validation holds out every row once")
 nb.code("""folds = KFold(5, shuffle=True, random_state=0)
-mse = -cross_val_score(LinearRegression(), X, y, cv=folds, scoring="neg_mean_squared_error")
-print("error in each of the five rounds:", np.sqrt(mse).round(3))
-print("average:", np.sqrt(mse.mean()).round(3), "hours")""")
+scores = -cross_val_score(LinearRegression(), X, y, cv=folds, scoring="neg_mean_squared_error")
 
-nb.section("7. Compare a few sets of predictors",
-           "One branch office, 60 jobs, where an extra column actually costs something.")
+print("error in each round:", (scores**0.5).round(2))
+print("average            :", round(scores.mean()**0.5, 2), "hours")""")
+
+nb.section("7. A smaller office, where an extra column costs something",
+           "The same company, but only the 60 jobs one branch has done.")
 nb.code("""branch = jobs.sample(60, random_state=5)
 
-sets = {
-    "volume only": ["volume_cuft"],
-    "the five that make sense": ["volume_cuft", "crew_size", "stairs_flights",
-                                 "miles", "packing_service"],
-    "those five plus three junk": ["volume_cuft", "crew_size", "stairs_flights",
-                                   "miles", "packing_service",
-                                   "est_boxes", "dispatcher_rating", "weekend"],
-}
-for name, cols in sets.items():
-    mse = -cross_val_score(LinearRegression(), branch[cols], branch.hours, cv=folds,
-                           scoring="neg_mean_squared_error").mean()
-    print(f"{name:<28} cross-validated error {np.sqrt(mse):.3f}")""")
-nb.md("The junk columns make it worse. On all 600 jobs they would cost almost nothing, which is "
-      "why the size of your data decides how much you can afford.")
+sensible = ["volume_cuft", "crew_size", "stairs_flights", "miles", "packing_service"]
+junk = ["est_boxes", "dispatcher_rating", "weekend"]""")
 
-nb.section("8. The same three sets, by R-squared and AIC")
-nb.code("""for name, cols in sets.items():
-    f = smf.ols("hours ~ " + " + ".join(cols), data=branch).fit()
-    print(f"{name:<28} R2 {f.rsquared:.4f}   adj R2 {f.rsquared_adj:.4f}   AIC {f.aic:.1f}")""")
-nb.md("$R^2$ is highest for the model with the junk in it. Adjusted $R^2$ and AIC both prefer "
-      "the five that make sense. $R^2$ alone cannot choose a model.")
+nb.section("8. Score the five that make sense")
+nb.code("""scores = -cross_val_score(LinearRegression(), branch[sensible], branch.hours, cv=folds,
+                          scoring="neg_mean_squared_error")
+print("cross-validated error:", round(scores.mean()**0.5, 3), "hours")""")
 
-nb.section("9. A squared term is just another column",
-           "Adding powers of a predictor is polynomial regression, and it is still ordinary "
-           "least squares underneath.")
-nb.code("""straight = ["volume_cuft", "crew_size", "stairs_flights", "miles", "packing_service"]
-branch2 = branch.assign(volume_sq=branch.volume_cuft**2)
+nb.section("9. Now add three columns that mean nothing")
+nb.code("""scores = -cross_val_score(LinearRegression(), branch[sensible + junk], branch.hours, cv=folds,
+                          scoring="neg_mean_squared_error")
+print("cross-validated error:", round(scores.mean()**0.5, 3), "hours")""")
+nb.md("Worse, on 60 jobs. With all 600 the same three columns would cost almost nothing, which "
+      "is why the amount of data you have decides how much model you can afford.")
 
-for name, cols in [("five predictors", straight),
-                   ("plus volume squared", straight + ["volume_sq"])]:
-    mse = -cross_val_score(LinearRegression(), branch2[cols], branch2.hours, cv=folds,
-                           scoring="neg_mean_squared_error").mean()
-    print(f"{name:<22} cross-validated error {np.sqrt(mse):.3f}")""")
-nb.md("The relationship really does bend, but with 60 jobs there is not enough data to pay for "
-      "the bend. With all 600 the squared term earns its place.")
+nb.section("10. The same two models, by R-squared and AIC")
+nb.code("""small = smf.ols("hours ~ volume_cuft + crew_size + stairs_flights + miles + packing_service",
+                data=branch).fit()
+big = smf.ols("hours ~ volume_cuft + crew_size + stairs_flights + miles + packing_service"
+              " + est_boxes + dispatcher_rating + weekend", data=branch).fit()
 
-nb.section("10. Lasso, which shrinks and drops")
+print("five predictors :  R2", round(small.rsquared, 4), "  AIC", round(small.aic, 1))
+print("plus three junk :  R2", round(big.rsquared, 4), "  AIC", round(big.aic, 1))""")
+nb.md("$R^2$ is higher for the model with the junk in it, and AIC is worse. $R^2$ goes up "
+      "whenever you add a column, so it cannot choose a model for you.")
+
+nb.section("11. A squared term is just another column",
+           "Powers of a predictor are polynomial regression, and still ordinary least squares.")
+nb.code("""branch = branch.assign(volume_sq=branch.volume_cuft**2)
+
+scores = -cross_val_score(LinearRegression(), branch[sensible + ["volume_sq"]], branch.hours,
+                          cv=folds, scoring="neg_mean_squared_error")
+print("cross-validated error:", round(scores.mean()**0.5, 3), "hours")""")
+nb.md("The relationship really does bend, but 60 jobs cannot pay for the bend. With all 600 the "
+      "squared term earns its place.")
+
+nb.section("12. Lasso shrinks the weak columns toward zero")
 nb.code("""from sklearn.linear_model import LassoCV
 from sklearn.preprocessing import StandardScaler
 
-cols = ["volume_cuft", "crew_size", "stairs_flights", "miles", "packing_service",
-        "est_boxes", "dispatcher_rating", "weekend"]
-Z = StandardScaler().fit_transform(branch[cols])
+scaled = StandardScaler().fit_transform(branch[sensible + junk])
+las = LassoCV(cv=5, random_state=0, max_iter=50000).fit(scaled, branch.hours)
 
-alphas = np.logspace(-3, 0.7, 80)          # the penalties to try
-las = LassoCV(alphas=alphas, cv=5, random_state=0, max_iter=50000).fit(Z, branch.hours)
-print("penalty chosen by cross-validation:", round(las.alpha_, 4))
-print(pd.Series(las.coef_.round(3), index=cols).to_string())""")
-nb.md("At the penalty with the best error the junk columns survive with coefficients near zero. "
-      "Push the penalty higher and they go to exactly zero before any real predictor does.")
+pd.Series(las.coef_.round(3), index=sensible + junk)""")
+nb.md("The three junk columns come back near zero. Raise the penalty and they hit exactly zero "
+      "before any of the five real predictors does.")
 
 nb.write("Code_Unit04_Prediction.ipynb")
 
