@@ -38,19 +38,7 @@ nb.md("`mean_ci` is the **confidence interval** for the average job like this on
       "the **prediction interval** for this one job. The prediction interval is the wide one, "
       "and it is the one a dispatcher needs.")
 
-nb.section("4. Has the company done jobs like this one?",
-           "The slides asked about a 900 cubic foot move with only 35 boxes. Check each value, "
-           "then check the two together.")
-nb.code("""big_enough = jobs.volume_cuft.between(800, 1000)
-few_boxes = jobs.est_boxes.between(27, 43)
-
-print("jobs near that volume     :", big_enough.sum())
-print("jobs near that box count  :", few_boxes.sum())
-print("jobs near both at once    :", (big_enough & few_boxes).sum())""")
-nb.md("Each value on its own is ordinary. The combination has never happened, so a prediction "
-      "for it rests on the shape of the model rather than on any comparable job.")
-
-nb.section("5. Error on the rows you fitted on is too small")
+nb.section("4. Error on the rows you fitted on is too small")
 nb.code("""X = jobs[["volume_cuft", "crew_size", "stairs_flights", "miles", "packing_service"]]
 y = jobs["hours"]
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=0)
@@ -59,33 +47,33 @@ model = LinearRegression().fit(X_train, y_train)
 print("error on the rows it was fitted on:", round(((y_train - model.predict(X_train))**2).mean()**0.5, 2))
 print("error on the rows held back      :", round(((y_test - model.predict(X_test))**2).mean()**0.5, 2))""")
 
-nb.section("6. Cross-validation holds out every row once")
+nb.section("5. Cross-validation holds out every row once")
 nb.code("""folds = KFold(5, shuffle=True, random_state=0)
 scores = -cross_val_score(LinearRegression(), X, y, cv=folds, scoring="neg_mean_squared_error")
 
 print("error in each round:", (scores**0.5).round(2))
 print("average            :", round(scores.mean()**0.5, 2), "hours")""")
 
-nb.section("7. A smaller office, where an extra column costs something",
+nb.section("6. A smaller office, where an extra column costs something",
            "The same company, but only the 60 jobs one branch has done.")
 nb.code("""branch = jobs.sample(60, random_state=5)
 
 sensible = ["volume_cuft", "crew_size", "stairs_flights", "miles", "packing_service"]
 junk = ["est_boxes", "dispatcher_rating", "weekend"]""")
 
-nb.section("8. Score the five that make sense")
+nb.section("7. Score the five that make sense")
 nb.code("""scores = -cross_val_score(LinearRegression(), branch[sensible], branch.hours, cv=folds,
                           scoring="neg_mean_squared_error")
 print("cross-validated error:", round(scores.mean()**0.5, 3), "hours")""")
 
-nb.section("9. Now add three columns that mean nothing")
+nb.section("8. Now add three columns that mean nothing")
 nb.code("""scores = -cross_val_score(LinearRegression(), branch[sensible + junk], branch.hours, cv=folds,
                           scoring="neg_mean_squared_error")
 print("cross-validated error:", round(scores.mean()**0.5, 3), "hours")""")
 nb.md("Worse, on 60 jobs. With all 600 the same three columns would cost almost nothing, which "
       "is why the amount of data you have decides how much model you can afford.")
 
-nb.section("10. The same two models, by R-squared and AIC")
+nb.section("9. The same two models, by R-squared and AIC")
 nb.code("""small = smf.ols("hours ~ volume_cuft + crew_size + stairs_flights + miles + packing_service",
                 data=branch).fit()
 big = smf.ols("hours ~ volume_cuft + crew_size + stairs_flights + miles + packing_service"
@@ -96,7 +84,7 @@ print("plus three junk :  R2", round(big.rsquared, 4), "  AIC", round(big.aic, 1
 nb.md("$R^2$ is higher for the model with the junk in it, and AIC is worse. $R^2$ goes up "
       "whenever you add a column, so it cannot choose a model for you.")
 
-nb.section("11. A squared term is just another column",
+nb.section("10. A squared term is just another column",
            "Powers of a predictor are polynomial regression, and still ordinary least squares.")
 nb.code("""branch = branch.assign(volume_sq=branch.volume_cuft**2)
 
@@ -106,7 +94,49 @@ print("cross-validated error:", round(scores.mean()**0.5, 3), "hours")""")
 nb.md("The relationship really does bend, but 60 jobs cannot pay for the bend. With all 600 the "
       "squared term earns its place.")
 
-nb.section("12. Lasso shrinks the weak columns toward zero")
+nb.section("11. Forward selection, one predictor at a time",
+           "Start with nothing. Add whichever column has the smallest p-value, and stop when "
+           "none of the ones left clears 0.05.")
+nb.code("""chosen = []
+remaining = sensible + junk
+
+while remaining:
+    pvals = {}
+    for c in remaining:
+        fit = smf.ols("hours ~ " + " + ".join(chosen + [c]), data=branch).fit()
+        pvals[c] = fit.pvalues[c]
+
+    best = min(pvals, key=pvals.get)
+    if pvals[best] >= 0.05:
+        break
+    print("add", best, " p =", format(pvals[best], ".2g"))
+    chosen.append(best)
+    remaining.remove(best)
+
+print()
+print("forward selection keeps:", chosen)""")
+
+nb.section("12. Backward elimination, the other direction",
+           "Start with everything. Drop whichever column has the largest p-value, and stop when "
+           "they are all under 0.05.")
+nb.code("""keep = sensible + junk
+
+while True:
+    fit = smf.ols("hours ~ " + " + ".join(keep), data=branch).fit()
+    pvals = fit.pvalues.drop("Intercept")
+    if pvals.max() < 0.05:
+        break
+    print("drop", pvals.idxmax(), " p =", round(pvals.max(), 3))
+    keep.remove(pvals.idxmax())
+
+print()
+print("backward elimination keeps:", keep)""")
+nb.md("The three junk columns are the first to go on the way out, which is the ranking you want. "
+      "But notice what the two searches cost you: the p-values printed at the end belong to a "
+      "model that won a search, not to a test you planned, so they look stronger than they are. "
+      "This is why the unit prefers a few candidate sets compared on held-out error.")
+
+nb.section("13. Lasso shrinks the weak columns toward zero")
 nb.code("""from sklearn.linear_model import LassoCV
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import make_pipeline
