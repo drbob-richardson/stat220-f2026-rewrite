@@ -94,9 +94,26 @@ print("cross-validated error:", round(scores.mean()**0.5, 3), "hours")""")
 nb.md("The relationship really does bend, but 60 jobs cannot pay for the bend. With all 600 the "
       "squared term earns its place.")
 
-nb.section("11. Forward selection, one predictor at a time",
-           "Start with nothing. Add whichever column has the smallest p-value, and stop when "
-           "none of the ones left clears 0.05.")
+nb.section("11. Forward selection, step one",
+           "Nothing is in the model yet. Try each column on its own and look at every p-value.")
+nb.code("""for c in sensible + junk:
+    fit = smf.ols("hours ~ " + c, data=branch).fit()
+    print(c, " p =", format(fit.pvalues[c], ".2g"))""")
+nb.md("Volume has the smallest p-value by a wide margin, so forward selection adds it first.")
+
+nb.section("12. Forward selection, step two",
+           "Volume is in. Try each of the others beside it, and again look at all of them.")
+nb.code("""for c in sensible + junk:
+    if c == "volume_cuft":
+        continue
+    fit = smf.ols("hours ~ volume_cuft + " + c, data=branch).fit()
+    print(c, " p =", format(fit.pvalues[c], ".2g"))""")
+nb.md("The p-values all moved once volume was in the model. Packing service is the smallest now, "
+      "so it goes in next. Notice that `est_boxes` looked useful on its own and stopped looking "
+      "useful beside volume, because the two carry nearly the same information.")
+
+nb.section("13. The rest of the search, in a loop",
+           "The same two steps, repeated until nothing left clears 0.05.")
 nb.code("""chosen = []
 remaining = sensible + junk
 
@@ -116,7 +133,7 @@ while remaining:
 print()
 print("forward selection keeps:", chosen)""")
 
-nb.section("12. Backward elimination, the other direction",
+nb.section("14. Backward elimination, the other direction",
            "Start with everything. Drop whichever column has the largest p-value, and stop when "
            "they are all under 0.05.")
 nb.code("""keep = sensible + junk
@@ -136,7 +153,7 @@ nb.md("The three junk columns are the first to go on the way out, which is the r
       "model that won a search, not to a test you planned, so they look stronger than they are. "
       "This is why the unit prefers a few candidate sets compared on held-out error.")
 
-nb.section("13. Lasso shrinks the weak columns toward zero")
+nb.section("15. Lasso shrinks the weak columns toward zero")
 nb.code("""from sklearn.linear_model import LassoCV
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import make_pipeline
