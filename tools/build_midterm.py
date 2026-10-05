@@ -198,8 +198,12 @@ answer contains, with the numbers this data actually produces.}
                                      "name": "python3"},
                       "language_info": {"name": "python"}}
     path = OUT / f"Midterm_{tag}_Applied.ipynb"
-    nbf.write(nb, path)
-    print(f"wrote Exams/{path.name} ({len(cells)} cells)")
+    if path.exists() and "--force-notebooks" not in sys.argv:
+        # these get edited by hand, and a rebuild must not quietly undo that
+        print(f"kept Exams/{path.name} as it is (pass --force-notebooks to rebuild it)")
+    else:
+        nbf.write(nb, path)
+        print(f"wrote Exams/{path.name} ({len(cells)} cells)")
 
 
 if __name__ == "__main__":

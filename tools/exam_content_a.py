@@ -199,24 +199,24 @@ TASKS = [
   'Any two sensible plots: minutes against patients ahead, minutes by kiosk group, a histogram of minutes, or minutes by severity. Full credit needs a real observation, not a description of the axes. The useful ones: the relationship with patients ahead is strong and bends slightly; kiosk visits look \\emph{longer} in the raw data; the clinic was busier during the kiosk period.'),
 
  ('The comparison management already made',
-  'Management compared average wait times with and without the kiosk and decided the kiosk made things worse. Run that comparison yourself. Report both averages, the difference, a test, and a 95\\% interval. Then say in two or three sentences what it does and does not establish.',
+  'Management compared average wait times with and without the kiosk and decided the kiosk made things worse. Run that comparison yourself with a formal test. Report the results of the test in the appropriate context.',
   10,
   'Kiosk visits average about 54.4 minutes against 43.4 without, a gap of roughly +11 minutes, with $p$ around $2\\times10^{-16}$ and an interval well away from zero. The gap is real in the sense that chance does not explain it. It does not establish that the kiosk caused longer waits, because the two groups of visits differ in other ways. Credit the word association, or naming a variable that differs between the groups.'),
 
- ('Put the obvious predictors in the model',
-  'Now fit a model for wait time that includes the kiosk indicator along with the predictors that obviously belong. Report the kiosk coefficient and its 95\\% interval, and interpret it in a sentence that names what is being held fixed. Then explain, in two or three sentences, why it came out different from Task 3.',
+ ('Put other predictors in the model',
+  'Other factor may be influencing the relationship between kiosk and wait times. Test the relationship between kiosk and wait times when considering other variables. Report your results appropriately.',
   12,
   'With patients ahead, staffing and severity in the model, the kiosk coefficient is about $-5.6$ minutes, 95\\% interval roughly $[-7.3, -3.9]$: the sign flips. The interpretation must hold the other predictors fixed, for example: among visits with the same number of patients ahead, the same staffing and the same severity, kiosk visits ran about 5.6 minutes shorter. The explanation should say the kiosk period was busier (correlation about $+0.5$ between kiosk and patients ahead), so the raw gap was mostly volume.'),
 
  ('The category in the model',
-  'Severity has three levels. Report its coefficients, say which level is the baseline and how you can tell, and write the sentence that interprets one of the others. Then say what would change, and what would not, if a different level were the baseline.',
+  'Severity has three levels. Report its coefficients, say which level is the baseline and how you can tell, and write the sentence that interprets one of the others.',
   6,
   'Baseline is \\texttt{minor}, the level with no coefficient of its own. Moderate is about $+10.5$ minutes and urgent about $+22$ minutes, each read against a minor visit with the other predictors held fixed. Changing the baseline changes every coefficient and the intercept but no fitted value and no prediction.'),
 
- ('Does the kiosk help some visits more than others?',
-  'Management thinks the kiosk helps most on urgent visits. Fit a model that lets the kiosk effect differ by severity, say what you find, and decide whether to keep the extra terms. Back that decision with a number.',
+ ('Does the kiosk help more when the clinic is busy?',
+  'Management thinks the kiosk helps more when the clinic is busy. Fit a model that lets the kiosk effect change with the number of patients waiting, say what you find, and decide whether to keep the extra term. Back that decision with a number.',
   8,
-  'The interaction terms come out with $p$ around 0.99 and 0.79, and AIC gets worse, about 6933 against 6930 without them. Full credit says the data gives no sign the kiosk effect differs by severity and keeps the simpler model, citing the p-values, AIC, or held-out error. A student who keeps the interaction anyway can still earn most of the credit if they say the terms did not earn their place and explain why they kept them.'),
+  'The interaction between the kiosk and patients waiting comes out at about $+0.53$ minutes per patient, $p = 0.057$, interval $[-0.02, 1.08]$, and AIC improves slightly, 6928 against 6930. Read in context it says the kiosk saves about 8 minutes when 2 people are waiting and about 1 minute when 15 are, which is the opposite of what management expected. Full credit for fitting it, reading the sign in context, and making a defensible call backed by the p-value, AIC or held-out error. Both keeping and dropping the term can earn full credit; what cannot is reporting the coefficient with no interpretation.'),
 
  ('A number for one patient',
   'A patient is checking in now: 8 people ahead of them, 3 staff on shift, a moderate case, and the kiosk in use. Predict how long this visit will take, give the interval the front desk should quote, and say in one sentence why that interval rather than the other.',
