@@ -193,96 +193,46 @@ folds = KFold(5, shuffle=True, random_state=0)
 repairs.head()'''
 
 TASKS = [
- ("Which kind of model, and why",
-  r"Before fitting anything, say what kind of model this question calls for. Name the family, "
-  r"say what makes it the right one for this outcome, and say what you need the model to hand "
-  r"back that a random forest would not.",
+ ('Which kind of model, and why',
+  'Before you fit anything, decide what kind of model this question calls for. Name the family, say why it suits this outcome, and say what you need from it that a random forest could not give you.',
   6,
-  r"Linear regression on repair time, which is a continuous positive number, and the question "
-  r"asks for the size of an effect, so the model has to return a coefficient with an interval. "
-  r"A forest would predict turnaround without saying anything about the supplier effect or its "
-  r"uncertainty. Credit a student who notices the outcome is skewed and proposes modelling it "
-  r"on the log scale, which is Task 6."),
+  'Linear regression on repair time, which is a continuous positive number, and the question asks for the size of an effect, so the model has to return a coefficient with an interval. A forest would predict turnaround without saying anything about the supplier effect or its uncertainty. Credit a student who notices the outcome is skewed and proposes modelling it on the log scale, which is Task 6.'),
 
- ("Look at the data first",
-  r"Make \textbf{two} plots that matter for the question the shop is asking. Then write two or "
-  r"three sentences on anything you notice that a later step will have to deal with.",
+ ('Look at the data first',
+  "Make two plots that bear on the shop's question. Then, in two or three sentences, say what you see that a later step will have to account for.",
   8,
-  r"Any two sensible plots: days against parts needed, days by supplier, a histogram of days, "
-  r"or days by bike type. Full credit needs a real observation. The useful ones: repair time is "
-  r"clearly right skewed (median about 1.6 days, maximum about 9); parts needed drives it; the "
-  r"two supplier groups look almost identical in raw averages; the new supplier's jobs need "
-  r"more parts."),
+  "Any two sensible plots: days against parts needed, days by supplier, a histogram of days, or days by bike type. Full credit needs a real observation. The useful ones: repair time is clearly right skewed (median about 1.6 days, maximum about 9); parts needed drives it; the two supplier groups look almost identical in raw averages; the new supplier's jobs need more parts."),
 
- ("The comparison the owner already made",
-  r"The owner compared average repair time with the old and new supplier, saw almost no "
-  r"difference, and is ready to drop the new supplier. Carry out that comparison: report both "
-  r"averages, the difference, a test, and a 95\% interval. Then say in two or three sentences "
-  r"what it does and does not establish.",
+ ('The comparison the owner already made',
+  'The owner compared average repair time under the old and the new supplier, saw almost no difference, and is ready to drop the new one. Run that comparison. Report both averages, the difference, a test, and a 95\\% interval, then say in two or three sentences what it does and does not establish.',
   10,
-  r"About 1.78 days with the new supplier against 1.86 with the old, a difference near $-0.08$ "
-  r"days with $p$ about 0.27 and an interval covering zero. Full credit says a non-significant "
-  r"result is not evidence of no difference, and points at the interval, which still leaves a "
-  r"meaningful improvement on the table."),
+  'About 1.78 days with the new supplier against 1.86 with the old, a difference near $-0.08$ days with $p$ about 0.27 and an interval covering zero. Full credit says a non-significant result is not evidence of no difference, and points at the interval, which still leaves a meaningful improvement on the table.'),
 
- ("Put the obvious predictors in the model",
-  r"Fit a model for \texttt{days} using the supplier indicator together with the predictors "
-  r"that plainly belong. Report the supplier coefficient with its interval, interpret it in a "
-  r"sentence that says what is held fixed, and explain in two or three sentences why it differs "
-  r"from Task 3.",
+ ('Put the obvious predictors in the model',
+  'Now fit a model for repair time that includes the supplier indicator along with the predictors that obviously belong. Report the supplier coefficient with its interval, interpret it in a sentence that names what is held fixed, and explain in two or three sentences why it differs from Task 3.',
   8,
-  r"With parts needed, technician experience and bike type in the model, the supplier "
-  r"coefficient is about $-0.40$ days on the untransformed scale. The interpretation must hold "
-  r"the others fixed: among repairs needing the same parts, by technicians of the same "
-  r"experience, on the same type of bike, the new supplier ran about 0.4 days faster. The "
-  r"explanation: the new supplier was given harder jobs, which hid the gain in the raw "
-  r"comparison."),
+  'With parts needed, technician experience and bike type in the model, the supplier coefficient is about $-0.40$ days on the untransformed scale. The interpretation must hold the others fixed: among repairs needing the same parts, by technicians of the same experience, on the same type of bike, the new supplier ran about 0.4 days faster. The explanation: the new supplier was given harder jobs, which hid the gain in the raw comparison.'),
 
- ("The category in the model",
-  r"\texttt{bike\_type} has four levels. Report its coefficients, say which level is the "
-  r"baseline and how you know, and write the sentence that interprets one of the other levels. "
-  r"Say what would change if a different level were the baseline.",
+ ('The category in the model',
+  'Bike type has four levels. Report its coefficients, say which level is the baseline and how you can tell, and write the sentence that interprets one of the others. Say what would change if a different level were the baseline.',
   6,
-  r"Baseline is \texttt{commuter}, the level with no coefficient of its own. Each other "
-  r"coefficient is that type against a commuter bike with the other predictors held fixed; "
-  r"electric is the largest. Changing the baseline changes all the coefficients and the "
-  r"intercept but no fitted value and no prediction."),
+  'Baseline is \\texttt{commuter}, the level with no coefficient of its own. Each other coefficient is that type against a commuter bike with the other predictors held fixed; electric is the largest. Changing the baseline changes all the coefficients and the intercept but no fitted value and no prediction.'),
 
- ("Try it on the log scale",
-  r"Repair time is skewed. Fit the same model with $\log(\texttt{days})$ as the outcome. "
-  r"Compare the residual plots from the two models, say which model you would use and why, and "
-  r"write the sentence that interprets the supplier coefficient on the log scale. Remember that "
-  r"a coefficient of $b$ on a log outcome means roughly a $100(e^{b}-1)\%$ change.",
+ ('Try it on the log scale',
+  'Repair times are skewed, so fit the model again with the log of repair days as the outcome. Compare the residual plots from the two fits, say which model you would use and why, and write the sentence that interprets the supplier coefficient on the log scale. A coefficient of $b$ on a logged outcome is roughly a $100(e^{b}-1)\\%$ change.',
   12,
-  r"The untransformed residuals fan out: their spread is nearly twice as large at high fitted "
-  r"values as at low ones. On the log scale that fan is gone, the spread is roughly constant, "
-  r"and $R^2$ rises slightly. The supplier coefficient is about $-0.22$, which is a reduction "
-  r"of roughly 20\% in repair time, 95\% interval about 15\% to 25\%. Full credit needs the "
-  r"residual comparison, a choice with a reason, and a percentage reading of the coefficient "
-  r"rather than a reading in days."),
+  'The untransformed residuals fan out: their spread is nearly twice as large at high fitted values as at low ones. On the log scale that fan is gone, the spread is roughly constant, and $R^2$ rises slightly. The supplier coefficient is about $-0.22$, which is a reduction of roughly 20\\% in repair time, 95\\% interval about 15\\% to 25\\%. Full credit needs the residual comparison, a choice with a reason, and a percentage reading of the coefficient rather than a reading in days.'),
 
- ("A number for one customer",
-  r"A customer brings in a commuter bike needing 4 parts, assigned to a technician with 2 years "
-  r"of experience, using the new supplier. Produce a prediction from the model you chose, give "
-  r"the interval you would quote the customer, and say in a sentence why that interval rather "
-  r"than the other.",
+ ('A number for one customer',
+  'A customer brings in a commuter bike needing 4 parts, going to a technician with 2 years of experience, with parts from the new supplier. Predict the turnaround from the model you chose, give the interval you would quote them, and say in one sentence why that interval rather than the other.',
   6,
-  r"From the log model, a prediction near 1.7 days once converted back, with a prediction "
-  r"interval of roughly $[0.7, 4.0]$ days against a confidence interval of about $[1.6, 1.8]$. "
-  r"A quote is for one repair, so the prediction interval belongs in it. Credit a student who "
-  r"works on the untransformed scale as long as they use a prediction interval and say so. "
-  r"Credit, but do not require, noticing that exponentiating the fitted log value gives a "
-  r"median rather than a mean."),
+  'From the log model, a prediction near 1.7 days once converted back, with a prediction interval of roughly $[0.7, 4.0]$ days against a confidence interval of about $[1.6, 1.8]$. A quote is for one repair, so the prediction interval belongs in it. Credit a student who works on the untransformed scale as long as they use a prediction interval and say so. Credit, but do not require, noticing that exponentiating the fitted log value gives a median rather than a mean.'),
 
- ("What you would tell the owner",
-  r"Write \textbf{four to six sentences} to the shop owner. Say what you found, how confident "
-  r"you are, and what they can and cannot do with it. Write it for a reader who has not taken "
-  r"this course.",
+ ('What you would tell the owner',
+  'Write four to six sentences to the shop owner. Say what you found, how sure you are, and what they can and cannot do with it. Assume they have not taken this course.',
   4,
-  r"Should report that the new supplier is associated with repairs roughly 20\% faster once job "
-  r"difficulty is accounted for, give the uncertainty, explain why the raw averages hid it, and "
-  r"stop short of promising the same gain from switching every job over. Deduct for a bare "
-  r"coefficient with no caveat, or for claiming the raw comparison was simply wrong."),
+  'Should report that the new supplier is associated with repairs roughly 20\\% faster once job difficulty is accounted for, give the uncertainty, explain why the raw averages hid it, and stop short of promising the same gain from switching every job over. Deduct for a bare coefficient with no caveat, or for claiming the raw comparison was simply wrong.'),
+
 ]
 
 EXAM = dict(
