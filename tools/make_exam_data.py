@@ -79,13 +79,17 @@ def repairs(n: int = 800, seed: int = 34) -> pd.DataFrame:
     shop_rating = rng.integers(1, 6, n)
     quarter = rng.integers(1, 5, n)
 
-    days = (1.4
-            + 0.75 * parts_needed
-            + 0.035 * (parts_needed - 3) ** 2          # a gentle bend
-            - 0.16 * tech_years
-            + type_add
-            - 0.9 * new_supplier                       # the real effect, modest
-            + rng.normal(0, 1.5, n))
+    # repair time is multiplicative: a hard job is a percentage longer, not a
+    # fixed number of days longer. That makes the log scale the right one, and
+    # leaves the untransformed residuals fanning out.
+    log_days = (np.log(1.15)
+                + 0.165 * parts_needed
+                - 0.035 * tech_years
+                + np.log1p(type_add / 6)
+                - 0.23 * new_supplier
+                + rng.normal(0, 0.42, n))
+    days = np.exp(log_days)
+
     return pd.DataFrame({
         "days": days.clip(0.3, None).round(2),
         "parts_needed": parts_needed,

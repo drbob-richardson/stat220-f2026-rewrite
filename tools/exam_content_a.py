@@ -147,14 +147,15 @@ MC = [
   2, "Each fifth is held out once and predicted by a model fitted on the rest. Averaging those "
      "five errors gives a steadier estimate than a single split."),
 
- ("Adding three columns that have nothing to do with the outcome will do what to $R^2$ and to "
-  "cross-validated error?",
-  ["Lower $R^2$ and raise cross-validated error.",
-   "Raise both of them, since more columns always help.",
-   "Leave both of them essentially unchanged.",
-   "Raise $R^2$, and usually raise held-out error too."],
-  3, "$R^2$ can only go up when a column is added. Held-out error has no such property, and "
-     "noise columns usually make it worse."),
+ ("A model includes \\texttt{kiosk}, \\texttt{severity} and their interaction. What does the "
+  "coefficient on \\texttt{kiosk} by itself now mean?",
+  ["The kiosk effect averaged over the three severity levels.",
+   "The kiosk effect for visits at the baseline severity level.",
+   "The kiosk effect with severity held at its average value.",
+   "The kiosk effect among urgent visits only."],
+  1, "Once an interaction is in the model, the plain coefficient is the effect in the group "
+     "coded zero, here the baseline severity. Quoting it as the overall kiosk effect reports "
+     "one group's answer as if it applied to everyone."),
 
  ("Two predictors are correlated at 0.97. What should you expect?",
   ["Each will have a tiny p-value, since both predict the outcome well enough.",
@@ -187,64 +188,86 @@ folds = KFold(5, shuffle=True, random_state=0)
 visits.head()'''
 
 TASKS = [
+ ("Which kind of model, and why",
+  r"Before fitting anything, say what kind of model this question calls for. Name the family, "
+  r"say what makes it the right one for this outcome, and say what you need the model to hand "
+  r"back that a random forest would not.",
+  6,
+  "Linear regression: the outcome is a continuous number of minutes, and the question is about "
+  "the size of an effect, so the model has to return a coefficient with an interval. A forest "
+  "would predict wait times without saying anything about the size of the kiosk effect or its "
+  "uncertainty. Credit any answer that names a family fitting a continuous outcome and ties the "
+  "choice to needing an effect rather than a prediction."),
+
  ("Look at the data first",
-  r"Make \textbf{two} plots that matter for the question the clinic is asking. Then write two "
+  r"Make 	extbf{two} plots that matter for the question the clinic is asking. Then write two "
   r"or three sentences on anything you notice that a later step will have to deal with.",
-  10,
-  "Any two sensible plots: wait time against patients ahead, wait time by kiosk group, a "
-  "histogram of minutes, or severity against wait. Full credit needs a real observation, not a "
-  "description of the axes. The useful ones: the relationship with patients ahead is strong and "
-  "bends slightly; kiosk visits look \\emph{longer} in the raw data; the clinic was busier "
-  "during the kiosk period."),
+  8,
+  "Any two sensible plots: minutes against patients ahead, minutes by kiosk group, a histogram "
+  "of minutes, or minutes by severity. Full credit needs a real observation, not a description "
+  "of the axes. The useful ones: the relationship with patients ahead is strong and bends "
+  r"slightly; kiosk visits look \emph{longer} in the raw data; the clinic was busier during the "
+  "kiosk period."),
 
  ("The comparison management already made",
   r"Management compared average wait time with and without the kiosk and concluded the kiosk "
   r"made things worse. Carry out that comparison yourself: report the two averages, the "
   r"difference, a test, and a 95\% interval. Then say in two or three sentences what this "
   r"comparison does and does not establish.",
-  12,
+  10,
   "Kiosk visits average about 54.4 minutes against 43.4 without, a gap of roughly +11 minutes, "
-  "with $p$ around $2\\times10^{-16}$ and an interval comfortably away from zero. The gap is "
-  "real in the sense that chance does not explain it. It does not establish that the kiosk "
-  "caused longer waits, because the two groups of visits differ in other ways. Credit the "
-  "phrase association, or naming a variable that differs between the groups."),
+  r"with $p$ around $2\times10^{-16}$ and an interval well away from zero. The gap is real in "
+  "the sense that chance does not explain it. It does not establish that the kiosk caused "
+  "longer waits, because the two groups of visits differ in other ways. Credit the word "
+  "association, or naming a variable that differs between the groups."),
 
- ("Put the obvious predictor in the model",
-  r"Fit a model for \texttt{minutes} using the kiosk indicator together with the predictors "
+ ("Put the obvious predictors in the model",
+  r"Fit a model for 	exttt{minutes} using the kiosk indicator together with the predictors "
   r"that plainly belong. Report the kiosk coefficient with its 95\% interval, and interpret it "
   r"in a sentence that says what is being held fixed. Then explain, in two or three sentences, "
-  r"why it differs from your answer in Task 2.",
-  14,
-  "With patients ahead, staffing and severity in the model, the kiosk coefficient is about "
-  "$-5.6$ minutes, 95\\% interval roughly $[-7.3, -3.9]$: the sign flips. Interpretation must "
-  "hold the other predictors fixed, for example: among visits with the same number of patients "
-  "ahead, the same staffing and the same severity, kiosk visits ran about 5.6 minutes shorter. "
-  "The explanation should say the kiosk period was busier (correlation about $+0.5$ between "
-  "kiosk and patients ahead), so the raw gap was mostly volume."),
-
- ("Which predictors to keep",
-  r"Compare at least two candidate sets of predictors and say which you would use. Justify the "
-  r"choice with something other than $R^2$, and say in a sentence what that number means.",
+  r"why it differs from your answer in Task 3.",
   12,
-  "Any defensible comparison using cross-validated error, AIC or BIC. The sensible set gives a "
-  "cross-validated error near 13.8 minutes; adding \\texttt{room\\_number}, "
-  "\\texttt{front\\_desk\\_rating} and \\texttt{month} does not improve it and makes AIC worse "
-  "(about 7267 against 7273). \\texttt{waiting\\_room\\_count} is a near-copy of patients ahead "
-  "(correlation 0.97) and buys nothing. Full credit requires naming the criterion and saying "
-  "what it measures."),
+  "With patients ahead, staffing and severity in the model, the kiosk coefficient is about "
+  r"$-5.6$ minutes, 95\% interval roughly $[-7.3, -3.9]$: the sign flips. The interpretation "
+  "must hold the other predictors fixed, for example: among visits with the same number of "
+  "patients ahead, the same staffing and the same severity, kiosk visits ran about 5.6 minutes "
+  "shorter. The explanation should say the kiosk period was busier (correlation about $+0.5$ "
+  "between kiosk and patients ahead), so the raw gap was mostly volume."),
+
+ ("The category in the model",
+  r"	exttt{severity} has three levels. Report its coefficients, say which level is the "
+  r"baseline and how you know, and write the sentence that interprets one of the other levels. "
+  r"Then say what would change about the numbers, and what would not, if a different level were "
+  r"the baseline.",
+  6,
+  r"Baseline is \texttt{minor}, the level with no coefficient of its own. Moderate is about "
+  "$+10.5$ minutes and urgent about $+22$ minutes, each read against a minor visit with the "
+  "other predictors held fixed. Changing the baseline changes every coefficient and the "
+  "intercept but no fitted value and no prediction."),
+
+ ("Does the kiosk help some visits more than others?",
+  r"Management suspects the kiosk helps most on urgent visits. Fit a model that allows the "
+  r"kiosk effect to differ by severity, report what you find, and say whether you would keep "
+  r"the extra terms. Justify that decision with a number.",
+  8,
+  "The interaction terms come out with $p$ around 0.99 and 0.79, and AIC gets worse, about 6933 "
+  "against 6930 without them. Full credit says the data gives no sign the kiosk effect differs "
+  "by severity and keeps the simpler model, citing the p-values, AIC, or held-out error. A "
+  "student who keeps the interaction anyway can still earn most of the credit if they say the "
+  "terms did not earn their place and explain why they kept them."),
 
  ("A number for one patient",
   r"A patient is about to check in: 8 patients ahead, 3 staff on shift, a moderate case, and "
   r"the kiosk in use. Produce a prediction for this visit, give the interval the front desk "
   r"should quote them, and say in a sentence why that interval and not the other one.",
-  8,
+  6,
   "Prediction about 51 minutes. The prediction interval is roughly $[29, 74]$ minutes, against "
   "a confidence interval of about $[50, 53]$. The front desk is talking to one patient, so the "
   "prediction interval is the honest one; quoting the narrow interval would promise precision "
   "the model does not have."),
 
  ("What you would tell management",
-  r"Write \textbf{four to six sentences} to the clinic manager. Say what you found, how "
+  r"Write 	extbf{four to six sentences} to the clinic manager. Say what you found, how "
   r"confident you are, and what they can and cannot do with it. Write it for a reader who has "
   r"not taken this course.",
   4,
