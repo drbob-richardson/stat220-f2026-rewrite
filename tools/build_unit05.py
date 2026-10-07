@@ -32,18 +32,19 @@ nb.section("1. The obvious model")
 nb.code("""fit = smf.ols("price ~ carat + C(cut) + C(color) + C(clarity)", data=gems).fit()
 print("R-squared:", round(fit.rsquared, 3))""")
 
-nb.section("2. Look at the residuals before you believe it")
+nb.section("2. Look at the residuals first")
 nb.code("""plt.scatter(fit.fittedvalues, fit.resid, s=6, alpha=0.4)
 plt.axhline(0, color="red")
 plt.xlabel("fitted price"); plt.ylabel("residual");""")
-nb.md("A fan, and an arc. Both of the things the line cannot do.")
+nb.md("The spread widens from left to right, and the middle of the cloud bends. A straight "
+      "line can do nothing about either one.")
 
-nb.section("3. Measure the fan instead of squinting at it")
+nb.section("3. Put a number on the fan")
 nb.code("""resid = pd.DataFrame({"fitted": fit.fittedvalues, "resid": fit.resid})
 low = resid[resid.fitted < resid.fitted.median()].resid.std()
 high = resid[resid.fitted >= resid.fitted.median()].resid.std()
 print("fan ratio:", round(high / low, 2))""")
-nb.md("Near 1 means even spread. This is 2, so the errors on expensive stones are twice the "
+nb.md("Near 1 means even spread. This is 2: the errors on expensive stones are twice the "
       "size of the errors on cheap ones.")
 
 nb.section("4. Take logs of both")
@@ -63,8 +64,8 @@ print("a stone 10% heavier costs about", round(100 * (1.10**b - 1), 1), "% more"
 nb.md("Both sides logged, so the coefficient is a percentage for a percentage.")
 
 nb.section("7. One split, chosen by hand",
-           "A tree picks the cut that makes the two groups as alike inside as possible. "
-           "That is all it does, so you can do it yourself.")
+           "A tree picks the cut that leaves the two groups as alike inside as possible. "
+           "You can do the same arithmetic yourself.")
 nb.code("""def sse(cut):
     left = gems.price[gems.carat <= cut]
     right = gems.price[gems.carat > cut]
@@ -81,8 +82,8 @@ print(export_text(stump, feature_names=list(X.columns), decimals=2))""")
 nb.section("9. Keep splitting")
 nb.code("""tree = DecisionTreeRegressor(max_depth=3, random_state=0).fit(X, gems.price)
 print(export_text(tree, feature_names=list(X.columns), decimals=2))""")
-nb.md("Read it out loud: the first cut is at **1.00 carat**. A round number, not a number the "
-      "data had any reason to prefer.")
+nb.md("The first cut is at **1.00 carat**. Weight is continuous, so there is no reason for "
+      "the best cut to land on a round number.")
 
 nb.section("10. How deep to go")
 nb.code("""Xtr, Xte, ytr, yte = train_test_split(X, gems.price, test_size=0.3, random_state=0)
@@ -92,8 +93,8 @@ for depth in [1, 3, 5, 8, 12, 20]:
     fitted = np.sqrt(((ytr - t.predict(Xtr))**2).mean())
     heldout = np.sqrt(((yte - t.predict(Xte))**2).mean())
     print(f"depth {depth:>2}   on its own rows {fitted:7.0f}   on held-back rows {heldout:7.0f}")""")
-nb.md("The first column falls forever. The second one bottoms out and then drifts back up. "
-      "That second column is the only one that can choose a depth for you.")
+nb.md("The first column keeps falling. The second one bottoms out and then drifts back up. "
+      "Only the second one can pick a depth.")
 
 nb.section("11. Why the tree cut at 1.00")
 nb.code("""plt.hist(gems.carat[(gems.carat > 0.7) & (gems.carat < 1.4)], bins=70)
@@ -111,14 +112,14 @@ print("crossing one carat adds", round(100 * (np.exp(jump.params["over1"]) - 1),
 print("p-value:", format(jump.pvalues["over1"], ".2g"))
 print("AIC:", round(logfit.aic), "->", round(jump.aic))""")
 
-nb.section("13. Say it in a sentence someone can use")
+nb.section("13. Write the sentence")
 nb.code("""weight = 100 * ((1.01 / 0.98)**jump.params["np.log(carat)"] - 1)
 jump_pct = 100 * (np.exp(jump.params["over1"]) - 1)
 
 total = 100 * ((1 + weight/100) * (1 + jump_pct/100) - 1)
 print(f"0.98 to 1.01 carat: {weight:.0f}% for the weight, {jump_pct:.0f}% for the round number")
 print(f"total: about {total:.0f}% more for nearly the same rock")""")
-nb.md("The tree found where to look. The regression said how much, and how sure.")
+nb.md("The tree pointed at one carat. The regression put 12% and a p-value on it.")
 
 nb.write("Code_Unit05_When_a_Line_Is_Not_Enough.ipynb")
 
@@ -129,10 +130,7 @@ nb.write("Code_Unit05_When_a_Line_Is_Not_Enough.ipynb")
 hw = HW(5, "When a Line Is Not Enough",
         f"""`rent.csv` is 4,743 rental listings from six Indian cities. `Rent` is the monthly
 rent in rupees. The predictors are `Size` (square feet), `BHK` (bedrooms), `Bathroom`, `City`,
-and `FurnishingStatus`.
-
-Rent in this market runs from about Rs 1,200 to Rs 3,500,000 a month, which is exactly the kind
-of spread that breaks a straight line.
+and `FurnishingStatus`. Rent runs from Rs 1,200 to Rs 3,500,000 a month.
 
 Run the next two cells first. The first installs what you need, and the second loads the data
 everything else uses.""")
@@ -151,8 +149,7 @@ RHS = "BHK + Bathroom + C(City) + C(FurnishingStatus)"
 rent.head()""")
 
 # ---------------- P1: diagnose ----------------
-hw.problem(1, """*Is the line in trouble?* Fit rent on the predictors as they come, and look
-before you report anything.""")
+hw.problem(1, """*Is the line in trouble?* Fit rent on the predictors as they come.""")
 hw.given("a", "Report the $R^2$ and the fan ratio, and paste the residual plot. The fan ratio is "
               "the spread of the residuals on the high half of the fitted values over the spread "
               "on the low half; 1 means even.",
@@ -165,8 +162,8 @@ print("R2:", round(plain.rsquared, 3), "  fan ratio:", round(fan, 2))
 plt.scatter(plain.fittedvalues, plain.resid, s=6, alpha=0.4)
 plt.axhline(0, color="red")
 plt.xlabel("fitted rent"); plt.ylabel("residual");''')
-hw.part("b", "Name the two things wrong with this residual plot, and say for each one what it "
-             "means about the predictions the model would make.", kind="markdown")
+hw.part("b", "Name the two things wrong with this residual plot, and say what each one does "
+             "to the predictions.", kind="markdown")
 
 # ---------------- P2: fix it ----------------
 hw.problem(2, """*The fix.* Log both sides and look again.""")
@@ -197,10 +194,10 @@ y = np.log(rent.Rent)
 
 tree = DecisionTreeRegressor(max_depth=3, random_state=0).fit(X, y)
 print(export_text(tree, feature_names=list(X.columns), decimals=2))''')
-hw.part("b", "Read the tree out loud: describe in plain words the kind of listing that lands in "
-             "the most expensive leaf, and the kind that lands in the cheapest.", kind="markdown")
-hw.part("c", "The tree never splits on `FurnishingStatus`. Say what that does and does not tell "
-             "you about whether furnishing matters.", kind="markdown")
+hw.part("b", "Describe the kind of listing that lands in the most expensive leaf, and the kind "
+             "that lands in the cheapest.", kind="markdown")
+hw.part("c", "The tree never splits on `FurnishingStatus`. Does that mean furnishing has no "
+             "effect on rent? Explain.", kind="markdown")
 
 # ---------------- P4: how deep ----------------
 hw.problem(4, """*How deep should it go?*""")
@@ -218,8 +215,7 @@ hw.part("b", "One column falls all the way down and the other turns around. Expl
 
 # ---------------- P5: tree as scout ----------------
 hw.problem(5, """*Let the tree inform the regression.* The tree splits on Mumbai, and then uses
-a different `Size` cut inside the Mumbai branch than outside it. That is the tree's way of
-saying that size is worth something different in Mumbai.""")
+a different `Size` cut inside the Mumbai branch than outside it.""")
 hw.given("a", "Report the interaction coefficient, its p-value, and the AIC of both models.",
 '''rent["mumbai"] = (rent.City == "Mumbai").astype(int)
 inter = smf.ols(f"np.log(Rent) ~ np.log(Size) + np.log(Size):mumbai + {RHS}", data=rent).fit()
@@ -234,7 +230,7 @@ hw.part("b", "Write three or four sentences a property manager could use. Give t
              "units, what is being held fixed, and what they should do about it.",
         kind="markdown")
 hw.part("c", "A colleague says this proves that building bigger apartments in Mumbai causes "
-             "higher rent per square foot. Say what is wrong with that, and what the data does "
-             "support.", kind="markdown")
+             "higher rent per square foot. Explain why that is more than these listings can "
+             "show, and say what they do show.", kind="markdown")
 
 hw.write("Stat_220_HW_Unit05_When_a_Line_Is_Not_Enough.ipynb")
