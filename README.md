@@ -95,7 +95,9 @@ Unit 5 used to be Causal Claims and Where the Data Came From. It was retired on
 2026-10-06, because the course had leaned too far into statistical thinking and
 not far enough into practical work. Its files and a note on what survives
 elsewhere are in `Dropped_Causal/`. Unit 5 is now When a Line Is Not Enough:
-diagnosing broken assumptions, transformations, and decision trees.
+diagnosing broken assumptions, transformations, and decision trees. The deck runs on a
+5,000-stone sample of the diamonds data and the homework runs on Indian rental listings, both
+real, both in `data/` and published to the student repo.
 
 ## Part I is the finished half
 
@@ -104,11 +106,11 @@ were two units, prediction and model building, into one: predicting a new case w
 interval, overfitting and underfitting, and choosing which predictors to keep. What it left
 behind is listed in `Absorbed_into_Unit04/README.md`. Unit 2 is new: it
 introduces the model families and the probability/algorithmic split before any one family gets
-taught in depth. Unit 3 is the deep dive on linear regression. Unit 5 merges the old Causal
-Thinking and Where the Data Comes From decks, because both taught selection bias separately, once
-as a collider and once as survivorship.
+taught in depth. Unit 3 is the deep dive on linear regression. Unit 5 asks what to do when the
+line is not enough: reading residuals, fixing a fan with a log, bending a line on purpose, and
+decision trees used as a scout for the regression.
 
-Each of the six ships a deck, an executed code companion, a homework, and a multiple-choice
+Each of the five ships a deck, an executed code companion, a homework, and a multiple-choice
 practice guide with answers in `Practice/`. The live activities are no longer on the slides.
 They still happen, they are just introduced out loud so a deck can be taught without them.
 

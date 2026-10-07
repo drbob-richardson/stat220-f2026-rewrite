@@ -1,0 +1,156 @@
+\documentclass[11pt]{article}
+\usepackage[margin=0.9in,letterpaper]{geometry}
+\usepackage{enumitem}
+\usepackage{amsmath}
+\usepackage{parskip}
+\usepackage[colorlinks=true,linkcolor=black]{hyperref}
+\setlist[enumerate]{itemsep=7pt, topsep=5pt}
+\pagestyle{plain}
+\begin{document}
+
+\begin{center}
+{\Large\textbf{Stat 220: When a Line Is Not Enough}}\\[3pt]
+{\large Midterm practice questions, with answers}\\[6pt]
+\end{center}
+
+Practice on reading a residual plot, fixing what it shows, growing and reading a decision
+tree, and using a tree to improve a regression. No computer needed.
+
+\vspace{8pt}
+\hrule
+\vspace{10pt}
+
+\begin{enumerate}[itemsep=14pt]
+\item A residual plot shows a narrow band on the left that widens steadily to the right. What is the first thing to try?
+
+\begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
+  \item Drop the rows on the right, since those are the ones producing the wide residuals.
+  \item Take the log of the outcome, since the spread is growing with the prediction.
+  \item Add more predictors, since the unexplained variation is clearly still large.
+  \item Nothing, since least squares does not require the residuals to have equal spread.
+\end{enumerate}
+
+\vspace{2pt}
+\textbf{Answer: B.} Spread that grows with the fitted value is the signature of an outcome that varies by a percentage rather than by a fixed amount. Logging the outcome turns a percentage into a distance, and the band usually flattens out. Least squares still gives sensible coefficients here, but every interval and p-value it reports is built on the equal-spread assumption.
+\vspace{4pt}
+
+\item A residual plot shows a clear arc: negative at both ends and positive in the middle. What does that mean?
+
+\begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
+  \item The outcome has outliers at both extremes of the predictor's range.
+  \item The predictor and the outcome are uncorrelated over most of the range.
+  \item The model has too many predictors and is fitting noise at the edges.
+  \item The relationship bends, and a straight line cannot follow the bend.
+\end{enumerate}
+
+\vspace{2pt}
+\textbf{Answer: D.} A line can only go up or down at a constant rate. If the truth curves, the line sits above the data in the middle and below it at the ends, or the reverse, and the residuals trace out the shape the line could not follow. The fixes are a squared term or a log on the predictor.
+\vspace{4pt}
+
+\item In a model of $\log(\text{rent})$ on $\log(\text{size})$, the coefficient on log size is 0.26. What does that say?
+
+\begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
+  \item An apartment 10\% larger rents for about 2.6\% more, everything else held fixed.
+  \item An apartment 10 square feet larger rents for about 0.26\% more.
+  \item An apartment one square foot larger rents for about 26 rupees more.
+  \item Size explains about 26\% of the variation in rent across these listings.
+\end{enumerate}
+
+\vspace{2pt}
+\textbf{Answer: A.} Both sides are logged, so the coefficient is a percentage for a percentage, which economists call an elasticity. Ten percent more size buys about $10 \times 0.26$, or 2.6 percent more rent. Reporting it as rupees per square foot is the mistake the unit warns about: the coefficient is not in the units of the outcome any more.
+\vspace{4pt}
+
+\item Your outcome is a count of complaints, and many stores had zero. A colleague suggests $\log(y+1)$ because $\log(y)$ returned an error. What should you say?
+
+\begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
+  \item Use it, since adding one is the standard correction for counts that include zero.
+  \item Use it, since the plus one is negligible once the counts are large enough.
+  \item The plus one was chosen to stop an error, not because it fits the problem.
+  \item Drop the stores with zero complaints and log the rest of the data as usual.
+\end{enumerate}
+
+\vspace{2pt}
+\textbf{Answer: C.} There is nothing wrong with the arithmetic, but the constant is doing real work on the small counts and nobody chose its value for a reason. Counts with zeros usually want a model built for counts. Dropping the zeros is worse, since those stores are often the interesting ones.
+\vspace{4pt}
+
+\item What does a single split in a regression tree actually do?
+
+\begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
+  \item It fits a separate straight line on each side of the cut point.
+  \item It cuts the rows into two groups and predicts each group's average.
+  \item It tests whether the two groups differ, and keeps the split if $p < 0.05$.
+  \item It finds the point where the outcome changes direction most sharply.
+\end{enumerate}
+
+\vspace{2pt}
+\textbf{Answer: B.} A split chooses one variable and one cut point, and the prediction on each side is just the average of the rows that land there. The machine tries every variable and every cut and keeps whichever pair leaves the two groups as alike inside as possible. There is no test and no line, which is why a tree's prediction is a staircase rather than a slope.
+\vspace{4pt}
+
+\item As you let a tree go deeper, the error on the rows it was fitted on keeps falling while the error on held-back rows falls, bottoms out, and rises. Which depth do you pick?
+
+\begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
+  \item The deepest one, since it has the lowest error on the rows it was fitted on.
+  \item The shallowest one, since simpler models always generalize more reliably.
+  \item The depth where the two curves are closest together.
+  \item The depth where the held-back error is at its lowest.
+\end{enumerate}
+
+\vspace{2pt}
+\textbf{Answer: D.} The first curve can always be driven to zero by giving every row its own leaf, so it cannot choose anything. The held-back error is the one measuring prediction on rows the tree has never seen, and its minimum is the honest answer. The gap between the curves tells you how much the tree is memorizing, but closing the gap is not the goal.
+\vspace{4pt}
+
+\item A tree was grown on houses from 800 to 4,000 square feet. You ask it to predict for a 9,000 square foot house. What comes back?
+
+\begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
+  \item The average of the largest houses it saw, with no adjustment for the extra size.
+  \item An error, since the value falls outside the range the tree was grown on.
+  \item A prediction extended along the slope the tree found among the large houses.
+  \item The overall average of all the houses, since the case matches no leaf.
+\end{enumerate}
+
+\vspace{2pt}
+\textbf{Answer: A.} The case falls down the rightmost branch and lands in the leaf holding the largest houses in the training data, and that leaf's prediction is its average. A tree is flat outside its range by construction, so it will not run away the way a line does, but it also will not use the extra size at all. Neither answer is trustworthy; the honest response is that the question is outside what the data can speak to.
+\vspace{4pt}
+
+\item A tree never splits on `square_footage`, which you know matters. What does that tell you?
+
+\begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
+  \item Square footage has no relationship with the outcome in this dataset.
+  \item The tree was grown too shallow to reach the variable at all.
+  \item Some other variable it did split on may be carrying the same information.
+  \item The variable should be dropped from the regression model as well.
+\end{enumerate}
+
+\vspace{2pt}
+\textbf{Answer: C.} Trees are greedy: once bedrooms are in, a variable that largely repeats bedrooms has nothing left to add and will never be chosen. Absence from the tree is a reason to look at the correlations, not a verdict on the variable. It is a candidate for dropping only after you have checked what it overlaps with.
+\vspace{4pt}
+
+\item A tree splits on `slope` inside the large-lot branch and not inside the small-lot branch. What should you add to the regression?
+
+\begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
+  \item A squared term in lot size, since the effect of size is clearly not constant.
+  \item An indicator for large lots, since that is where the second split appeared.
+  \item The slope variable on its own, since the tree has shown that it matters.
+  \item An interaction between slope and lot size, since slope matters only on big lots.
+\end{enumerate}
+
+\vspace{2pt}
+\textbf{Answer: D.} A split that shows up in one branch and not the other is the tree writing an interaction in its own notation: the effect of one variable depends on the value of another. Adding slope alone forces it to have the same effect everywhere, which is exactly what the tree said is false. The regression then gives the interaction a coefficient, an interval, and a p-value.
+\vspace{4pt}
+
+\item Your tree predicts better than your regression. The client wants to know how much a gated property adds to the time a job takes. What do you report?
+
+\begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
+  \item The regression's coefficient on gated, with its interval, from a tree-informed model.
+  \item The tree's prediction, since it is the model with the better held-out error.
+  \item The difference in average time between gated and ungated jobs in the raw data.
+  \item Both numbers, side by side, and let the client decide which one they prefer.
+\end{enumerate}
+
+\vspace{2pt}
+\textbf{Answer: A.} A tree gives predictions, not effects: it has no coefficient for gated and no interval around one. The question asked is about an effect holding other things fixed, which is what the regression is built to answer. Use the tree as a scout to find what belongs in the model, then let the regression say how much and how sure. The raw difference ignores everything else that differs between gated and ungated properties.
+\vspace{4pt}
+
+\end{enumerate}
+
+\end{document}
