@@ -3,8 +3,9 @@
 %     bash tools/compile.sh Unit_05_When_a_Line_Is_Not_Enough
 %
 % Figures are the fig_u5_*.pdf files in this folder, from
-% tools/make_unit05_slide_figs.py. The data is made up, and comes from
-% tools/make_lawn_data.py.
+% tools/make_unit05_slide_figs.py. Most of them run on data/diamonds.csv,
+% which is real. The depth curve and the interaction picture run on
+% data/lawn_jobs.csv, which is made up, from tools/make_lawn_data.py.
 % =====================================================================
 \documentclass[aspectratio=169]{beamer}
 \usetheme{default}
@@ -35,6 +36,10 @@
   \setbeamercolor{block title}{fg=white,bg=orange!80!black}%
   \setbeamercolor{block body}{bg=orange!12}%
   \begin{block}{\textbf{Your turn:} #1}}{\end{block}}
+\newenvironment{quickcheck}[1]{%
+  \setbeamercolor{block title}{fg=white,bg=teal!80!black}%
+  \setbeamercolor{block body}{bg=teal!10}%
+  \begin{block}{\textbf{Quick check:} #1}}{\end{block}}
 \newenvironment{llmcheck}[1]{%
   \setbeamercolor{block title}{fg=white,bg=violet!75!black}%
   \setbeamercolor{block body}{bg=violet!10}%
@@ -93,7 +98,7 @@
 \end{frame}
 
 \begin{frame}{The data for this unit}
-\texttt{diamonds.csv}: 5,000 stones from a jeweller's price list, real data.
+\texttt{diamonds.csv}: 5,000 stones from a jeweler's price list, real data.
 \begin{center}\small
 \begin{tabular}{L{0.22\textwidth} L{0.66\textwidth}}
 \toprule
@@ -143,8 +148,8 @@ whether the shape you fitted was the right one.
 \includegraphics[width=\textwidth]{fig_u5_diagnostics.pdf}
 \vspace{0.4em}
 \begin{minipage}{0.92\textwidth}\small
-Only the first is a model you can read coefficients from as it stands. The next slide gives the
-response to each of the other three.
+Only the first one is safe to read coefficients from. The other three each have a standard
+response, on the next slide.
 \end{minipage}
 \end{frame}
 
@@ -207,8 +212,8 @@ The diamonds show a curve and a fan together, which is why the fix there is the 
         is one of these.
 \end{itemize}
 \begin{practice}{what to do when you meet one}
-Name it, say so in the write-up, and go find the right tool or the right person. Recognizing
-that your rows are not independent is the part you are responsible for here.
+Name it, say so in the write-up, and go find the right tool or the right person. Noticing that
+your rows are not independent is the part you are responsible for.
 \end{practice}
 \end{frame}
 
@@ -231,7 +236,7 @@ that your rows are not independent is the part you are responsible for here.
 \]
 \end{frame}
 
-\begin{frame}{The same jobs, before and after}
+\begin{frame}{The same stones, before and after}
 \centering
 \includegraphics[width=0.94\textwidth]{fig_u5_fan.pdf}
 \vspace{0.3em}
@@ -256,6 +261,23 @@ The arc is gone, the spread is even from end to end, and $R^2$ rises from 0.916 
 ``Carat adds 1.88'' is not a sentence about dollars, and a buyer will read it as one. Convert
 before you report.
 \end{trap}
+\end{frame}
+
+\begin{frame}{Quick check: say it in percentages}
+\begin{quickcheck}{thirty seconds with a pencil}
+The coefficient on $\log(\text{carat})$ is $1.88$. Stone B is 20\% heavier than stone A.
+\begin{enumerate}\small
+  \item About how much more does B cost?
+  \item A colleague writes ``weight adds \$1.88.'' What is wrong with that sentence?
+\end{enumerate}
+\end{quickcheck}
+\onslide<2->{%
+\begin{block}{\textbf{Answer}}
+\textbf{(1)} $20 \times 1.88 \approx 38\%$, and $1.20^{1.88} - 1 = 41\%$ done exactly. The
+multiplication is an approximation, and it drifts once the change is large.
+\textbf{(2)} The coefficient is not in dollars. Both sides are logged, so it is a percentage for
+a percentage, and it is the same 1.88 for a \$400 stone and a \$15,000 one.
+\end{block}}
 \end{frame}
 
 \begin{frame}{Which log to take}
@@ -353,8 +375,8 @@ possibilities than you can check by hand.
         off the end.
   \item \emph{Is the stone heavier than one carat? If yes, is its clarity SI2 or worse? If yes,
         predict \$4,574.}
-  \item That is a \textbf{decision tree}. The questions are chosen by the data, not by you, which
-        is the point.
+  \item That is a \textbf{decision tree}. The questions are chosen by the data, not by you. That
+        is the appeal, and it is also where the trouble starts.
 \end{itemize}
 \end{frame}
 
@@ -403,12 +425,32 @@ The middle cut wins, so one carat is the first question the tree asks. The machi
 every cut point of every variable before choosing.
 \end{frame}
 
+\begin{frame}{Quick check: score a cut yourself}
+\begin{quickcheck}{four stones, two candidate cuts}
+Carats $0.5$, $0.8$, $1.2$, $1.6$, selling for $1$, $2$, $8$, $10$ thousand dollars. Score a cut
+by adding up the squared distances from each group's own average.
+\begin{enumerate}\small
+  \item Score the cut at 1.0 carat.
+  \item Score the cut at 1.4 carat. Which one does the tree keep?
+\end{enumerate}
+\end{quickcheck}
+\onslide<2->{%
+\begin{block}{\textbf{Answer}}
+\textbf{Cut at 1.0:} groups $\{1,2\}$ and $\{8,10\}$, averages $1.5$ and $9$, score
+$0.25 + 0.25 + 1 + 1 = \mathbf{2.5}$.
+\textbf{Cut at 1.4:} groups $\{1,2,8\}$ and $\{10\}$, averages $3.67$ and $10$, score
+$7.1 + 2.8 + 18.8 + 0 = \mathbf{28.7}$.
+The first cut wins easily, because it is the one that puts the cheap stones together and the
+expensive ones together.
+\end{block}}
+\end{frame}
+
 \begin{frame}{Keep splitting}
 \centering
 \includegraphics[width=\textwidth]{fig_u5_tree_steps.pdf}
 \vspace{0.3em}
 \begin{minipage}{0.94\textwidth}\small
-One split gives two steps. Three levels give eight price bands and a recognisable staircase.
+One split gives two steps. Three levels give eight price bands and a recognizable staircase.
 Ten levels give a step for almost every handful of stones. At that point the tree is describing
 these 400 stones rather than the market they came from.
 \end{minipage}
@@ -433,6 +475,23 @@ these 400 stones rather than the market they came from.
 A set of rules that partition the data, and one number per region. No coefficients, no equation,
 and nothing that can be read as the effect of a variable.
 \end{principle}
+\end{frame}
+
+\begin{frame}{Quick check: run two stones down the tree}
+\begin{quickcheck}{use the tree we just read}
+\begin{enumerate}\small
+  \item A 1.20 carat stone, clarity SI2. What does the tree predict?
+  \item A 1.60 carat stone, also SI2. What does the tree predict?
+\end{enumerate}
+\end{quickcheck}
+\onslide<2->{%
+\begin{block}{\textbf{Answer}}
+\textbf{(1)} Over one carat, under 1.38, SI2: \$4,574.
+\textbf{(2)} Over 1.38, under 1.73: \$10,718, and the tree never asked about clarity at all.
+Clarity is a question inside one branch and nowhere else, so the same property of a stone
+changes the answer in one part of the tree and is invisible in another. That is the structure
+the next section turns into a regression term.
+\end{block}}
 \end{frame}
 
 \begin{frame}{How deep to go}
@@ -484,10 +543,10 @@ mixed types of predictor in one model & anything outside the range of the data \
 \begin{itemize}
   \item A single tree is unstable. \textbf{Random forests} fit many trees to resampled data and
         average them. \textbf{Boosting} fits trees in sequence, each correcting the last.
-  \item Both usually predict better than one tree, and both give up the one thing a single tree
-        had: you could read it.
-  \item We are not going further than naming them. Unit 2 put them on the menu, and this is where
-        they come from.
+  \item Both usually predict better than one tree. Both give up the thing that made a single
+        tree worth drawing, which is that you could read it.
+  \item We are only naming them here. Unit 2 put them on the menu, and this is where they come
+        from.
 \end{itemize}
 \end{frame}
 
@@ -508,7 +567,7 @@ predict, and what would the log-log regression do differently?
         stones it has seen. For a 2.5 carat stone that average is too low, and it would be the
         same answer for a 4 carat stone.
   \item The regression keeps going: 1.88\% more price for every 1\% more weight, wherever you
-        point it. That is also an extrapolation, and also not trustworthy.
+        point it. That is an extrapolation too, and no more trustworthy.
   \item The difference is the shape of the failure. The regression keeps rising; the tree returns
         a flat number and gives no sign that it has run out of data.
 \end{itemize}
@@ -550,6 +609,22 @@ a candidate for dropping, after you check it is not just correlated with one it 
 \bottomrule
 \end{tabular}
 \end{center}
+\end{frame}
+
+\begin{frame}{Quick check: what would you add?}
+\begin{quickcheck}{read a tree, write a term}
+A tree on house prices splits first on \texttt{has\_garage}. Inside the garage branch it splits
+on \texttt{sqft} at 1{,}800. Inside the no-garage branch it splits on \texttt{sqft} at 2{,}600.
+What do you add to the regression, and what do you not conclude?
+\end{quickcheck}
+\onslide<2->{%
+\begin{block}{\textbf{Answer}}
+Square footage is being used differently on the two sides, so the term is the interaction
+\texttt{sqft * has\_garage}. The regression then gives you a coefficient, an interval and a
+p-value for how much a square foot is worth with a garage against without one.
+What you do not conclude: that the garage caused anything, or that 1,800 and 2,600 are real
+thresholds. The tree had to pick a number somewhere.
+\end{block}}
 \end{frame}
 
 \begin{frame}{What this tree was telling us}
@@ -611,7 +686,7 @@ the tree on its own (depth 5) & & & 0.228 \\
 \end{tabular}
 \end{center}
 \begin{itemize}\small
-  \item The jump is \textbf{12\%} in price, at the same weight, clarity, colour and cut:
+  \item The jump is \textbf{12\%} in price, at the same weight, clarity, color and cut:
         $p \approx 10^{-64}$, and AIC improves by 284.
   \item The regression that took the hint predicts better than the tree that gave it, and it
         hands you a number a buyer can use.
@@ -643,11 +718,11 @@ or three sentences.
 
 \begin{frame}{Why end here}
 \begin{itemize}
-  \item The tree is a fast, honest search for structure you did not think to look for.
+  \item A tree searches for structure you would not have thought to check.
   \item The regression turns what it finds into a number with an interval, in units somebody can
         act on.
-  \item Used together they cover each other's weakness, and you can defend every term in the
-        final model by saying where it came from.
+  \item Together they cover each other's weak spot, and every term in the final model has an
+        answer to ``why is that in there?''
 \end{itemize}
 \begin{trap}{the step you cannot skip}
 A term suggested by a tree was still suggested by looking at the data. Check it on held-out rows,
@@ -661,7 +736,7 @@ and say in the write-up that this is where it came from.
 \begin{frame}{LLM check: mistake or not? (1 of 2)}
 \begin{llmcheck}{we asked about a fan in the residuals}
 \textbf{We told it:} ``My residuals fan out as the fitted values grow. What should I do?''\\[4pt]
-\textbf{It answered:} ``Remove the outliers at the high end and refit. That will stabilise the
+\textbf{It answered:} ``Remove the outliers at the high end and refit. That will stabilize the
 variance and improve your $R^2$.''
 \end{llmcheck}
 \vspace{0.2em}
@@ -743,7 +818,7 @@ Choose the depth & \texttt{cross\_val\_score} over a few depths \\
 
 \begin{frame}{Where we go next}
 \begin{itemize}
-  \item That closes the modelling half of the course. You can fit a model, read it, check it,
+  \item That closes the modeling half of the course. You can fit a model, read it, check it,
         repair it, choose between candidates, and predict with honest error bars.
   \item \textbf{Unit 6} starts the machinery underneath all of it: probability, and what chance
         alone produces.
