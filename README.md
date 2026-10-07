@@ -14,7 +14,7 @@ The reasoning behind this order is in `../Course_Rewrite/ALTERNATIVE_ORDER_model
 | 2 | A Map of Models | 51 |
 | 3 | Linear Regression | 46 |
 | 4 | Prediction and Choosing Predictors | 40 |
-| 5 | Causal Claims and Where the Data Came From | 51 |
+| 5 | When a Line Is Not Enough | 42 |
 
 **Part II: The machinery, and two things that need it**
 
@@ -88,6 +88,14 @@ It deliberately forward-references logistic regression (Unit 10) and count model
 Figures come from `tools/make_unit13_slide_figs.py` and are computed, not drawn. The
 central one simulates a fixed true curve and varies only the sample size: the best
 polynomial degree moves 3, 5, 8 as n goes 20, 50, 300.
+
+## The causal unit was dropped
+
+Unit 5 used to be Causal Claims and Where the Data Came From. It was retired on
+2026-10-06, because the course had leaned too far into statistical thinking and
+not far enough into practical work. Its files and a note on what survives
+elsewhere are in `Dropped_Causal/`. Unit 5 is now When a Line Is Not Enough:
+diagnosing broken assumptions, transformations, and decision trees.
 
 ## Part I is the finished half
 

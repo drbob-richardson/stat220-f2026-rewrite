@@ -933,10 +933,11 @@ Penalized regression & \texttt{LassoCV(cv=5).fit(X\_scaled, y)} \\
 \begin{itemize}
   \item This unit asked how a model behaves on data it has not seen, and which variables
         deserve to be in it.
-  \item Unit 5 asks a different question: where the data came from in the first place, and
-        when a coefficient can be read as an effect rather than an association.
-  \item A model can predict well and still be the wrong basis for a decision about what to
-        change. That distinction is the next unit.
+  \item \textbf{Unit 5} asks what to do when the straight line itself is the problem: residuals
+        that fan or bend, transformations that fix them, and decision trees, which find shapes
+        you did not think to look for.
+  \item Everything in this unit about honest error carries straight over. A tree has a
+        complexity dial too, and it is chosen the same way.
 \end{itemize}
 \end{frame}
 

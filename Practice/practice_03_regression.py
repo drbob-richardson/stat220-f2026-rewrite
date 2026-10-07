@@ -127,7 +127,7 @@ coefficient when the model around it changes. No computer needed.""",
  "Advertising spend is not assigned at random. It rises before holidays, after good quarters, and "
  "when a product launches, all of which move revenue too. The regression is doing exactly what it "
  "was asked, comparing periods that differ in advertising and in everything that travels with it. "
- "Unit 5 gives you the vocabulary for this."),
+ "That is why an observational slope is a comparison, not a verdict."),
 
 ("When does adding a predictor make a coefficient you already had more trustworthy rather than "
  "less?",
