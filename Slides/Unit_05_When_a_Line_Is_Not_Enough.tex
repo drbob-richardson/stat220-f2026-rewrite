@@ -109,15 +109,16 @@
 \end{tabular}
 \end{center}
 \vspace{0.3em}
-Price against weight is the cleanest broken assumption in any dataset you are likely to meet,
-and the fix tells you something true about how diamonds are sold.
+Price against weight breaks the straight-line model in two ways at once, and fixing it turns up
+something true about how diamonds are sold.
 \end{frame}
 
 % ======================================================================
 \section{When the line is wrong}
 % ======================================================================
 \begin{frame}{What the residuals are telling you}
-A residual plot is the model showing you what it could not explain. Four things turn up.
+Plot the residuals against the fitted values. Four things turn up, and each one has a standard
+response.
 \begin{center}\small
 \begin{tabular}{L{0.26\textwidth} L{0.62\textwidth}}
 \toprule
@@ -132,8 +133,8 @@ one point far away & a single case is pulling the fit toward itself \\
 \end{center}
 \vspace{0.2em}
 \begin{principle}{look before you read}
-The coefficient table does not know whether the shape is right. The residual plot is the only
-place that shows you.
+Plot the residuals before you read a single coefficient. The coefficient table cannot tell you
+whether the shape you fitted was the right one.
 \end{principle}
 \end{frame}
 
@@ -142,8 +143,8 @@ place that shows you.
 \includegraphics[width=\textwidth]{fig_u5_diagnostics.pdf}
 \vspace{0.4em}
 \begin{minipage}{0.92\textwidth}\small
-Only the first one is a model you can read coefficients from as they stand. The other three each
-have a standard response, and the rest of this unit is those responses.
+Only the first is a model you can read coefficients from as it stands. The next slide gives the
+response to each of the other three.
 \end{minipage}
 \end{frame}
 
@@ -163,9 +164,35 @@ the outcome is not a number & also a different family, also next slide \\
 \end{center}
 \vspace{0.2em}
 \begin{trap}{the quiet failure}
-Nothing in the output tells you any of this happened. A model with patterned residuals still
-prints coefficients, p-values and an $R^2$ to three decimals.
+None of this shows up in the output. A model with patterned residuals still prints
+coefficients, p-values and an $R^2$ to three decimals.
 \end{trap}
+\end{frame}
+
+\begin{frame}{The same four responses, in code}
+\small
+\begin{center}\footnotesize
+\begin{tabular}{p{0.30\textwidth} p{0.60\textwidth}}
+\toprule
+\textbf{What you saw} & \textbf{What to type} \\
+\midrule
+always, first &
+\texttt{plt.scatter(fit.fittedvalues, fit.resid)} \newline
+\texttt{plt.axhline(0)} \\
+a curve &
+\texttt{smf.ols("y $\sim$ x + I(x**2)", data)} \\
+a fan &
+\texttt{smf.ols("np.log(y) $\sim$ x", data)} \\
+a curve \emph{and} a fan &
+\texttt{smf.ols("np.log(y) $\sim$ np.log(x)", data)} \\
+one point far out &
+\texttt{df.loc[fit.resid.abs().idxmax()]} \newline
+then go and find out what it is \\
+\bottomrule
+\end{tabular}
+\end{center}
+\vspace{0.2em}
+The diamonds show a curve and a fan together, which is why the fix there is the fourth line.
 \end{frame}
 
 \begin{frame}{Three things this course points at but does not teach}
@@ -180,8 +207,8 @@ prints coefficients, p-values and an $R^2$ to three decimals.
         is one of these.
 \end{itemize}
 \begin{practice}{what to do when you meet one}
-Recognize it, say so, and go find the right tool or the right person. Knowing that your data is
-a time series is most of the battle; the rest is a course of its own.
+Name it, say so in the write-up, and go find the right tool or the right person. Recognizing
+that your rows are not independent is the part you are responsible for here.
 \end{practice}
 \end{frame}
 
@@ -229,6 +256,27 @@ The arc is gone, the spread is even from end to end, and $R^2$ rises from 0.916 
 ``Carat adds 1.88'' is not a sentence about dollars, and a buyer will read it as one. Convert
 before you report.
 \end{trap}
+\end{frame}
+
+\begin{frame}{Which log to take}
+\begin{center}\small
+\begin{tabular}{L{0.18\textwidth} L{0.32\textwidth} L{0.36\textwidth}}
+\toprule
+\textbf{Take} & \textbf{When} & \textbf{A coefficient of 0.2 means} \\
+\midrule
+$\log(y)$ & the spread fans out, and $x$ is a count or a flag &
+about 22\% more $y$ per unit of $x$ \\
+$\log(x)$ & $y$ rises quickly and then flattens &
+about 0.14 more $y$ each time $x$ doubles \\
+both & the cloud bends \emph{and} fans, the usual case for prices and sizes &
+0.2\% more $y$ per 1\% more $x$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+\begin{practice}{how to decide}
+Fit it both ways and compare the residual plots. The version that leaves no pattern wins, and it
+is usually the one the subject matter already suggested.
+\end{practice}
 \end{frame}
 
 \begin{frame}{Two things to know before you take a log}
@@ -329,7 +377,7 @@ For a candidate cut, score it by how much of the spread is left inside the two g
 \begin{itemize}\small
   \item Try every cut point of every predictor. Keep the one with the smallest score.
   \item Then do the same thing again inside each group, and again inside those.
-  \item Nothing here is clever. It is a search, and the machine does it exhaustively.
+  \item There is nothing subtle about it. The machine tries every option and keeps the best one.
 \end{itemize}
 \begin{principle}{greedy, one step at a time}
 Each split is chosen as if it were the last one. The tree never goes back and reconsiders an
@@ -361,8 +409,8 @@ every cut point of every variable before choosing.
 \vspace{0.3em}
 \begin{minipage}{0.94\textwidth}\small
 One split gives two steps. Three levels give eight price bands and a recognisable staircase.
-Ten levels give a step for almost every handful of stones, which is the tree memorising this
-sample rather than learning the market.
+Ten levels give a step for almost every handful of stones. At that point the tree is describing
+these 400 stones rather than the market they came from.
 \end{minipage}
 \end{frame}
 
@@ -399,8 +447,8 @@ This one is a different dataset: 700 lawn mowing jobs, where the signal is weake
 \begin{itemize}
   \item Error on the fitted rows falls with every level and keeps falling.
   \item Held-out error bottoms out around depth 5 and then climbs.
-  \item On the diamonds the turn barely happens, because carat predicts price so well that extra
-        depth costs almost nothing. Weak signal is where depth matters.
+  \item On the diamonds this turn barely happens: carat predicts price so well that extra depth
+        costs little. The weaker the signal, the more the depth matters.
 \end{itemize}
 \end{column}
 \end{columns}
@@ -425,8 +473,8 @@ mixed types of predictor in one model & anything outside the range of the data \
 
 \begin{frame}{The extrapolation problem, in one line}
 \begin{itemize}
-  \item A tree predicts the average of the training jobs in a region. For a lot bigger than any
-        it has seen, it returns the average of the biggest group it knows.
+  \item A tree predicts the average of the training rows in a region. For a stone heavier than
+        any it has seen, it returns the average of the heaviest group it knows.
   \item A line at least continues in a direction. A tree flattens out completely.
   \item Neither is trustworthy out there, but they fail differently, and the tree fails silently.
 \end{itemize}
@@ -459,10 +507,10 @@ predict, and what would the log-log regression do differently?
   \item The tree sends it right, then right again, and predicts the average of the heaviest SI2
         stones it has seen. For a 2.5 carat stone that average is too low, and it would be the
         same answer for a 4 carat stone.
-  \item The regression keeps going: 1.88\% more price for every 1\% more weight, applied
-        wherever you point it. That is an extrapolation too, but at least it moves.
-  \item Neither is trustworthy beyond the data. The difference is that the tree fails flat and
-        silently.
+  \item The regression keeps going: 1.88\% more price for every 1\% more weight, wherever you
+        point it. That is also an extrapolation, and also not trustworthy.
+  \item The difference is the shape of the failure. The regression keeps rising; the tree returns
+        a flat number and gives no sign that it has run out of data.
 \end{itemize}
 \end{frame}
 
@@ -478,8 +526,30 @@ predict, and what would the log-log regression do differently?
   \item So: fit the tree, read the structure, and put what it found into the regression.
 \end{itemize}
 \begin{principle}{scout and report}
-Let the tree tell you where to look. Let the regression tell you how much, and how sure.
+Use the tree to find where to look. Use the regression to say how much, and how sure.
 \end{principle}
+\end{frame}
+
+\begin{frame}{Turning splits into terms}
+What you see in the tree, and what you add to the regression because of it:
+\begin{center}\footnotesize
+\begin{tabular}{p{0.40\textwidth} p{0.52\textwidth}}
+\toprule
+\textbf{In the tree} & \textbf{In the regression} \\
+\midrule
+one split on $x$ at a round or meaningful value &
+an indicator: \texttt{I(x >= c)} \\
+several splits on the same $x$ at different values &
+a curve: \texttt{I(x**2)}, or \texttt{np.log(x)} \\
+a split on $x_2$ inside one branch of $x_1$, and not the other &
+an interaction: \texttt{x1 * x2} \\
+a split on a category inside one branch only &
+that category crossed with the branching variable \\
+a variable the tree never splits on &
+a candidate for dropping, after you check it is not just correlated with one it did use \\
+\bottomrule
+\end{tabular}
+\end{center}
 \end{frame}
 
 \begin{frame}{What this tree was telling us}
@@ -499,9 +569,9 @@ Let the tree tell you where to look. Let the regression tell you how much, and h
 \includegraphics[width=0.78\textwidth]{fig_u5_carat_spike.pdf}
 \vspace{0.3em}
 \begin{minipage}{0.9\textwidth}\small
-There is a pile of stones at exactly 1.00 carat and almost none just below it. Cutters grind away
-weight to reach the round number, because buyers shop for ``a one carat diamond''. The tree found
-a fact about the trade, not a quirk of this sample.
+There is a pile of stones at exactly 1.00 carat and almost none just below. Cutters grind away
+weight to reach the round number, because buyers shop for ``a one carat diamond''. The split the
+tree chose is a fact about the trade.
 \end{minipage}
 \end{frame}
 
@@ -546,6 +616,29 @@ the tree on its own (depth 5) & & & 0.228 \\
   \item The regression that took the hint predicts better than the tree that gave it, and it
         hands you a number a buyer can use.
 \end{itemize}
+\end{frame}
+
+\begin{frame}{Saying it out loud}
+The same finding, written three ways. Only the last one is usable.
+\begin{center}\small
+\begin{tabular}{L{0.16\textwidth} L{0.72\textwidth}}
+\toprule
+\textbf{Too raw} & ``The \texttt{over1} coefficient is 0.115 with $p < 0.001$.'' \\
+\midrule
+\textbf{Too loose} & ``One carat diamonds are way more expensive.'' \\
+\midrule
+\textbf{Right} & ``Crossing one carat adds about 12\% to the price, on top of what the extra
+weight already costs. A 0.98 and a 1.01 carat stone are nearly the same rock, and the heavier one
+runs about 19\% more: 6\% for the weight, 12\% for the round number. If you are buying, shop
+just under the line.'' \\
+\bottomrule
+\end{tabular}
+\end{center}
+\vspace{0.2em}
+\begin{practice}{the pattern}
+The number, the units, what is held fixed, and what somebody should do about it. Four parts, two
+or three sentences.
+\end{practice}
 \end{frame}
 
 \begin{frame}{Why end here}
