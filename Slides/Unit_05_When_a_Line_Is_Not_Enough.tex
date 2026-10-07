@@ -93,25 +93,24 @@
 \end{frame}
 
 \begin{frame}{The data for this unit}
-\texttt{lawn\_jobs.csv}: 700 completed jobs at a lawn care company.
+\texttt{diamonds.csv}: 5,000 stones from a jeweller's price list, real data.
 \begin{center}\small
-\begin{tabular}{L{0.26\textwidth} L{0.62\textwidth}}
+\begin{tabular}{L{0.22\textwidth} L{0.66\textwidth}}
 \toprule
 \textbf{Column} & \textbf{What it is} \\
 \midrule
-\texttt{minutes} & time on the property, the outcome \\
-\texttt{lot\_sqft} & size of the lot \\
-\texttt{slope} & flat, moderate, or steep \\
-\texttt{obstacles} & trees, beds and play sets to mow around \\
-\texttt{gated} & 1 if the property is behind a gate \\
-\texttt{crew\_size} & people on the job, 1 to 3 \\
-\texttt{invoice\_id}, \texttt{customer\_rating} & also recorded \\
+\texttt{price} & what it sold for, \$351 to \$18,787, the outcome \\
+\texttt{carat} & weight, 0.23 to 4.13 \\
+\texttt{cut} & Fair, Good, Very Good, Premium, Ideal \\
+\texttt{color} & D (best) through J \\
+\texttt{clarity} & IF (flawless) through I1 \\
+\texttt{depth}, \texttt{table}, \texttt{x}, \texttt{y}, \texttt{z} & proportions and measurements \\
 \bottomrule
 \end{tabular}
 \end{center}
 \vspace{0.3em}
-The company schedules by estimated time, so a prediction that is off by a third ruins the
-afternoon.
+Price against weight is the cleanest broken assumption in any dataset you are likely to meet,
+and the fix tells you something true about how diamonds are sold.
 \end{frame}
 
 % ======================================================================
@@ -191,10 +190,10 @@ a time series is most of the battle; the rest is a course of its own.
 % ======================================================================
 \begin{frame}{Why spread so often grows with the prediction}
 \begin{itemize}
-  \item A big lawn does not take a fixed number of extra minutes. It takes a percentage longer,
-        and the things that go wrong on it cost a percentage too.
-  \item When effects multiply rather than add, the spread around a big prediction is bigger than
-        the spread around a small one. That is the fan.
+  \item A second carat does not add a fixed number of dollars. Price scales with weight, and the
+        premium for clarity is a percentage of a bigger number.
+  \item When effects multiply rather than add, the spread around a large prediction is larger
+        than the spread around a small one. That is the fan.
   \item Taking logs turns multiplication into addition, which is exactly the shape a linear model
         is built for.
 \end{itemize}
@@ -210,9 +209,9 @@ a time series is most of the battle; the rest is a course of its own.
 \includegraphics[width=0.94\textwidth]{fig_u5_fan.pdf}
 \vspace{0.3em}
 \begin{minipage}{0.94\textwidth}\small
-Left: minutes on the raw scale. The spread at a 40-minute prediction is nearly twice the spread
-at a 10-minute one. Right: the same predictors against $\log(\text{minutes})$. The fan is gone
-and $R^2$ rises from 0.69 to 0.74.
+Left: price on the raw scale. The spread at an expensive prediction is about twice the spread at
+a cheap one, and the residuals arc as well. Right: $\log(\text{price})$ on $\log(\text{carat})$.
+The arc is gone, the spread is even from end to end, and $R^2$ rises from 0.916 to 0.983.
 \end{minipage}
 \end{frame}
 
@@ -220,14 +219,14 @@ and $R^2$ rises from 0.69 to 0.74.
 \begin{itemize}
   \item On a logged outcome, a coefficient $b$ is a \emph{percentage}: roughly
         $100(e^{b}-1)\%$ for each one-unit change in the predictor.
-  \item Gated properties have a coefficient of $0.26$, which is about \textbf{30\% longer}, not
-        0.26 minutes longer.
   \item If you log the predictor too, the coefficient is a percentage for a percentage. Here the
-        coefficient on $\log(\text{lot size})$ is $0.52$: a lot 10\% bigger takes about 5\%
-        longer.
+        coefficient on $\log(\text{carat})$ is $\mathbf{1.88}$: a stone 10\% heavier costs about
+        19\% more.
+  \item That number has a name outside this course. Economists call it an elasticity, and it is
+        the same idea.
 \end{itemize}
 \begin{trap}{reporting in the wrong units}
-``Gating adds 0.26'' is not a sentence about minutes, and a manager will read it as one. Convert
+``Carat adds 1.88'' is not a sentence about dollars, and a buyer will read it as one. Convert
 before you report.
 \end{trap}
 \end{frame}
@@ -238,7 +237,7 @@ before you report.
         answer, not $\log(y+1)$ chosen because it ran without an error.
   \item \textbf{Exponentiating a fitted value gives you back a median, not a mean.} For most
         operational questions that is fine, and it is worth knowing which one you handed over.
-  \item The model is now about $\log(\text{minutes})$. Every interval and every prediction comes
+  \item The model is now about $\log(\text{price})$. Every interval and every prediction comes
         back on that scale until you convert it.
 \end{itemize}
 \end{frame}
@@ -275,9 +274,10 @@ Decide with a neighbour, and say what you would check before doing anything to n
 \includegraphics[width=\textwidth]{fig_u5_poly.pdf}
 \vspace{0.3em}
 \begin{minipage}{0.94\textwidth}\small
-The same 700 jobs three ways. A straight line misses the shape at both ends. A squared term
-follows it. Taking logs of both sides straightens the relationship instead of bending the model,
-which is usually the better move when the cause of the curve is multiplicative.
+The same 5,000 stones three ways. A straight line misses badly at both ends: it says a quarter
+carat is worth negative money. A squared term follows the curve. Taking logs of both sides
+straightens the relationship instead of bending the model, which is the better move when the
+cause of the curve is multiplicative.
 \end{minipage}
 \end{frame}
 
@@ -303,8 +303,8 @@ possibilities than you can check by hand.
 \begin{itemize}
   \item Stop writing an equation. Instead, ask a sequence of yes/no questions and read the answer
         off the end.
-  \item \emph{Is the lot bigger than 11,000 square feet? If yes, is it behind a gate? If yes,
-        predict 38 minutes.}
+  \item \emph{Is the stone heavier than one carat? If yes, is its clarity SI2 or worse? If yes,
+        predict \$4,574.}
   \item That is a \textbf{decision tree}. The questions are chosen by the data, not by you, which
         is the point.
 \end{itemize}
@@ -315,8 +315,8 @@ possibilities than you can check by hand.
 \includegraphics[width=0.82\textwidth]{fig_u5_one_split.pdf}
 \vspace{0.2em}
 \begin{minipage}{0.9\textwidth}\small
-Cut the jobs into two groups at a lot size of 11,000 square feet. Predict the average of each
-group. The prediction is now a step function with two steps.
+Cut the stones into two groups at one carat. Predict the average of each group. The prediction
+is now a step function with two steps, and already it beats guessing the overall average.
 \end{minipage}
 \end{frame}
 
@@ -338,21 +338,21 @@ earlier cut, which is why a slightly different sample can produce a rather diffe
 \end{frame}
 
 \begin{frame}{The same arithmetic, in numbers}
-Three candidate cuts on lot size, scored on the same 160 jobs:
+Three candidate cuts on carat, scored on the same stones:
 \begin{center}\small
 \begin{tabular}{lccc}
 \toprule
 \textbf{Cut at} & \textbf{left average} & \textbf{right average} & \textbf{spread left over} \\
 \midrule
-5,000 sq ft & 9 min & 21 min & 7{,}900 \\
-11,000 sq ft & 12 min & 28 min & \textbf{6{,}500} \\
-20,000 sq ft & 15 min & 37 min & 7{,}200 \\
+0.5 carat & \$1,100 & \$5,900 & 44.1 billion \\
+1.0 carat & \$2,000 & \$8,600 & \textbf{30.6 billion} \\
+1.5 carat & \$2,800 & \$11,400 & 36.9 billion \\
 \bottomrule
 \end{tabular}
 \end{center}
 \vspace{0.2em}
-The middle cut wins, so that is the first question the tree asks. The machine does this for every
-cut point of every variable before choosing.
+The middle cut wins, so one carat is the first question the tree asks. The machine does this for
+every cut point of every variable before choosing.
 \end{frame}
 
 \begin{frame}{Keep splitting}
@@ -360,8 +360,9 @@ cut point of every variable before choosing.
 \includegraphics[width=\textwidth]{fig_u5_tree_steps.pdf}
 \vspace{0.3em}
 \begin{minipage}{0.94\textwidth}\small
-One split gives two steps. Three levels give eight groups and a recognisable staircase. Ten
-levels give a step for almost every handful of jobs, which is the tree memorising this sample.
+One split gives two steps. Three levels give eight price bands and a recognisable staircase.
+Ten levels give a step for almost every handful of stones, which is the tree memorising this
+sample rather than learning the market.
 \end{minipage}
 \end{frame}
 
@@ -372,13 +373,13 @@ levels give a step for almost every handful of jobs, which is the tree memorisin
 
 \begin{frame}{The same tree, out loud}
 \begin{itemize}
-  \item The first question is lot size, at about 11,000 square feet. Size matters more than
-        anything else here, which matches the regression.
-  \item Inside the small-lot branch, the next question is \textbf{the gate}. Gated properties take
-        noticeably longer at the same size.
-  \item Inside the large-lot branch, the tree asks about \textbf{crew size} and then about
-        \textbf{steep slope}. Slope appears only on large lots.
-  \item Each box at the bottom holds a group of jobs and predicts their average.
+  \item The first question is carat, at exactly \textbf{1.00}. Weight matters more than
+        everything else combined, which matches the regression.
+  \item Almost every other split is also carat: 0.47, 0.61, 0.81, 1.38. The tree is carving the
+        weight axis into price bands.
+  \item Inside the heavy branch it finally asks about \textbf{clarity}. Among stones over a
+        carat, the SI2 ones sell for about \$2,000 less.
+  \item Each box at the bottom holds a group of stones and predicts their average.
 \end{itemize}
 \begin{principle}{what a tree is}
 A set of rules that partition the data, and one number per region. No coefficients, no equation,
@@ -394,12 +395,12 @@ and nothing that can be read as the effect of a variable.
 \end{column}
 \begin{column}{0.42\textwidth}
 \small
+This one is a different dataset: 700 lawn mowing jobs, where the signal is weaker.
 \begin{itemize}
-  \item Error on the fitted rows falls with every level and keeps falling. A deep enough tree
-        fits them exactly.
+  \item Error on the fitted rows falls with every level and keeps falling.
   \item Held-out error bottoms out around depth 5 and then climbs.
-  \item Depth is this model's complexity dial, and it is chosen the same way as everything in
-        Unit 4: on data the tree did not see.
+  \item On the diamonds the turn barely happens, because carat predicts price so well that extra
+        depth costs almost nothing. Weak signal is where depth matters.
 \end{itemize}
 \end{column}
 \end{columns}
@@ -444,23 +445,24 @@ mixed types of predictor in one model & anything outside the range of the data \
 
 \begin{frame}{Your turn \#2}
 \begin{yourturn}{what would the tree do?}
-A tree is fitted to predict mowing time. Its first split is \emph{lot size above 11,000 sq ft},
-and inside the small-lot branch it splits on \emph{gated}.
+A tree is fitted to diamond prices. Its first split is \emph{carat above 1.00}, and inside the
+heavy branch it splits on \emph{clarity SI2 or worse}.
 \vspace{0.3em}
 
-A new job comes in: a 2,000 square foot lot, behind a gate. What does the tree predict, roughly,
-and what would a regression with a gate coefficient predict differently?
+A 2.5 carat stone of SI2 clarity comes in, heavier than anything in the data. What does the tree
+predict, and what would the log-log regression do differently?
 \end{yourturn}
 \end{frame}
 
 \begin{frame}{Your turn \#2: answer}
 \begin{itemize}
-  \item The tree sends the job left at the first question, then right at the gate question, and
-        predicts the average of the small gated jobs it has seen.
-  \item A regression adds a gate coefficient to whatever the size term gives, so the gate costs
-        the same percentage on a tiny lot as on a large one.
-  \item Which is right depends on the gate: if it is a fixed walk from the street, the tree's
-        version is closer. That is a question about mowing, not about statistics.
+  \item The tree sends it right, then right again, and predicts the average of the heaviest SI2
+        stones it has seen. For a 2.5 carat stone that average is too low, and it would be the
+        same answer for a 4 carat stone.
+  \item The regression keeps going: 1.88\% more price for every 1\% more weight, applied
+        wherever you point it. That is an extrapolation too, but at least it moves.
+  \item Neither is trustworthy beyond the data. The difference is that the tree fails flat and
+        silently.
 \end{itemize}
 \end{frame}
 
@@ -482,17 +484,28 @@ Let the tree tell you where to look. Let the regression tell you how much, and h
 
 \begin{frame}{What this tree was telling us}
 \begin{itemize}
-  \item \textbf{A split on gated, inside one size branch.} The gate costs time, and it is worth a
-        term of its own.
-  \item \textbf{A split on steep slope only inside the large-lot branch.} Slope seems to matter
-        on big lots and not on small ones. In regression language, that is an interaction between
-        size and slope.
-  \item \textbf{Splits on lot size at several places.} The relationship with size is not a
-        straight line, which the log already told us.
+  \item \textbf{The very first split is at 1.00 carat}, not at 0.9 or 1.1. A model that is smooth
+        in weight cannot produce a jump at a round number, so either the tree is chasing noise or
+        something real happens there.
+  \item \textbf{Splits on carat at several other places.} The relationship with weight is not a
+        straight line, which the log already handled.
+  \item \textbf{Clarity appears only among the heavy stones.} A hint that clarity matters more as
+        weight goes up.
 \end{itemize}
 \end{frame}
 
-\begin{frame}{The hint, checked}
+\begin{frame}{The market leaves a fingerprint}
+\centering
+\includegraphics[width=0.78\textwidth]{fig_u5_carat_spike.pdf}
+\vspace{0.3em}
+\begin{minipage}{0.9\textwidth}\small
+There is a pile of stones at exactly 1.00 carat and almost none just below it. Cutters grind away
+weight to reach the round number, because buyers shop for ``a one carat diamond''. The tree found
+a fact about the trade, not a quirk of this sample.
+\end{minipage}
+\end{frame}
+
+\begin{frame}{The same move, on an interaction}
 \begin{columns}[c]
 \begin{column}{0.56\textwidth}
 \centering
@@ -500,34 +513,38 @@ Let the tree tell you where to look. Let the regression tell you how much, and h
 \end{column}
 \begin{column}{0.44\textwidth}
 \small
-Average minutes by lot size band and slope.
+A second dataset, the lawn jobs, where the tree split on steep slope only inside the large-lot
+branch.
 \begin{itemize}
   \item On small and medium lots the three slopes cost about the same.
-  \item On large and very large lots, steep pulls away from the others.
-  \item That is what the tree saw when it split on slope only inside the large branch.
+  \item On large lots, steep pulls away.
+  \item A split that appears in one branch and not another is the tree's way of writing an
+        interaction.
 \end{itemize}
 \end{column}
 \end{columns}
 \end{frame}
 
 \begin{frame}{Put it in the model}
-Add one interaction, between $\log(\text{lot size})$ and steep, to the log model:
+Add one indicator, \emph{is the stone at least one carat}, to the log-log model:
 \begin{center}\small
 \begin{tabular}{lccc}
 \toprule
 \textbf{Model} & \textbf{$R^2$} & \textbf{AIC} & \textbf{cross-validated error} \\
 \midrule
-line on raw size & & & 0.236 \\
-log size, log minutes & 0.742 & $-215$ & 0.208 \\
-\quad plus size $\times$ steep & \textbf{0.745} & $\mathbf{-223}$ & \textbf{0.207} \\
+price on carat, no logs & 0.916 & & 0.337 \\
+log price on log carat & 0.983 & $-5842$ & 0.135 \\
+\quad plus the one carat jump & \textbf{0.984} & $\mathbf{-6126}$ & \textbf{0.131} \\
 \midrule
-the tree on its own (depth 5) & & & 0.253 \\
+the tree on its own (depth 5) & & & 0.228 \\
 \bottomrule
 \end{tabular}
 \end{center}
 \begin{itemize}\small
-  \item The interaction the tree pointed at is real: $p = 0.0016$, and AIC improves by 8.
-  \item The regression that took the hint predicts better than the tree that gave it.
+  \item The jump is \textbf{12\%} in price, at the same weight, clarity, colour and cut:
+        $p \approx 10^{-64}$, and AIC improves by 284.
+  \item The regression that took the hint predicts better than the tree that gave it, and it
+        hands you a number a buyer can use.
 \end{itemize}
 \end{frame}
 

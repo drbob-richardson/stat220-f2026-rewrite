@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 """Figures for Unit 5 (when a line is not enough, and decision trees).
 
-All of them use data/lawn_jobs.csv.
+Most of them use data/diamonds.csv, a 5,000-stone sample of the standard
+diamonds dataset. The interaction figure uses data/lawn_jobs.csv, which is made
+up, because the diamonds do not show a clean interaction and that principle
+still needs a picture.
 
 Run:  python tools/make_unit05_slide_figs.py
 """
@@ -19,7 +22,9 @@ from sklearn.tree import DecisionTreeRegressor, plot_tree
 ROOT = Path(__file__).resolve().parent.parent
 SLIDES = ROOT / "Slides"
 BLUE, RED, GREY, GREEN = "#4878a8", "#c0392b", "#7f8c8d", "#2e7d5b"
+gems = pd.read_csv(ROOT / "data" / "diamonds.csv")
 jobs = pd.read_csv(ROOT / "data" / "lawn_jobs.csv")
+RHS = "C(cut) + C(color) + C(clarity)"
 
 
 def save(fig, name):
@@ -52,15 +57,13 @@ def fig_diagnostics():
 
 
 def fig_fan():
-    """The same jobs, before and after taking logs."""
-    plain = smf.ols("minutes ~ lot_sqft + C(slope) + obstacles + gated + crew_size",
-                    data=jobs).fit()
-    logm = smf.ols("np.log(minutes) ~ np.log(lot_sqft) + C(slope) + obstacles + gated + crew_size",
-                   data=jobs).fit()
+    """The same stones, before and after taking logs."""
+    plain = smf.ols(f"price ~ carat + {RHS}", data=gems).fit()
+    logm = smf.ols(f"np.log(price) ~ np.log(carat) + {RHS}", data=gems).fit()
     fig, axes = plt.subplots(1, 2, figsize=(10.2, 3.4))
     for ax, f, title, ylab in [
-            (axes[0], plain, "minutes, straight from the data", "residual (minutes)"),
-            (axes[1], logm, "log(minutes), same predictors", "residual (log scale)")]:
+            (axes[0], plain, "price, straight from the data", "residual (dollars)"),
+            (axes[1], logm, "log(price) on log(carat)", "residual (log scale)")]:
         ax.scatter(f.fittedvalues, f.resid, s=10, color=GREY, alpha=0.6)
         ax.axhline(0, color=RED, lw=1.5)
         ax.set_title(title, fontsize=9.5)
@@ -70,8 +73,8 @@ def fig_fan():
 
 def fig_poly():
     """A line, a quadratic, and what the log does to the same cloud."""
-    d = jobs.sort_values("lot_sqft")
-    x, y = d.lot_sqft.values, d.minutes.values
+    d = gems.sort_values("carat")
+    x, y = d.carat.values, d.price.values
     grid = np.linspace(x.min(), x.max(), 300)
     fig, axes = plt.subplots(1, 3, figsize=(11.4, 3.2))
 
@@ -90,17 +93,17 @@ def fig_poly():
     axes[2].plot(np.log(grid), np.polyval(bl, np.log(grid)), color=RED, lw=2)
     axes[2].set_title("or take logs of both", fontsize=9.5)
     for ax in axes[:2]:
-        ax.set_xlabel("lot size (sq ft)")
-    axes[2].set_xlabel("log lot size")
-    axes[0].set_ylabel("minutes"); axes[2].set_ylabel("log minutes")
+        ax.set_xlabel("carat")
+    axes[2].set_xlabel("log carat")
+    axes[0].set_ylabel("price ($)"); axes[2].set_ylabel("log price")
     save(fig, "fig_u5_poly.pdf")
 
 
 def fig_one_split():
     """What a single split is, and the step function it makes."""
-    d = jobs.sample(160, random_state=2)
-    x, y = d.lot_sqft.values, d.minutes.values
-    cut = 11032
+    d = gems.sample(400, random_state=2)
+    x, y = d.carat.values, d.price.values
+    cut = 1.0
     left, right = y[x <= cut].mean(), y[x > cut].mean()
 
     fig, ax = plt.subplots(figsize=(7.4, 3.4))
@@ -108,19 +111,18 @@ def fig_one_split():
     ax.axvline(cut, color=GREEN, ls="--", lw=1.6)
     ax.hlines(left, x.min(), cut, color=RED, lw=2.5)
     ax.hlines(right, cut, x.max(), color=RED, lw=2.5)
-    ax.annotate(f"predict {left:.0f} min", (cut * 0.45, left + 4), color=RED, fontsize=9)
-    ax.annotate(f"predict {right:.0f} min", (cut * 1.25, right + 5), color=RED, fontsize=9)
-    ax.annotate(f"lot size = {cut:,}", (cut, y.max() * 0.98), color=GREEN, fontsize=8.5,
-                ha="center")
-    ax.set_xlabel("lot size (sq ft)"); ax.set_ylabel("minutes")
+    ax.annotate(f"predict ${left:,.0f}", (cut * 0.35, left + 1800), color=RED, fontsize=9)
+    ax.annotate(f"predict ${right:,.0f}", (cut * 1.15, right + 2200), color=RED, fontsize=9)
+    ax.annotate(f"carat = {cut}", (cut, y.max() * 0.97), color=GREEN, fontsize=8.5, ha="center")
+    ax.set_xlabel("carat"); ax.set_ylabel("price ($)")
     save(fig, "fig_u5_one_split.pdf")
 
 
 def fig_tree_steps():
     """More splits, more steps: depth 1, 3, and 10 on the same jobs."""
-    d = jobs.sample(160, random_state=2).sort_values("lot_sqft")
-    x = d[["lot_sqft"]].values
-    y = d.minutes.values
+    d = gems.sample(400, random_state=2).sort_values("carat")
+    x = d[["carat"]].values
+    y = d.price.values
     grid = np.linspace(x.min(), x.max(), 600).reshape(-1, 1)
     fig, axes = plt.subplots(1, 3, figsize=(11.4, 3.1), sharey=True)
     for ax, depth in zip(axes, (1, 3, 10)):
@@ -128,13 +130,15 @@ def fig_tree_steps():
         ax.scatter(x, y, s=12, color=GREY, alpha=0.55)
         ax.plot(grid, t.predict(grid), color=RED, lw=2)
         ax.set_title(f"depth {depth}: {t.get_n_leaves()} groups", fontsize=9.5)
-        ax.set_xlabel("lot size (sq ft)")
-    axes[0].set_ylabel("minutes")
+        ax.set_xlabel("carat")
+    axes[0].set_ylabel("price ($)")
     save(fig, "fig_u5_tree_steps.pdf")
 
 
 def fig_tree_depth():
     """Deeper always fits better, and stops predicting better."""
+    # the mowing data, not the diamonds: carat is such a clean predictor that a
+    # deeper tree barely hurts, so the diamonds show no honest overfitting turn
     X = pd.get_dummies(jobs[["lot_sqft", "slope", "obstacles", "gated", "crew_size"]],
                        drop_first=True)
     y = jobs.minutes
@@ -161,16 +165,28 @@ def fig_tree_depth():
 
 def fig_tree_diagram():
     """The tree itself, drawn, so the splits can be read out loud."""
-    X = pd.get_dummies(jobs[["lot_sqft", "slope", "obstacles", "gated", "crew_size"]],
-                       drop_first=True)
-    # no minimum leaf size: at depth 3 the tree then splits on steep slope inside
-    # the big-lot branch, which is the interaction the last section builds on
-    t = DecisionTreeRegressor(max_depth=3, random_state=0).fit(X, jobs.minutes)
+    X = pd.get_dummies(gems[["carat", "cut", "color", "clarity"]], drop_first=True)
+    t = DecisionTreeRegressor(max_depth=3, random_state=0).fit(X, gems.price)
     fig, ax = plt.subplots(figsize=(12, 5.2))
     plot_tree(t, feature_names=[c.replace("_", " ") for c in X.columns], filled=True,
               impurity=False, precision=0, fontsize=8, ax=ax,
               label="root", proportion=False)
     save(fig, "fig_u5_tree_diagram.pdf")
+
+
+def fig_carat_spike():
+    """Cutters lose weight to reach 1.00, so the data has a hole just below it."""
+    fig, ax = plt.subplots(figsize=(7.6, 3.2))
+    d = gems[(gems.carat > 0.7) & (gems.carat < 1.4)]
+    ax.hist(d.carat, bins=70, color=BLUE, alpha=0.75)
+    ax.axvline(1.0, color=RED, lw=1.8)
+    just_under = ((gems.carat >= 0.95) & (gems.carat < 0.995)).sum()
+    at_one = ((gems.carat >= 1.0) & (gems.carat <= 1.01)).sum()
+    ax.annotate(f"{at_one} stones at 1.00", (1.02, ax.get_ylim()[1] * 0.85), color=RED, fontsize=9)
+    ax.annotate(f"only {just_under} just below", (0.80, ax.get_ylim()[1] * 0.6), color=GREY,
+                fontsize=9)
+    ax.set_xlabel("carat"); ax.set_ylabel("stones in the sample")
+    save(fig, "fig_u5_carat_spike.pdf")
 
 
 def fig_interaction_found():
@@ -192,6 +208,7 @@ def fig_interaction_found():
 
 if __name__ == "__main__":
     fig_diagnostics()
+    fig_carat_spike()
     fig_fan()
     fig_poly()
     fig_one_split()
