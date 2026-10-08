@@ -1,238 +1,195 @@
 #!/usr/bin/env python3
-"""Midterm B: multiple choice, and the bicycle repair shop analysis."""
+"""Midterm B, the take-home: the bicycle repair shop analysis.
+
+Thirteen tasks, 100 points, covering Units 1 through 5. The multiple-choice
+half of the midterm is a separate paper now, in exam_content_mc.py.
+
+Every number in the answer key below was measured off Exams/data/repair_jobs.csv
+as built by tools/make_exam_data.py. Rebuild the data and these move.
+"""
 
 DATA_URL = "https://drbob-richardson.github.io/stat220/F2026/data"
-
-MC = [
- ("A shop compares repair times for two months and gets $p = 0.54$. What follows?",
-  ["The two months had the same average repair time.",
-   "There is no difference worth looking for.",
-   "A difference this size is unsurprising if nothing changed.",
-   "The comparison needs a larger sample before it can be run."],
-  2, "A large p-value means the data is unsurprising under the assumption of no difference. It "
-     "is not evidence that no difference exists, which is why the interval matters."),
-
- ("A 95\\% interval for a difference in repair time runs from $-1.8$ to $+0.4$ days. What is "
-  "the right reading?",
-  ["The difference is zero, since the interval contains zero.",
-   "A 1.8 day gain and a slight worsening are both still consistent.",
-   "There is a 95\\% chance the true difference is in that range.",
-   "The study failed and should be repeated."],
-  1, "The interval reports the range the data leaves open. Containing zero means no difference "
-     "is consistent with it, not that no difference is established, and a 1.8 day gain is also "
-     "consistent."),
-
- ("Which change would most increase the power of a comparison?",
-  ["Using a stricter significance cutoff.",
-   "Collecting more repair jobs in each group.",
-   "Reporting a confidence interval alongside the test.",
-   "Adding more predictors to the model."],
-  1, "Power grows with sample size and with the size of the effect. A stricter cutoff lowers "
-     "it, and reporting style changes nothing about it."),
-
- ("A technician looks at 30 possible predictors of repair time and reports the three with "
-  "$p < 0.05$. What is wrong?",
-  ["Three predictors is too few for a useful model.",
-   "The p-values should have been computed before the fitting began.",
-   "Nothing, as long as those three really are below 0.05.",
-   "Those three won a search, so their p-values are not what they seem."],
-  3, "Looking at 30 columns and keeping the best is a search. About one or two of 30 useless "
-     "columns clear 0.05 by chance, and the reported values do not account for the looking."),
-
- ("The outcome is the number of parts a repair needs. Which family fits best?",
-  ["Logistic regression, since parts are counted in whole numbers.",
-   "Poisson regression, which is built for counts.",
-   "Linear regression, which handles any numeric outcome equally well.",
-   "A classification tree, since the counts are small."],
-  1, "A count outcome calls for a count model. A linear model can predict negative parts and "
-     "assumes a spread that does not grow with the mean, which counts usually do."),
-
- ("The shop wants to know whether a new supplier shortened repairs, and also wants to quote "
-  "customers a turnaround time. What does that imply?",
-  ["One model can answer both, since both use the same data.",
-   "One asks for an effect with uncertainty, the other for a prediction.",
-   "Both questions require a causal design before anything can be said.",
-   "The second question cannot be answered without an experiment."],
-  1, "Explaining and predicting are different jobs. The first wants a coefficient and its "
-     "interval, the second wants a predicted value and a prediction interval."),
-
- ("What is the main thing a random forest cannot hand back?",
-  ["A prediction of turnaround for a new repair job.",
-   "A measure of which predictors it leaned on most.",
-   "An accurate fit when the predictors interact.",
-   "A coefficient with an interval and a p-value."],
-  3, "A forest has no probability model for the outcome, so there is no likelihood to build "
-     "intervals or p-values from. It predicts, and it can rank variables, but it cannot do that."),
-
- ("A regression of repair days on parts needed gives a slope of 0.69. What does it mean?",
-  ["Repairs take about 0.69 days on average.",
-   "About 69\\% of repair time is explained by the number of parts.",
-   "Each additional part is associated with about 0.69 more days.",
-   "The typical prediction is off by about 0.69 days."],
-  2, "A slope is a rate: days per part. The units are what make it meaningful, and it is an "
-     "association in this data."),
-
- ("In \\texttt{days $\\sim$ parts\\_needed + tech\\_years}, the coefficient on experience is "
-  "$-0.16$. What is the correct phrase?",
-  ["Each extra year of experience shortens a repair by 0.16 days.",
-   "Among repairs needing the same parts, each extra year goes with 0.16 fewer days.",
-   "Experience explains 16\\% of the variation in repair time.",
-   "Each extra year of experience causes repairs to take 0.16 fewer days each."],
-  1, "Coefficients in a multi-predictor model are conditional on the others, and this data is "
-     "observational, so association rather than causation."),
-
- ("Bike type has four levels and the output shows three coefficients, with commuter missing. "
-  "How do you read the electric coefficient?",
-  ["Electric bikes compared with the average of all four types.",
-   "Electric bikes compared with commuter bikes.",
-   "Electric bikes compared with zero.",
-   "The share of repair time attributable to electric bikes."],
-  1, "The missing level is the baseline, and every other coefficient compares its level with "
-     "that one."),
-
- ("A supplier coefficient is near zero in a raw comparison and clearly negative once parts "
-  "needed is added. What is the explanation?",
-  ["The new supplier took the jobs needing more parts, which masked the gain.",
-   "The raw comparison was computed incorrectly.",
-   "Adding predictors always moves coefficients away from zero.",
-   "The sample is too small for the raw comparison to be at all reliable."],
-  0, "If the new supplier handled harder jobs, those jobs take longer for reasons that have "
-     "nothing to do with the supplier, which hides the improvement until you hold difficulty "
-     "fixed."),
-
- ("What should you look at before trusting any of the summary numbers from a fit?",
-  ["The p-value on the largest coefficient.",
-   "The number of observations.",
-   "Plots of the data and of what the model missed.",
-   "Whether $R^2$ is above a standard threshold."],
-  2, "Every summary assumes the shape you fitted is roughly right. A plot catches curvature, a "
-     "single point driving the fit, and spread that grows, none of which show up in the "
-     "coefficient table."),
-
- ("A shop quotes one customer a turnaround time. Which interval belongs in the quote?",
-  ["The prediction interval for a single repair.",
-   "The confidence interval for the average repair.",
-   "Whichever is narrower, to keep the quote competitive.",
-   "Neither; a point prediction is what a quote needs."],
-  0, "One customer is one case. The prediction interval includes the job-to-job variation that "
-     "the confidence interval for an average leaves out."),
-
- ("A model reports $R^2 = 0.97$ on the repairs it was fitted on and typical error three times "
-  "larger on next month's repairs. What is happening?",
-  ["Underfitting, so more predictors are needed.",
-   "Overfitting: the model followed noise in the rows it was fitted on.",
-   "Nothing unusual, since the two numbers measure the same thing.",
-   "The new month's data must have been recorded differently."],
-  1, "A near-perfect fit on its own rows beside poor performance on new ones is the signature "
-     "of a model with enough flexibility to bend around individual points."),
-
- ("What does holding rows back from fitting accomplish?",
-  ["It makes the model more accurate on the rows it keeps.",
-   "It gives an error the fitting was not allowed to optimize.",
-   "It reduces the number of predictors the model needs.",
-   "It removes outliers from the training data."],
-  1, "The point is an honest measurement. Error on held-out rows is not something the fitting "
-     "was allowed to minimize."),
-
- ("\\texttt{parts\\_cost} is 18 times \\texttt{parts\\_needed} plus noise. What happens if both "
-  "go into the model?",
-  ["The fit improves substantially, since two predictors beat one.",
-   "They add little over either alone, and the coefficients wobble.",
-   "The model cannot be fitted at all.",
-   "Their coefficients will both be close to the true combined effect."],
-  1, "Near-duplicate columns split the credit. The pair explains barely more than one of them, "
-     "and the individual coefficients can swing with small changes in the data."),
-
- ("Which comparison can AIC not be used for?",
-  ["Two linear regressions on the same rows with different predictors.",
-   "A linear regression against a random forest.",
-   "A model with three predictors against one with five.",
-   "A model with a squared term against one without."],
-  1, "AIC is built from a likelihood, which a forest does not have. Comparing those two "
-     "requires held-out error instead."),
-
- ("A model of $\\log(\\text{repair days})$ gives a supplier coefficient of $-0.22$. What does "
-  "that say on the original scale?",
-  ["Repairs run about 0.22 days shorter with the new supplier.",
-   "The supplier accounts for about 22\\% of the variation in repair time.",
-   "Repairs run about 20\\% shorter with the new supplier.",
-   "Repairs run about 22 days shorter on the longest jobs."],
-  2, "A coefficient on a log outcome is a multiplicative change: $e^{-0.22}$ is about 0.80, so "
-     "roughly 20\\% shorter. The percentage applies to a short repair and a long one alike, "
-     "which is what makes the log scale the natural one here."),
-
- ("Lasso with the penalty chosen by cross-validation sets \\texttt{quarter} to exactly zero. "
-  "What does that establish?",
-  ["Quarter of the year has no relationship with repair time.",
-   "Quarter would also be insignificant in an ordinary regression.",
-   "The column did not earn its keep against the penalty here.",
-   "The column is uncorrelated with every other predictor."],
-  2, "A zero is the result of a penalty choice in this sample with these other columns. Change "
-     "any of those and the variable can return."),
-
- ("The shop asks whether switching all repairs to the new supplier will cut turnaround by the "
-  "amount your model estimated. What is the honest answer?",
-  ["Yes, that is what the coefficient estimates.",
-   "Yes, provided the coefficient is statistically significant.",
-   "No, the coefficient only applies to the bikes already in the data.",
-   "The data is observational, so it describes a comparison, not a switch."],
-  3, "Jobs were not assigned to suppliers at random. The adjusted comparison is much better "
-     "than the raw one, but a full switch is an intervention the data does not directly speak to."),
-]
 
 SETUP = f'''import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import statsmodels.formula.api as smf
 from scipy import stats
-from sklearn.linear_model import LinearRegression
-from sklearn.model_selection import KFold, cross_val_score
+from sklearn.tree import DecisionTreeRegressor, export_text
+from sklearn.model_selection import train_test_split
 
 repairs = pd.read_csv("{DATA_URL}/repair_jobs.csv")
-folds = KFold(5, shuffle=True, random_state=0)
 repairs.head()'''
 
 TASKS = [
+ # ---------------- Unit 2: choosing a family ----------------
  ('Which kind of model, and why',
-  'Before you fit anything, decide what kind of model this question calls for. Name the family, say why it suits this outcome, and say what you need from it that a random forest could not give you.',
+  'Before you fit anything, decide what kind of model this question calls for. Name the family, '
+  'say why it suits this outcome, and say what you need back from it that a random forest could '
+  'not give you.',
   6,
-  'Linear regression on repair time, which is a continuous positive number, and the question asks for the size of an effect, so the model has to return a coefficient with an interval. A forest would predict turnaround without saying anything about the supplier effect or its uncertainty. Credit a student who notices the outcome is skewed and proposes modelling it on the log scale, which is Task 6.'),
+  'Linear regression on repair time, a continuous positive number, and the question asks for the '
+  'size of an effect, so the model has to return a coefficient with an interval. A forest would '
+  'predict turnaround without saying anything about the supplier effect or its uncertainty. '
+  'Credit a student who notices the outcome is skewed and proposes working on the log scale, '
+  'which is Task 8.'),
 
+ # ---------------- Unit 3: look first ----------------
  ('Look at the data first',
-  "Make two plots that bear on the shop's question. Then, in two or three sentences, say what you see that a later step will have to account for.",
+  "Make two plots that bear on the shop's question. Then, in two or three sentences, say what you "
+  'see that a later step will have to account for.',
   8,
-  "Any two sensible plots: days against parts needed, days by supplier, a histogram of days, or days by bike type. Full credit needs a real observation. The useful ones: repair time is clearly right skewed (median about 1.6 days, maximum about 9); parts needed drives it; the two supplier groups look almost identical in raw averages; the new supplier's jobs need more parts."),
+  'Any two sensible plots: days against parts needed, days by supplier, a histogram of days, or '
+  'days by bike type. Full credit needs a real observation. The useful ones: repair time is '
+  'strongly right skewed (median 1.59 days, mean 1.98, maximum 12.12, skew 2.03); parts needed '
+  'drives it; the two supplier groups look almost identical in raw averages; the new supplier\'s '
+  'jobs need more parts (3.43 against 2.20).'),
 
+ # ---------------- Unit 1: the comparison already made ----------------
  ('The comparison the owner already made',
-  'The owner compared average repair time under the old and the new supplier, saw almost no difference, and is ready to drop the new one. Run that comparison. Report both averages, the difference, a test, and a 95\\% interval, then say in two or three sentences what it does and does not establish.',
+  'The owner compared average repair time under the old and the new supplier, saw almost no '
+  'difference, and is ready to drop the new one. Run that comparison. Report both averages, the '
+  'difference, a test, and a 95\\% interval, then say in two or three sentences what it does and '
+  'does not establish.',
   10,
-  'About 1.78 days with the new supplier against 1.86 with the old, a difference near $-0.08$ days with $p$ about 0.27 and an interval covering zero. Full credit says a non-significant result is not evidence of no difference, and points at the interval, which still leaves a meaningful improvement on the table.'),
+  'About 1.94 days with the old supplier against 2.02 with the new, a difference near $+0.08$ '
+  'days with $p$ about 0.39 and a 95\\% interval of roughly $[-0.10, +0.26]$. Full credit says a '
+  'non-significant result is not evidence of no difference, and points at the interval, which '
+  'still leaves a meaningful improvement in either direction on the table.'),
 
+ # ---------------- Unit 3: adjust ----------------
  ('Put the obvious predictors in the model',
-  'Now fit a model for repair time that includes the supplier indicator along with the predictors that obviously belong. Report the supplier coefficient with its interval, interpret it in a sentence that names what is held fixed, and explain in two or three sentences why it differs from Task 3.',
+  'Now fit a model for repair time that includes the supplier indicator along with the predictors '
+  'that obviously belong. Report the supplier coefficient with its interval, interpret it in a '
+  'sentence that names what is held fixed, and explain in two or three sentences why it differs '
+  'from Task 3.',
   8,
-  'With parts needed, technician experience and bike type in the model, the supplier coefficient is about $-0.40$ days on the untransformed scale. The interpretation must hold the others fixed: among repairs needing the same parts, by technicians of the same experience, on the same type of bike, the new supplier ran about 0.4 days faster. The explanation: the new supplier was given harder jobs, which hid the gain in the raw comparison.'),
+  'With parts needed, technician experience and bike type in the model, the supplier coefficient '
+  'is about $-0.43$ days, 95\\% interval roughly $[-0.57, -0.28]$, $p \\approx 10^{-8}$, '
+  '$R^2 = 0.455$. The interpretation must hold the others fixed: among repairs needing the same '
+  'parts, by technicians of the same experience, on the same type of bike, the new supplier ran '
+  'about 0.43 days faster. The explanation: the new supplier was given the harder jobs, which hid '
+  'the gain in the raw comparison.'),
 
+ # ---------------- Unit 4: the near-duplicate ----------------
+ ('A column that adds nothing',
+  'Add \\texttt{parts\\_cost} to the model from Task 4 and look at what happens. Report the '
+  '$R^2$ before and after, and the coefficient on \\texttt{parts\\_needed} and its standard error '
+  'before and after. Explain in two or three sentences what is going on and what you would do.',
+  6,
+  '$R^2$ does not move at all: 0.4548 either way. The coefficient on parts needed goes from '
+  '$+0.467$ to $+0.436$, and its standard error blows up from 0.020 to 0.105, a factor of five. '
+  'The two columns carry nearly the same information ($r = 0.98$), so the fit cannot tell which '
+  'one deserves the credit and the individual estimates become unstable. Drop one. Full credit '
+  'names the near-duplication and uses the standard error, not just the $R^2$, as the evidence.'),
+
+ # ---------------- Unit 3: categorical ----------------
  ('The category in the model',
-  'Bike type has four levels. Report its coefficients, say which level is the baseline and how you can tell, and write the sentence that interprets one of the others. Say what would change if a different level were the baseline.',
+  'Bike type has four levels. Report its coefficients, say which level is the baseline and how '
+  'you can tell, and write the sentence that interprets one of the others. Say what would change '
+  'if a different level were the baseline.',
   6,
-  'Baseline is \\texttt{commuter}, the level with no coefficient of its own. Each other coefficient is that type against a commuter bike with the other predictors held fixed; electric is the largest. Changing the baseline changes all the coefficients and the intercept but no fitted value and no prediction.'),
+  'Baseline is \\texttt{commuter}, the level with no coefficient of its own. Against a commuter '
+  'bike with the other predictors held fixed: electric $+0.75$ days, mountain $+0.15$, road '
+  '$-0.10$. Changing the baseline changes every coefficient and the intercept, but no fitted '
+  'value and no prediction.'),
 
- ('Try it on the log scale',
-  'Repair times are skewed, so fit the model again with the log of repair days as the outcome. Compare the residual plots from the two fits, say which model you would use and why, and write the sentence that interprets the supplier coefficient on the log scale. A coefficient of $b$ on a logged outcome is roughly a $100(e^{b}-1)\\%$ change.',
-  12,
-  'The untransformed residuals fan out: their spread is nearly twice as large at high fitted values as at low ones. On the log scale that fan is gone, the spread is roughly constant, and $R^2$ rises slightly. The supplier coefficient is about $-0.22$, which is a reduction of roughly 20\\% in repair time, 95\\% interval about 15\\% to 25\\%. Full credit needs the residual comparison, a choice with a reason, and a percentage reading of the coefficient rather than a reading in days.'),
+ # ---------------- Unit 5: read the residuals ----------------
+ ('Read the residual plot',
+  'Plot the residuals of the Task 4 model against its fitted values. Name what you see, and back '
+  'it with a number: report the standard deviation of the residuals on the upper half of the '
+  'fitted values divided by the standard deviation on the lower half. Say what this does to the '
+  'intervals you reported in Task 4.',
+  8,
+  'The residuals fan out. The ratio is about 2.1, so the errors on slow repairs are roughly twice '
+  'the size of the errors on fast ones. Full credit names the fan rather than just saying the '
+  'plot looks bad, gives the ratio, and says that equal spread is an assumption behind every '
+  'interval and p-value in Task 4, so those are not trustworthy as they stand. Credit a student '
+  'who also notes the mild bend.'),
 
+ # ---------------- Unit 5: the log ----------------
+ ('Fix it on the log scale',
+  'Fit the model again with the log of repair days as the outcome. Report the same spread ratio '
+  'for the new residuals, say which model you would use and why, and write the sentence that '
+  'interprets the supplier coefficient on the log scale. A coefficient of $b$ on a logged outcome '
+  'is roughly a $100(e^{b}-1)\\%$ change.',
+  10,
+  'The ratio falls from about 2.1 to about 1.1, so the fan is gone. The supplier coefficient is '
+  'about $-0.226$, a reduction of roughly 20\\%, 95\\% interval about 15\\% to 25\\% faster. Full '
+  'credit needs the before-and-after comparison, a choice with a reason, and a percentage reading '
+  'rather than a reading in days. Do not give credit for choosing the log model only because '
+  '$R^2$ rose; it barely moves (0.455 to 0.469) and the two are not comparable across different '
+  'outcome scales anyway.'),
+
+ # ---------------- Unit 5: grow a tree ----------------
+ ('Grow a tree and read it',
+  'Fit a decision tree of depth 3 predicting log repair days from parts needed, technician '
+  'experience, bike type and supplier. Print it. Then describe in plain words the kind of repair '
+  'that lands in the slowest leaf and the kind that lands in the fastest, and say what the first '
+  'split is and where it falls.',
+  10,
+  'The first split is \\texttt{parts\\_needed} at 4.5, that is, five parts or more against four '
+  'or fewer. Slowest leaf: five or more parts, electric bike, technician with more than 1.5 '
+  'years. Fastest: two or fewer parts with an experienced technician. Full credit reads the tree '
+  'as rules in words and locates the first cut. Credit a student who remarks that the tree also '
+  'splits on supplier inside the middle branches, which is the effect the regression is '
+  'estimating.'),
+
+ # ---------------- Unit 5: how deep ----------------
+ ('How deep should it go',
+  'Split the rows into a training set and a held-out set. For depths 1 through 12, report the '
+  'error on the rows the tree was fitted on and the error on the rows held back. Say which depth '
+  'you would use and why, and say what the first column alone would have told you.',
+  6,
+  'Error on its own rows falls at every depth, 0.502 down to about 0.358. Held-out error falls to '
+  'about 0.466 at depth 5 and then climbs back to about 0.50 by depth 10. Depth 5 is the answer. '
+  'Full credit says the first column can always be driven down by letting the tree memorise, so '
+  'it cannot choose anything, and that only the held-out column is measuring prediction.'),
+
+ # ---------------- Unit 5: tree as scout ----------------
+ ('Put what the tree found into the regression',
+  'The tree cut \\texttt{parts\\_needed} at 4.5, which is not something a smooth model can '
+  'produce. Add an indicator for repairs needing five or more parts to your log model from Task 8. '
+  'Report its coefficient, its p-value, and the AIC before and after. Then fit a third model that '
+  'uses a squared term in \\texttt{parts\\_needed} instead of the indicator, and say which of the '
+  'three you would keep and why. Finally, say what you would ask the shop about this threshold.',
+  10,
+  'The indicator is about $+0.276$, a repair needing five or more parts runs roughly 32\\% longer '
+  'than the smooth trend predicts, $p \\approx 10^{-5}$. AIC improves from about 934 to 916, a '
+  'gain of 18. The squared term does not help at all: AIC about 935, no better than the model '
+  'without it. Keep the indicator. Full credit explains why: a threshold is a jump, and a '
+  'polynomial is smooth, so a curve cannot reproduce a step. The question to ask the shop is '
+  'whether something changes at five parts, and the answer in this shop is that those repairs '
+  'have to be special-ordered from the warehouse. Credit a student who notes the supplier '
+  'coefficient barely moves ($-0.223$, still about 20\\% faster), so the threshold is a separate '
+  'finding rather than an explanation of the supplier effect.'),
+
+ # ---------------- Unit 4: predict one case ----------------
  ('A number for one customer',
-  'A customer brings in a commuter bike needing 4 parts, going to a technician with 2 years of experience, with parts from the new supplier. Predict the turnaround from the model you chose, give the interval you would quote them, and say in one sentence why that interval rather than the other.',
+  'A customer brings in a commuter bike needing 4 parts, going to a technician with 2 years of '
+  'experience, with parts from the new supplier. Predict the turnaround from the model you '
+  'settled on, give the interval you would quote them, and say in one sentence why that interval '
+  'rather than the other.',
   6,
-  'From the log model, a prediction near 1.7 days once converted back, with a prediction interval of roughly $[0.7, 4.0]$ days against a confidence interval of about $[1.6, 1.8]$. A quote is for one repair, so the prediction interval belongs in it. Credit a student who works on the untransformed scale as long as they use a prediction interval and say so. Credit, but do not require, noticing that exponentiating the fitted log value gives a median rather than a mean.'),
+  'About 1.73 days, with a prediction interval of roughly $[0.75, 4.0]$ days against a confidence '
+  'interval of about $[1.61, 1.86]$. A quote is for one repair, so the prediction interval belongs '
+  'in it. Note this job needs 4 parts, so the Task 11 indicator is 0. Credit a student who works '
+  'on the untransformed scale as long as they use a prediction interval and say so. Credit, but do '
+  'not require, noticing that exponentiating a fitted log value returns a median rather than a '
+  'mean.'),
 
+ # ---------------- communication ----------------
  ('What you would tell the owner',
-  'Write four to six sentences to the shop owner. Say what you found, how sure you are, and what they can and cannot do with it. Assume they have not taken this course.',
-  4,
-  'Should report that the new supplier is associated with repairs roughly 20\\% faster once job difficulty is accounted for, give the uncertainty, explain why the raw averages hid it, and stop short of promising the same gain from switching every job over. Deduct for a bare coefficient with no caveat, or for claiming the raw comparison was simply wrong.'),
-
+  'Write six to eight sentences to the shop owner. Cover what you found about the supplier, what '
+  'you found about big jobs, how sure you are of each, and what they can and cannot do with it. '
+  'Assume they have not taken this course.',
+  6,
+  'Should report that the new supplier is associated with repairs roughly 20\\% faster once job '
+  'difficulty is accounted for, give the uncertainty, explain why the raw averages hid it, report '
+  'the five-part threshold as a separate and actionable finding, and stop short of promising the '
+  'same gain from switching every job over, since jobs were not assigned to suppliers at random. '
+  'Deduct for a bare coefficient with no caveat, for reporting the log coefficient in days, or '
+  'for claiming the owner\'s raw comparison was simply computed wrong.'),
 ]
 
 EXAM = dict(
@@ -250,7 +207,6 @@ EXAM = dict(
              ("new\\_supplier", "1 if the parts came from the new supplier"),
              ("ticket\\_number, shop\\_rating, quarter", "also recorded")],
     setup_code=SETUP,
-    mc=MC,
     tasks=TASKS,
     data_note=(r"Load it with \texttt{pd.read\_csv(\"" + DATA_URL +
                r"/repair\_jobs.csv\")}. Put each piece of work in the space provided."),

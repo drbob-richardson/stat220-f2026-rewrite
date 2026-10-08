@@ -82,11 +82,17 @@ def repairs(n: int = 800, seed: int = 34) -> pd.DataFrame:
     # repair time is multiplicative: a hard job is a percentage longer, not a
     # fixed number of days longer. That makes the log scale the right one, and
     # leaves the untransformed residuals fanning out.
+    # jobs needing five or more parts have to be special-ordered from the
+    # warehouse, which adds a fixed delay on top of the smooth trend. Nothing
+    # in the column list says so: a shallow tree finds the threshold, and an
+    # indicator for it then beats a squared term in the regression.
+    special_order = (parts_needed >= 5).astype(int)
     log_days = (np.log(1.15)
                 + 0.165 * parts_needed
                 - 0.035 * tech_years
                 + np.log1p(type_add / 6)
                 - 0.23 * new_supplier
+                + 0.30 * special_order
                 + rng.normal(0, 0.42, n))
     days = np.exp(log_days)
 

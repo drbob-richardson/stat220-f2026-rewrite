@@ -108,6 +108,19 @@ def build_pdf(name, tex):
         (OUT / f"{name}{ext}").unlink(missing_ok=True)
 
 
+def _may_rebuild(tag):
+    """True only if the run was told to rebuild THIS exam's notebook.
+
+    These notebooks get edited by hand, so a bare --force-notebooks used to
+    overwrite every one of them, including exams already in student hands.
+    The flag now has to name the exam: --force-notebooks=B
+    """
+    for a in sys.argv:
+        if a.startswith("--force-notebooks="):
+            return tag in a.split("=", 1)[1].split(",")
+    return False
+
+
 def build_exam(tag, title, blurb, dataset, columns, setup_code, mc, tasks, data_note):
     mc = balance(mc)
     cols = "\n".join(r"\texttt{%s} & %s \\" % (c, d) for c, d in columns)
@@ -198,16 +211,153 @@ answer contains, with the numbers this data actually produces.}
                                      "name": "python3"},
                       "language_info": {"name": "python"}}
     path = OUT / f"Midterm_{tag}_Applied.ipynb"
-    if path.exists() and "--force-notebooks" not in sys.argv:
+    if path.exists() and not _may_rebuild(tag):
         # these get edited by hand, and a rebuild must not quietly undo that
-        print(f"kept Exams/{path.name} as it is (pass --force-notebooks to rebuild it)")
+        print(f"kept Exams/{path.name} as it is "
+              f"(pass --force-notebooks={tag} to rebuild it)")
     else:
         nbf.write(nb, path)
         print(f"wrote Exams/{path.name} ({len(cells)} cells)")
 
 
+def build_takehome(tag, title, blurb, dataset, columns, setup_code, tasks, data_note):
+    """Midterm B: the analysis, on its own. The multiple choice is a separate paper."""
+    cols = "\n".join(r"\texttt{%s} & %s \\" % (c, d) for c, d in columns)
+    total = sum(t[2] for t in tasks)
+    head = r"""
+\begin{center}
+{\Large\textbf{Stat 220 Midterm %s: the take-home analysis}}\\[4pt]
+{\large %s}\\[8pt]
+\end{center}
+
+%s
+
+\vspace{4pt}
+\begin{center}\small
+\begin{tabular}{ll}
+\toprule
+\textbf{Column} & \textbf{What it is} \\
+\midrule
+%s
+\bottomrule
+\end{tabular}
+\end{center}
+
+%s
+
+\vspace{4pt}
+\textbf{%d points in all.} Work the tasks in order; several of them build on an earlier one.
+Show the output you are reading from, and answer in sentences, not in numbers alone.
+
+\begin{enumerate}
+%s
+\end{enumerate}
+"""
+    exam = PREAMBLE + head % (tag, title, blurb, cols, data_note, total,
+                              applied_block(tasks, False)) + "\n\\end{document}\n"
+    build_pdf(f"Midterm_{tag}_TakeHome", exam)
+
+    key = PREAMBLE + r"""
+\begin{center}
+{\Large\textbf{Stat 220 Midterm %s take-home: answer key}}\\[4pt]
+{\large %s}\\[6pt]
+\end{center}
+
+\textit{Instructor copy. For each task, what a full-credit answer contains, with the
+numbers this data actually produces, so a grader can check a student's output
+without rerunning anything.}
+
+\vspace{6pt}\hrule\vspace{8pt}
+
+\begin{enumerate}
+%s
+\end{enumerate}
+""" % (tag, title, applied_block(tasks, True)) + "\n\\end{document}\n"
+    build_pdf(f"Midterm_{tag}_TakeHome_Key", key)
+
+    nb = nbf.v4.new_notebook()
+    cells = [nbf.v4.new_markdown_cell(
+        f"# Stat 220 Midterm {tag}: the take-home analysis\n## {title}\n\n{blurb}\n\n"
+        f"**{total} points in all.** Run the setup cell first. Put your work in the cell under "
+        "each task and your written answer in the markdown cell that follows it. Several tasks "
+        "build on an earlier one, so work them in order."),
+        nbf.v4.new_code_cell(setup_code)]
+    for n, (t, prompt, points, _) in enumerate(tasks, 1):
+        cells.append(nbf.v4.new_markdown_cell(
+            f"### Task {n}. {t}  ({points} points)\n\n{_to_markdown(prompt)}"))
+        cells.append(nbf.v4.new_code_cell(""))
+        cells.append(nbf.v4.new_markdown_cell("_Your answer:_\n\n"))
+    nb["cells"] = cells
+    nb["metadata"] = {"kernelspec": {"display_name": "Python 3", "language": "python",
+                                     "name": "python3"},
+                      "language_info": {"name": "python"}}
+    path = OUT / f"Midterm_{tag}_TakeHome.ipynb"
+    if path.exists() and not _may_rebuild(tag):
+        print(f"kept Exams/{path.name} as it is "
+              f"(pass --force-notebooks={tag} to rebuild it)")
+    else:
+        nbf.write(nb, path)
+        print(f"wrote Exams/{path.name} ({len(cells)} cells)")
+
+
+def build_mc_exam(questions, name="Midterm_MC", title="Units 1 through 5", per=2):
+    """The closed-book multiple-choice paper. Entries carry a unit and a kind."""
+    from collections import Counter
+    meta = [(q[4], q[5]) for q in questions]
+    quad = balance([(q[0], q[1], q[2], q[3]) for q in questions])
+    total = len(quad) * per
+
+    head = r"""
+\begin{center}
+{\Large\textbf{Stat 220 Midterm: multiple choice}}\\[4pt]
+{\large %s}\\[8pt]
+\end{center}
+
+%d questions, %d points each, %d points in all. Circle one answer for each.
+Closed book. No computer.
+
+\vspace{6pt}\hrule\vspace{10pt}
+
+\begin{enumerate}
+%s
+\end{enumerate}
+"""
+    exam = PREAMBLE + head % (title, len(quad), per, total,
+                              mc_block(quad, False)) + "\n\\end{document}\n"
+    build_pdf(f"{name}_Exam", exam)
+
+    units = Counter(u for u, _ in meta)
+    kinds = Counter(k for _, k in meta)
+    tally = ", ".join(f"Unit {u}: {n}" for u, n in sorted(units.items()))
+    letters = Counter("ABCD"[a] for _, _, a, _ in quad)
+    spread = ", ".join(f"{L}: {letters.get(L, 0)}" for L in "ABCD")
+
+    key = PREAMBLE + r"""
+\begin{center}
+{\Large\textbf{Stat 220 Midterm multiple choice: answer key}}\\[4pt]
+{\large %s}\\[6pt]
+\end{center}
+
+\textit{Instructor copy. %s. Answers spread across the four positions: %s.
+%d of the %d questions are the same idea as a practice-guide question in new clothes;
+the other %d ask the student to put two ideas together or read a result they have not
+been handed before.}
+
+\vspace{6pt}\hrule\vspace{8pt}
+
+\begin{enumerate}
+%s
+\end{enumerate}
+""" % (title, tally, spread, kinds["echo"], len(quad), kinds["new"],
+       mc_block(quad, True)) + "\n\\end{document}\n"
+    build_pdf(f"{name}_Key", key)
+    print(f"   {tally};  answer positions {spread};  "
+          f"{kinds['echo']} echo / {kinds['new']} new")
+
+
 if __name__ == "__main__":
     OUT.mkdir(exist_ok=True)
-    import exam_content_a, exam_content_b
-    build_exam(**exam_content_a.EXAM)
-    build_exam(**exam_content_b.EXAM)
+    import exam_content_a, exam_content_b, exam_content_mc
+    build_exam(**exam_content_a.EXAM)          # A stays a complete two-part exam
+    build_takehome(**exam_content_b.EXAM)      # B is the take-home analysis
+    build_mc_exam(exam_content_mc.QUESTIONS)   # the 35-question paper
