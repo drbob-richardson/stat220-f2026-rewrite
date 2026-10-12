@@ -88,7 +88,7 @@ tree, and using a tree to improve a regression. No computer needed.""",
  "extra size at all. Neither answer is trustworthy; the honest response is that the question is "
  "outside what the data can speak to."),
 
-("A tree never splits on `square_footage`, which you know matters. What does that tell you?",
+("A tree never splits on \\texttt{square\\_footage}, which you know matters. What does that tell you?",
  ["Square footage has no relationship with the outcome in this dataset.",
   "The tree was grown too shallow to reach the variable at all.",
   "Some other variable it did split on may be carrying the same information.",
@@ -99,7 +99,7 @@ tree, and using a tree to improve a regression. No computer needed.""",
  "correlations, not a verdict on the variable. It is a candidate for dropping only after you "
  "have checked what it overlaps with."),
 
-("A tree splits on `slope` inside the large-lot branch and not inside the small-lot branch. What "
+("A tree splits on \\texttt{slope} inside the large-lot branch and not inside the small-lot branch. What "
  "should you add to the regression?",
  ["A squared term in lot size, since the effect of size is clearly not constant.",
   "An indicator for large lots, since that is where the second split appeared.",

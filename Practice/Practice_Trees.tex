@@ -112,7 +112,7 @@ tree, and using a tree to improve a regression. No computer needed.
 \textbf{Answer: A.} The case falls down the rightmost branch and lands in the leaf holding the largest houses in the training data, and that leaf's prediction is its average. A tree is flat outside its range by construction, so it will not run away the way a line does, but it also will not use the extra size at all. Neither answer is trustworthy; the honest response is that the question is outside what the data can speak to.
 \vspace{4pt}
 
-\item A tree never splits on `square_footage`, which you know matters. What does that tell you?
+\item A tree never splits on \texttt{square\_footage}, which you know matters. What does that tell you?
 
 \begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
   \item Square footage has no relationship with the outcome in this dataset.
@@ -125,7 +125,7 @@ tree, and using a tree to improve a regression. No computer needed.
 \textbf{Answer: C.} Trees are greedy: once bedrooms are in, a variable that largely repeats bedrooms has nothing left to add and will never be chosen. Absence from the tree is a reason to look at the correlations, not a verdict on the variable. It is a candidate for dropping only after you have checked what it overlaps with.
 \vspace{4pt}
 
-\item A tree splits on `slope` inside the large-lot branch and not inside the small-lot branch. What should you add to the regression?
+\item A tree splits on \texttt{slope} inside the large-lot branch and not inside the small-lot branch. What should you add to the regression?
 
 \begin{enumerate}[label=\Alph*., itemsep=1pt, topsep=3pt]
   \item A squared term in lot size, since the effect of size is clearly not constant.
