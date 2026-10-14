@@ -34,6 +34,7 @@ PREAMBLE = r"""\documentclass[11pt]{article}
 \usepackage{amsmath}
 \usepackage{parskip}
 \usepackage{booktabs}
+\usepackage{graphicx}
 \usepackage[colorlinks=true,linkcolor=black,urlcolor=black]{hyperref}
 \setlist[enumerate]{itemsep=4pt, topsep=3pt}
 \pagestyle{plain}
@@ -51,6 +52,10 @@ def balance(questions):
     """
     out = []
     for i, (stem, options, ans, why) in enumerate(questions):
+        if all(o.startswith("Panel ") for o in options):
+            # options name panels in a figure; leave them in their natural order
+            out.append((stem, list(options), ans, why))
+            continue
         target = i % 4
         opts = list(options)
         opts[target], opts[ans] = opts[ans], opts[target]
@@ -58,13 +63,36 @@ def balance(questions):
     return out
 
 
-def mc_block(questions, show_answers):
-    """questions: list of (stem, [options], answer_index, why)"""
+def mc_block(questions, show_answers, figures=None):
+    """questions: list of (stem, [options], answer_index, why)
+
+    `figures` maps a question's 0-based index to (filename, width, span). The
+    figure is printed above that question and the run of `span` questions it
+    covers, with a line saying which numbers it belongs to. The enumerate is
+    closed and resumed so the numbering carries on.
+    """
+    figures = figures or {}
     out = []
-    for stem, options, ans, why in questions:
+    for i, (stem, options, ans, why) in enumerate(questions):
         opts = "\n".join(r"  \item %s" % o for o in options)
-        body = [r"\item %s" % stem,
-                r"\begin{enumerate}[label=(\Alph*)]", opts, r"\end{enumerate}"]
+        body = []
+        if i in figures:
+            fname, width, span = figures[i]
+            first, last = i + 1, i + span
+            which = (f"Question {first} refers" if span == 1
+                     else f"Questions {first} to {last} refer")
+            # a figure that several questions depend on starts its own page, so
+            # the run cannot split and leave someone answering with the picture
+            # on the sheet before
+            body += [r"\end{enumerate}",
+                     r"\clearpage" if span > 1 else "",
+                     r"\begin{center}\includegraphics[width=%s\textwidth]{%s}\end{center}"
+                     % (width, fname),
+                     r"\noindent\textit{%s to the figure above.}" % which,
+                     r"\vspace{4pt}",
+                     r"\begin{enumerate}[resume]"]
+        body += [r"\item %s" % stem,
+                 r"\begin{enumerate}[label=(\Alph*)]", opts, r"\end{enumerate}"]
         if show_answers:
             body.append(r"\textbf{Answer: (%s)} %s" % ("ABCD"[ans], why))
         out.append("\n".join(body))
@@ -304,6 +332,7 @@ def build_mc_exam(questions, name="Midterm_MC", title="Units 1 through 5", per=2
     """The closed-book multiple-choice paper. Entries carry a unit and a kind."""
     from collections import Counter
     meta = [(q[4], q[5]) for q in questions]
+    figures = {i: q[6] for i, q in enumerate(questions) if len(q) > 6 and q[6]}
     quad = balance([(q[0], q[1], q[2], q[3]) for q in questions])
     total = len(quad) * per
 
@@ -323,7 +352,7 @@ Closed book. No computer.
 \end{enumerate}
 """
     exam = PREAMBLE + head % (title, len(quad), per, total,
-                              mc_block(quad, False)) + "\n\\end{document}\n"
+                              mc_block(quad, False, figures)) + "\n\\end{document}\n"
     build_pdf(f"{name}_Exam", exam)
 
     units = Counter(u for u, _ in meta)
@@ -349,7 +378,7 @@ been handed before.}
 %s
 \end{enumerate}
 """ % (title, tally, spread, kinds["echo"], len(quad), kinds["new"],
-       mc_block(quad, True)) + "\n\\end{document}\n"
+       mc_block(quad, True, figures)) + "\n\\end{document}\n"
     build_pdf(f"{name}_Key", key)
     print(f"   {tally};  answer positions {spread};  "
           f"{kinds['echo']} echo / {kinds['new']} new")
@@ -357,7 +386,10 @@ been handed before.}
 
 if __name__ == "__main__":
     OUT.mkdir(exist_ok=True)
-    import exam_content_a, exam_content_b, exam_content_mc
+    import exam_content_a, exam_content_b, exam_content_mc, exam_content_mc2
     build_exam(**exam_content_a.EXAM)          # A stays a complete two-part exam
     build_takehome(**exam_content_b.EXAM)      # B is the take-home analysis
-    build_mc_exam(exam_content_mc.QUESTIONS)   # the 35-question paper
+    build_mc_exam(exam_content_mc.QUESTIONS,    # paper 1, released as practice
+                  name="Midterm_MC")
+    build_mc_exam(exam_content_mc2.QUESTIONS,   # paper 2, the live exam
+                  name="Midterm_MC2")
