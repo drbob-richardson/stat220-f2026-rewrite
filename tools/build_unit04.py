@@ -112,7 +112,7 @@ nb.md("The p-values all moved once volume was in the model. Packing service is t
       "so it goes in next. Notice that `est_boxes` looked useful on its own and stopped looking "
       "useful beside volume, because the two carry nearly the same information.")
 
-nb.section("13. The rest of the search, in a loop",
+nb.section("13. The rest of the search",
            "The same two steps, repeated until nothing left clears 0.05.")
 nb.code("""chosen = []
 remaining = sensible + junk
