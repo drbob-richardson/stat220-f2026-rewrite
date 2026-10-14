@@ -103,23 +103,47 @@ plt.xlabel("carat"); plt.ylabel("stones");""")
 nb.md("A pile at 1.00 and a hole just below it. Cutters grind away weight to reach the round "
       "number, because buyers shop for *a one carat diamond*.")
 
-nb.section("12. Put the tree's hint into the regression")
+nb.section("12. What the smooth model says about two nearly identical stones",
+           "Before adding anything, ask the model from step 4 to price a 0.99 and a 1.00 carat "
+           "stone. Everything else about them is the same.")
+nb.code("""pair = pd.DataFrame({"carat": [0.99, 1.00], "cut": ["Ideal"]*2,
+                     "color": ["G"]*2, "clarity": ["VS2"]*2})
+priced = np.exp(logfit.predict(pair))
+
+print(f"0.99 carat: ${priced.iloc[0]:,.0f}")
+print(f"1.00 carat: ${priced.iloc[1]:,.0f}")
+print(f"gap: {100*(priced.iloc[1]/priced.iloc[0] - 1):.1f}%")""")
+nb.md("A 1.9% gap, which is just 1% more weight priced at 1.88. A smooth function of weight has "
+      "no step in it, so this is the most the model can say. The tree said the market does "
+      "something bigger at that line.")
+
+nb.section("13. Add the column the tree pointed at")
 nb.code("""gems["over1"] = (gems.carat >= 1.0).astype(int)
 jump = smf.ols("np.log(price) ~ np.log(carat) + over1 + C(cut) + C(color) + C(clarity)",
                data=gems).fit()
 
-print("crossing one carat adds", round(100 * (np.exp(jump.params["over1"]) - 1), 1), "% to price")
-print("p-value:", format(jump.pvalues["over1"], ".2g"))
+print("coefficient on over1:", round(jump.params["over1"], 4))
+print("as a percentage     :", round(100*(np.exp(jump.params["over1"]) - 1), 1), "%")
+print("p-value             :", format(jump.pvalues["over1"], ".2g"))
 print("AIC:", round(logfit.aic), "->", round(jump.aic))""")
 
-nb.section("13. Write the sentence")
+nb.section("14. The same two stones, from the new model")
+nb.code("""pair["over1"] = [0, 1]
+priced2 = np.exp(jump.predict(pair))
+
+print(f"0.99 carat: ${priced2.iloc[0]:,.0f}")
+print(f"1.00 carat: ${priced2.iloc[1]:,.0f}")
+print(f"gap: {100*(priced2.iloc[1]/priced2.iloc[0] - 1):.1f}%")""")
+nb.md("1.9% before, 14% now. The tree found where to look. The regression says how much, with "
+      "an interval and a p-value the tree could not give you.")
+
+nb.section("15. Write the sentence")
 nb.code("""weight = 100 * ((1.01 / 0.98)**jump.params["np.log(carat)"] - 1)
 jump_pct = 100 * (np.exp(jump.params["over1"]) - 1)
-
 total = 100 * ((1 + weight/100) * (1 + jump_pct/100) - 1)
+
 print(f"0.98 to 1.01 carat: {weight:.0f}% for the weight, {jump_pct:.0f}% for the round number")
 print(f"total: about {total:.0f}% more for nearly the same rock")""")
-nb.md("The tree pointed at one carat. The regression put 12% and a p-value on it.")
 
 nb.write("Code_Unit05_When_a_Line_Is_Not_Enough.ipynb")
 

@@ -8,6 +8,7 @@ still needs a picture.
 
 Run:  python tools/make_unit05_slide_figs.py
 """
+import re
 from pathlib import Path
 
 import matplotlib
@@ -100,20 +101,30 @@ def fig_poly():
 
 
 def fig_one_split():
-    """What a single split is, and the step function it makes."""
-    d = gems.sample(400, random_state=2)
+    """What a single split is, and the step function it makes.
+
+    All 5,000 stones, split below 1.00 against 1.00 and above, which is the
+    convention the scoring table and the fitted tree both use. The three
+    slides have to show the same two numbers, $1,617 and $8,121, or a student
+    following along sees the same split priced three different ways.
+    """
+    d = gems
     x, y = d.carat.values, d.price.values
     cut = 1.0
-    left, right = y[x <= cut].mean(), y[x > cut].mean()
+    left, right = y[x < cut].mean(), y[x >= cut].mean()
 
     fig, ax = plt.subplots(figsize=(7.4, 3.4))
-    ax.scatter(x, y, s=14, color=GREY, alpha=0.6)
+    ax.scatter(x, y, s=7, color=GREY, alpha=0.35)
     ax.axvline(cut, color=GREEN, ls="--", lw=1.6)
-    ax.hlines(left, x.min(), cut, color=RED, lw=2.5)
-    ax.hlines(right, cut, x.max(), color=RED, lw=2.5)
-    ax.annotate(f"predict ${left:,.0f}", (cut * 0.35, left + 1800), color=RED, fontsize=9)
-    ax.annotate(f"predict ${right:,.0f}", (cut * 1.15, right + 2200), color=RED, fontsize=9)
-    ax.annotate(f"carat = {cut}", (cut, y.max() * 0.97), color=GREEN, fontsize=8.5, ha="center")
+    ax.hlines(left, x.min(), cut, color=RED, lw=3)
+    ax.hlines(right, cut, x.max(), color=RED, lw=3)
+    ax.annotate(f"predict ${left:,.0f}", (0.30, left - 2600), color=RED, fontsize=10,
+                weight="bold")
+    ax.annotate(f"predict ${right:,.0f}", (2.45, right + 1600), color=RED, fontsize=10,
+                weight="bold")
+    ax.annotate(f"cut at {cut} carat", (cut + 0.06, y.max() * 0.90), color=GREEN, fontsize=9,
+                ha="left")
+    ax.set_ylim(bottom=-1800)
     ax.set_xlabel("carat"); ax.set_ylabel("price ($)")
     save(fig, "fig_u5_one_split.pdf")
 
@@ -164,13 +175,32 @@ def fig_tree_depth():
 
 
 def fig_tree_diagram():
-    """The tree itself, drawn, so the splits can be read out loud."""
+    """The tree itself, drawn, so the splits can be read out loud.
+
+    precision has to be 2. At precision=0 the cut points 0.61, 0.81, 0.99 and
+    1.38 all print as "carat <= 1" and the diagram becomes unreadable: it looks
+    as though the tree split on the same value four times.
+    """
     X = pd.get_dummies(gems[["carat", "cut", "color", "clarity"]], drop_first=True)
     t = DecisionTreeRegressor(max_depth=3, random_state=0).fit(X, gems.price)
     fig, ax = plt.subplots(figsize=(12, 5.2))
-    plot_tree(t, feature_names=[c.replace("_", " ") for c in X.columns], filled=True,
-              impurity=False, precision=0, fontsize=8, ax=ax,
+    plot_tree(t, feature_names=[c.replace("clarity_", "clarity is ").replace("_", " ")
+                                for c in X.columns],
+              filled=True, impurity=False, precision=2, fontsize=8, ax=ax,
               label="root", proportion=False)
+
+    # the predictions are dollars, so print them as dollars rather than as
+    # 781.31, and drop the "value =" scaffolding from the root box
+    def money(m):
+        return f"${float(m.group(0)):,.0f}"
+    for txt in ax.texts:
+        lines = []
+        for line in txt.get_text().split("\n"):
+            line = line.replace("value = ", "").replace("samples = ", "n = ")
+            if re.fullmatch(r"\d+\.\d+", line.strip()):
+                line = money(re.match(r"\d+\.\d+", line.strip()))
+            lines.append(line)
+        txt.set_text("\n".join(lines))
     save(fig, "fig_u5_tree_diagram.pdf")
 
 

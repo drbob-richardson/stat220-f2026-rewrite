@@ -114,8 +114,8 @@
 \end{tabular}
 \end{center}
 \vspace{0.3em}
-Price against weight breaks the straight-line model in two ways at once, and fixing it turns up
-something true about how diamonds are sold.
+Price against weight breaks the straight-line model in two ways at once. Fixing it also turns
+up a fact about how the trade prices stones.
 \end{frame}
 
 % ======================================================================
@@ -226,8 +226,8 @@ your rows are not independent is the part you are responsible for.
         premium for clarity is a percentage of a bigger number.
   \item When effects multiply rather than add, the spread around a large prediction is larger
         than the spread around a small one. That is the fan.
-  \item Taking logs turns multiplication into addition, which is exactly the shape a linear model
-        is built for.
+  \item Taking logs turns multiplication into addition, which is the shape a linear model is
+        built for.
 \end{itemize}
 \[
    y = a \cdot b^{x} \cdot \varepsilon
@@ -408,21 +408,23 @@ earlier cut, which is why a slightly different sample can produce a rather diffe
 \end{frame}
 
 \begin{frame}{The same arithmetic, in numbers}
-Three candidate cuts on carat, scored on the same stones:
+Three candidate cuts on carat, scored on all 5,000 stones. Each cut puts the stones below it on
+the left and the rest on the right:
 \begin{center}\small
 \begin{tabular}{lccc}
 \toprule
 \textbf{Cut at} & \textbf{left average} & \textbf{right average} & \textbf{spread left over} \\
 \midrule
-0.5 carat & \$1,100 & \$5,900 & 44.1 billion \\
-1.0 carat & \$2,000 & \$8,600 & \textbf{30.6 billion} \\
-1.5 carat & \$2,800 & \$11,400 & 36.9 billion \\
+0.5 carat & \$790 & \$5,492 & 54.5 billion \\
+1.0 carat & \$1,617 & \$8,121 & \textbf{30.5 billion} \\
+1.5 carat & \$2,869 & \$12,210 & 34.9 billion \\
 \bottomrule
 \end{tabular}
 \end{center}
 \vspace{0.2em}
-The middle cut wins, so one carat is the first question the tree asks. The machine does this for
-every cut point of every variable before choosing.
+The middle cut wins, so one carat is the first question the tree asks. Those two averages,
+\$1,617 and \$8,121, are the numbers in the top two boxes of the diagram a few slides on. The
+machine does this for every cut point of every variable before choosing.
 \end{frame}
 
 \begin{frame}{Quick check: score a cut yourself}
@@ -458,22 +460,28 @@ these 400 stones rather than the market they came from.
 
 \begin{frame}{Reading a fitted tree}
 \centering
-\includegraphics[width=0.92\textwidth]{fig_u5_tree_diagram.pdf}
+\includegraphics[width=0.88\textwidth]{fig_u5_tree_diagram.pdf}
+\vspace{0.1em}
+\begin{minipage}{0.95\textwidth}\footnotesize
+Every box: the question, how many stones reached it, and the price it predicts for them.
+\textbf{Left is yes}, right is no. The boxes along the bottom ask nothing, so whatever lands
+there gets that one number.
+\end{minipage}
 \end{frame}
 
-\begin{frame}{The same tree, out loud}
-\begin{itemize}
-  \item The first question is carat, at exactly \textbf{1.00}. Weight matters more than
-        everything else combined, which matches the regression.
-  \item Almost every other split is also carat: 0.47, 0.61, 0.81, 1.38. The tree is carving the
-        weight axis into price bands.
-  \item Inside the heavy branch it finally asks about \textbf{clarity}. Among stones over a
-        carat, the SI2 ones sell for about \$2,000 less.
-  \item Each box at the bottom holds a group of stones and predicts their average.
-\end{itemize}
+\begin{frame}{How to read one, in four steps}
+\begin{enumerate}
+  \item \textbf{Start at the top and answer the question} for the case in front of you. Yes goes
+        left, no goes right.
+  \item \textbf{Repeat} until you reach a box with no question in it.
+  \item \textbf{Read the number.} That is the prediction, and it is the average of the training
+        stones that landed in the same box.
+  \item \textbf{For a 0/1 column}, the question is written as \texttt{<= 0.5}, so the left branch
+        is the zeros.
+\end{enumerate}
 \begin{principle}{what a tree is}
-A set of rules that partition the data, and one number per region. No coefficients, no equation,
-and nothing that can be read as the effect of a variable.
+A set of rules that cut the data into regions, and one number per region. No coefficients, no
+equation, and nothing that can be read as the effect of a variable.
 \end{principle}
 \end{frame}
 
@@ -520,7 +528,7 @@ This one is a different dataset: 700 lawn mowing jobs, where the signal is weake
 \textbf{Good at} & \textbf{Bad at} \\
 \midrule
 thresholds, where something changes at a value & smooth trends, which it approximates with stairs \\
-interactions, free of charge, because every split happens inside an earlier split & giving you an
+interactions, without being asked, because every split happens inside an earlier split & giving you an
 effect size with an interval \\
 predictors on any scale, with no transformation needed & stability: a few different rows can
 change the top split \\
@@ -576,102 +584,102 @@ predict, and what would the log-log regression do differently?
 % ======================================================================
 \section{Trees as a scout}
 % ======================================================================
-\begin{frame}{Using a tree to improve a regression}
-\begin{itemize}
-  \item A tree will not give you an effect with an interval, so it cannot be the thing you
-        report when the question is how much something matters.
-  \item But it searches shapes you would never check by hand, and its splits are hypotheses
-        written in a readable form.
-  \item So: fit the tree, read the structure, and put what it found into the regression.
+\begin{frame}{The model we already have, written out}
+Units 3 and 4 ended here. The fitted log--log model, with the category terms folded up:
+\[
+  \widehat{\log(\text{price})} \;=\; 7.90 \;+\; 1.88\,\log(\text{carat})
+  \;+\; (\text{cut}) + (\text{color}) + (\text{clarity})
+\]
+\begin{itemize}\small
+  \item One number, $1.88$, carries everything weight does. It is the same $1.88$ at a quarter
+        carat and at three carats.
+  \item That is what \emph{smooth} means here: price slides along with weight and never jumps.
 \end{itemize}
-\begin{principle}{scout and report}
-Use the tree to find where to look. Use the regression to say how much, and how sure.
+\begin{principle}{the question for this section}
+Is there something about weight that one slope cannot say?
 \end{principle}
 \end{frame}
 
-\begin{frame}{Turning splits into terms}
-What you see in the tree, and what you add to the regression because of it:
-\begin{center}\footnotesize
-\begin{tabular}{p{0.40\textwidth} p{0.52\textwidth}}
+\begin{frame}{What a smooth model cannot do}
+Ask that fitted model to price two stones a hundredth of a carat apart:
+\begin{center}\small
+\begin{tabular}{lcc}
 \toprule
-\textbf{In the tree} & \textbf{In the regression} \\
+ & \textbf{0.99 carat} & \textbf{1.00 carat} \\
 \midrule
-one split on $x$ at a round or meaningful value &
-an indicator: \texttt{I(x >= c)} \\
-several splits on the same $x$ at different values &
-a curve: \texttt{I(x**2)}, or \texttt{np.log(x)} \\
-a split on $x_2$ inside one branch of $x_1$, and not the other &
-an interaction: \texttt{x1 * x2} \\
-a split on a category inside one branch only &
-that category crossed with the branching variable \\
-a variable the tree never splits on &
-a candidate for dropping, after you check it is not just correlated with one it did use \\
+what the smooth model says & \$5{,}341 & \$5{,}443 \\
 \bottomrule
 \end{tabular}
 \end{center}
-\end{frame}
-
-\begin{frame}{Quick check: what would you add?}
-\begin{quickcheck}{read a tree, write a term}
-A tree on house prices splits first on \texttt{has\_garage}. Inside the garage branch it splits
-on \texttt{sqft} at 1{,}800. Inside the no-garage branch it splits on \texttt{sqft} at 2{,}600.
-What do you add to the regression, and what do you not conclude?
-\end{quickcheck}
-\onslide<2->{%
-\begin{block}{\textbf{Answer}}
-Square footage is being used differently on the two sides, so the term is the interaction
-\texttt{sqft * has\_garage}. The regression then gives you a coefficient, an interval and a
-p-value for how much a square foot is worth with a garage against without one.
-What you do not conclude: that the garage caused anything, or that 1,800 and 2,600 are real
-thresholds. The tree had to pick a number somewhere.
-\end{block}}
-\end{frame}
-
-\begin{frame}{What this tree was telling us}
-\begin{itemize}
-  \item \textbf{The very first split is at 1.00 carat}, not at 0.9 or 1.1. A model that is smooth
-        in weight cannot produce a jump at a round number, so either the tree is chasing noise or
-        something real happens there.
-  \item \textbf{Splits on carat at several other places.} The relationship with weight is not a
-        straight line, which the log already handled.
-  \item \textbf{Clarity appears only among the heavy stones.} A hint that clarity matters more as
-        weight goes up.
+\vspace{0.1em}
+A gap of \textbf{1.9\%}, which is just 1\% more weight priced at $1.88$.
+\begin{itemize}\small
+  \item No choice of coefficients changes that. A smooth function of weight has no step in it.
+  \item So if something happens at exactly one carat, this model cannot represent it, and
+        nothing in its output will say so.
 \end{itemize}
+\end{frame}
+
+\begin{frame}{What the tree saw}
+\centering
+\includegraphics[width=0.84\textwidth]{fig_u5_tree_diagram.pdf}
+\vspace{0.1em}
+\begin{minipage}{0.95\textwidth}\small
+Same stones, no equation, nothing assumed about shape. \textbf{The first cut is at 1.00 carat},
+not 0.9 and not 1.1: the tree could cut anywhere and chose the round number. Every other cut is
+carat again (0.47, 0.61, 0.81, 1.38, 1.73), except clarity, which it asks about only on the heavy
+side. A 0/1 column splits at 0.5, so the left branch there is \emph{not} SI2.
+\end{minipage}
+\end{frame}
+
+\begin{frame}{The one the regression cannot copy}
+\begin{itemize}
+  \item \textbf{Carat at several values} is a bend. The log already handles that.
+  \item \textbf{Clarity only among heavy stones} is an interaction, and we know how to write one.
+  \item \textbf{A cut at a round number is a step}, and the model on the last slide has no step
+        anywhere in it.
+\end{itemize}
+\begin{principle}{what the tree is for}
+It cannot give you an effect with an interval, so it is not what you report. It searches shapes
+you would never check by hand, and a split is a hypothesis in readable form.
+\end{principle}
 \end{frame}
 
 \begin{frame}{The market leaves a fingerprint}
 \centering
-\includegraphics[width=0.78\textwidth]{fig_u5_carat_spike.pdf}
-\vspace{0.3em}
+\includegraphics[width=0.74\textwidth]{fig_u5_carat_spike.pdf}
+\vspace{0.2em}
 \begin{minipage}{0.9\textwidth}\small
-There is a pile of stones at exactly 1.00 carat and almost none just below. Cutters grind away
-weight to reach the round number, because buyers shop for ``a one carat diamond''. The split the
-tree chose is a fact about the trade.
+A pile of stones at exactly 1.00 carat and almost none just below. Cutters grind away weight to
+reach the round number, because buyers shop for ``a one carat diamond''. The tree did not know
+that. It found the place where the price behaves differently, and the trade explains why.
 \end{minipage}
 \end{frame}
 
-\begin{frame}{The same move, on an interaction}
-\begin{columns}[c]
-\begin{column}{0.56\textwidth}
-\centering
-\includegraphics[width=\textwidth]{fig_u5_interaction.pdf}
-\end{column}
-\begin{column}{0.44\textwidth}
-\small
-A second dataset, the lawn jobs, where the tree split on steep slope only inside the large-lot
-branch.
-\begin{itemize}
-  \item On small and medium lots the three slopes cost about the same.
-  \item On large lots, steep pulls away.
-  \item A split that appears in one branch and not another is the tree's way of writing an
-        interaction.
-\end{itemize}
-\end{column}
-\end{columns}
+\begin{frame}{The term that buys the step}
+Add one column: $1$ if the stone is at least a carat, $0$ otherwise.
+\[
+  \widehat{\log(\text{price})} \;=\; 7.84 \;+\; 1.80\,\log(\text{carat})
+  \;+\; \mathbf{0.115}\cdot\mathbf{1}\{\text{carat} \ge 1\}
+  \;+\; (\text{cut}) + (\text{color}) + (\text{clarity})
+\]
+\begin{center}\small
+\begin{tabular}{lcc}
+\toprule
+ & \textbf{0.99 carat} & \textbf{1.00 carat} \\
+\midrule
+smooth model, from before & \$5{,}341 & \$5{,}443 \\
+with the indicator & \$4{,}972 & \textbf{\$5{,}678} \\
+\bottomrule
+\end{tabular}
+\end{center}
+\vspace{0.1em}
+The gap goes from 1.9\% to \textbf{14\%}. In code that column is
+\texttt{(carat >= 1).astype(int)}, and $e^{0.115}-1$ turns the coefficient into \textbf{12\%}
+at the same weight, cut, color and clarity.
 \end{frame}
 
 \begin{frame}{Put it in the model}
-Add one indicator, \emph{is the stone at least one carat}, to the log-log model:
 \begin{center}\small
 \begin{tabular}{lccc}
 \toprule
@@ -686,10 +694,10 @@ the tree on its own (depth 5) & & & 0.228 \\
 \end{tabular}
 \end{center}
 \begin{itemize}\small
-  \item The jump is \textbf{12\%} in price, at the same weight, clarity, color and cut:
-        $p \approx 10^{-64}$, and AIC improves by 284.
-  \item The regression that took the hint predicts better than the tree that gave it, and it
-        hands you a number a buyer can use.
+  \item The jump is \textbf{12\%}, 95\% interval 10.7\% to 13.6\%, $p \approx 10^{-64}$, and AIC
+        falls by 284.
+  \item The regression that took the hint predicts better than the tree that gave it, and unlike
+        the tree it hands you a number with an interval on it.
 \end{itemize}
 \end{frame}
 
@@ -714,6 +722,64 @@ just under the line.'' \\
 The number, the units, what is held fixed, and what somebody should do about it. Four parts, two
 or three sentences.
 \end{practice}
+\end{frame}
+
+\begin{frame}{The same move, on an interaction}
+\begin{columns}[c]
+\begin{column}{0.54\textwidth}
+\centering
+\includegraphics[width=\textwidth]{fig_u5_interaction.pdf}
+\end{column}
+\begin{column}{0.46\textwidth}
+\small
+A second dataset, the lawn jobs. The tree split on steep slope inside the large-lot branch and
+nowhere else.
+\begin{itemize}
+  \item On small and medium lots the three slopes cost about the same.
+  \item On large lots, steep pulls away.
+  \item The term that buys it is \texttt{slope * lot\_size}, exactly as the indicator bought the
+        step at one carat.
+\end{itemize}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Turning splits into terms}
+The general rule, with the carat case as the first row:
+\begin{center}\footnotesize
+\begin{tabular}{p{0.40\textwidth} p{0.52\textwidth}}
+\toprule
+\textbf{In the tree} & \textbf{In the regression} \\
+\midrule
+one split on $x$ at a round or meaningful value &
+an indicator: \texttt{I(x >= c)} \\
+several splits on the same $x$ at different values &
+a curve: \texttt{I(x**2)}, or \texttt{np.log(x)} \\
+a split on $x_2$ inside one branch of $x_1$, and not the other &
+an interaction: \texttt{x1 * x2} \\
+a split on a category inside one branch only &
+that category crossed with the branching variable \\
+a variable the tree never splits on &
+a candidate for dropping, after you check it is not just repeating one it did use \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{frame}
+
+\begin{frame}{Quick check: what would you add?}
+\begin{quickcheck}{read a tree, write a term}
+A tree on house prices splits first on \texttt{has\_garage}. Inside the garage branch it splits
+on \texttt{sqft} at 1{,}800. Inside the no-garage branch it splits on \texttt{sqft} at 2{,}600.
+What do you add to the regression, and what do you not conclude?
+\end{quickcheck}
+\onslide<2->{%
+\begin{block}{\textbf{Answer}}
+Square footage is being used differently on the two sides, so the term is the interaction
+\texttt{sqft * has\_garage}. The regression then gives you a coefficient, an interval and a
+p-value for how much a square foot is worth with a garage against without one.
+What you do not conclude: that the garage caused anything, or that 1,800 and 2,600 are real
+thresholds. The tree had to pick a number somewhere.
+\end{block}}
 \end{frame}
 
 \begin{frame}{Why end here}
@@ -743,7 +809,7 @@ variance and improve your $R^2$.''
 \centering\small Mistake, or no mistake? Decide before we click.
 \onslide<2->{%
 \begin{trap}{verdict: mistake}
-A fan is not an outlier problem. The large cases are not errors, they are simply more variable,
+A fan is not an outlier problem. The large cases are not errors, they are more variable,
 and deleting them changes the question the model answers. Model the log instead.
 \end{trap}}
 \end{frame}
@@ -759,7 +825,7 @@ size interaction, in a regression where you can put a number on it.''
 \centering\small Mistake, or no mistake?
 \onslide<2->{%
 \begin{principle}{verdict: no mistake}
-The second sentence is exactly the move this unit ends on. The phrase ``second most important''
+The second sentence is the move this unit ends on. The phrase ``second most important''
 is loose, but it stops short of calling the split an effect.
 \end{principle}}
 \end{frame}
