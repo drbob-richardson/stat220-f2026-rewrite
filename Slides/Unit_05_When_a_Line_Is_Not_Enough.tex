@@ -174,7 +174,7 @@ coefficients, p-values and an $R^2$ to three decimals.
 \end{trap}
 \end{frame}
 
-\begin{frame}{The same four responses, in code}
+\begin{frame}{What to type for each one}
 \small
 \begin{center}\footnotesize
 \begin{tabular}{p{0.30\textwidth} p{0.60\textwidth}}
@@ -236,7 +236,7 @@ your rows are not independent is the part you are responsible for.
 \]
 \end{frame}
 
-\begin{frame}{The same stones, before and after}
+\begin{frame}{What the log did to the residuals}
 \centering
 \includegraphics[width=0.94\textwidth]{fig_u5_fan.pdf}
 \vspace{0.3em}
@@ -407,7 +407,7 @@ earlier cut, which is why a slightly different sample can produce a rather diffe
 \end{principle}
 \end{frame}
 
-\begin{frame}{The same arithmetic, in numbers}
+\begin{frame}{Scoring three cuts on the diamonds}
 Three candidate cuts on carat, scored on all 5,000 stones. Each cut puts the stones below it on
 the left and the rest on the right:
 \begin{center}\small
@@ -423,8 +423,8 @@ the left and the rest on the right:
 \end{center}
 \vspace{0.2em}
 The middle cut wins, so one carat is the first question the tree asks. Those two averages,
-\$1,617 and \$8,121, are the numbers in the top two boxes of the diagram a few slides on. The
-machine does this for every cut point of every variable before choosing.
+\$1,617 and \$8,121, are the two numbers at the top of the fitted tree. The machine does this
+for every cut point of every variable before choosing.
 \end{frame}
 
 \begin{frame}{Quick check: score a cut yourself}
@@ -469,7 +469,7 @@ there gets that one number.
 \end{minipage}
 \end{frame}
 
-\begin{frame}{How to read one, in four steps}
+\begin{frame}{How to read one}
 \begin{enumerate}
   \item \textbf{Start at the top and answer the question} for the case in front of you. Yes goes
         left, no goes right.
@@ -538,7 +538,7 @@ mixed types of predictor in one model & anything outside the range of the data \
 \end{center}
 \end{frame}
 
-\begin{frame}{The extrapolation problem, in one line}
+\begin{frame}{Past the edge of the data}
 \begin{itemize}
   \item A tree predicts the average of the training rows in a region. For a stone heavier than
         any it has seen, it returns the average of the heaviest group it knows.
@@ -547,7 +547,7 @@ mixed types of predictor in one model & anything outside the range of the data \
 \end{itemize}
 \end{frame}
 
-\begin{frame}{Forests and boosting, in one slide}
+\begin{frame}{Forests and boosting}
 \begin{itemize}
   \item A single tree is unstable. \textbf{Random forests} fit many trees to resampled data and
         average them. \textbf{Boosting} fits trees in sequence, each correcting the last.
@@ -584,7 +584,7 @@ predict, and what would the log-log regression do differently?
 % ======================================================================
 \section{Trees as a scout}
 % ======================================================================
-\begin{frame}{The model we already have, written out}
+\begin{frame}{The model so far}
 Units 3 and 4 ended here. The fitted log--log model, with the category terms folded up:
 \[
   \widehat{\log(\text{price})} \;=\; 7.90 \;+\; 1.88\,\log(\text{carat})
@@ -636,8 +636,8 @@ side. A 0/1 column splits at 0.5, so the left branch there is \emph{not} SI2.
 \begin{itemize}
   \item \textbf{Carat at several values} is a bend. The log already handles that.
   \item \textbf{Clarity only among heavy stones} is an interaction, and we know how to write one.
-  \item \textbf{A cut at a round number is a step}, and the model on the last slide has no step
-        anywhere in it.
+  \item \textbf{A cut at a round number is a step}, and a smooth model has no step anywhere
+        in it.
 \end{itemize}
 \begin{principle}{what the tree is for}
 It cannot give you an effect with an interval, so it is not what you report. It searches shapes
@@ -724,7 +724,7 @@ or three sentences.
 \end{practice}
 \end{frame}
 
-\begin{frame}{The same move, on an interaction}
+\begin{frame}{When the tree finds an interaction}
 \begin{columns}[c]
 \begin{column}{0.54\textwidth}
 \centering
@@ -847,7 +847,7 @@ is loose, but it stops short of calling the split an effect.
 \end{enumerate}
 \end{frame}
 
-\begin{frame}{The traps, all in one place}
+\begin{frame}{The traps}
 \begin{trap}{the ones that bite most often}
 \begin{itemize}
   \item Reading coefficients from a model whose residuals are patterned.

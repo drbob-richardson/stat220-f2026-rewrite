@@ -52,7 +52,7 @@ nb.code("""logfit = smf.ols("np.log(price) ~ np.log(carat) + C(cut) + C(color) +
                  data=gems).fit()
 print("R-squared:", round(logfit.rsquared, 3))""")
 
-nb.section("5. The same picture, after the fix")
+nb.section("5. The residuals after the log")
 nb.code("""plt.scatter(logfit.fittedvalues, logfit.resid, s=6, alpha=0.4)
 plt.axhline(0, color="red")
 plt.xlabel("fitted log price"); plt.ylabel("residual");""")
@@ -74,7 +74,7 @@ nb.code("""def sse(cut):
 for cut in [0.5, 0.8, 1.0, 1.2, 1.5]:
     print(cut, format(sse(cut), ".3g"))""")
 
-nb.section("8. The same split, from sklearn")
+nb.section("8. Let sklearn find the same cut")
 nb.code("""X = pd.get_dummies(gems[["carat", "cut", "color", "clarity"]], drop_first=True)
 stump = DecisionTreeRegressor(max_depth=1, random_state=0).fit(X, gems.price)
 print(export_text(stump, feature_names=list(X.columns), decimals=2))""")
@@ -103,7 +103,7 @@ plt.xlabel("carat"); plt.ylabel("stones");""")
 nb.md("A pile at 1.00 and a hole just below it. Cutters grind away weight to reach the round "
       "number, because buyers shop for *a one carat diamond*.")
 
-nb.section("12. What the smooth model says about two nearly identical stones",
+nb.section("12. Price two nearly identical stones",
            "Before adding anything, ask the model from step 4 to price a 0.99 and a 1.00 carat "
            "stone. Everything else about them is the same.")
 nb.code("""pair = pd.DataFrame({"carat": [0.99, 1.00], "cut": ["Ideal"]*2,
@@ -127,7 +127,7 @@ print("as a percentage     :", round(100*(np.exp(jump.params["over1"]) - 1), 1),
 print("p-value             :", format(jump.pvalues["over1"], ".2g"))
 print("AIC:", round(logfit.aic), "->", round(jump.aic))""")
 
-nb.section("14. The same two stones, from the new model")
+nb.section("14. Price the same two stones again")
 nb.code("""pair["over1"] = [0, 1]
 priced2 = np.exp(jump.predict(pair))
 
