@@ -44,7 +44,7 @@ QUESTIONS = [
  ["Roll it out: 0.04 is below the usual cutoff, and the other 39 are irrelevant to it.",
   "If none of the 40 lines did anything, about two of them would still come back under 0.05, so "
   "this one needs confirming before it ships.",
-  "Roll it out, provided every one of the 40 experiments was randomised properly.",
+  "Roll it out, provided every one of the 40 experiments was randomized properly.",
   "Do not roll it out, because 40 experiments sharing a single control group is too few for any one of them to detect a difference as small as this, whatever its p-value came out at."],
  1, "At a 0.05 cutoff, each test of a subject line that does nothing has a one in twenty chance "
     "of clearing the bar, so 40 of them yield about two winners from noise alone. One winner out "
@@ -97,7 +97,7 @@ QUESTIONS = [
  ["Its predictions are constrained to lie between 0 and 1.",
   "It states a distribution for the outcome, and standard errors, intervals and AIC all follow "
   "from that.",
-  "It is fitted by maximising a likelihood function rather than by minimising a sum of squared errors across the rows.",
+  "It is fitted by maximizing a likelihood function rather than by minimizing a sum of squared errors across the rows.",
   "It requires that the predictors be independent of one another before it can be fitted."],
  1, "The distributional assumption is where the uncertainty comes from. Methods without one "
     "can predict very well and simply have no standard errors, intervals, p-values or AIC to "
@@ -126,7 +126,7 @@ QUESTIONS = [
     "evidence the additions earned their place; a difference of 11 is a substantial one.",
  2, "echo"),
 
-(r"You are modelling how many insurance claims each policy files in a year. Most policies file "
+(r"You are modeling how many insurance claims each policy files in a year. Most policies file "
  r"none, a few file one or two, and a handful file more. What does the nature of this outcome "
  r"rule out?",
  ["Any model that mixes categorical predictors with numeric ones in the same fit.",
@@ -155,7 +155,7 @@ QUESTIONS = [
 # =====================================================================
 (r"An agronomist has 280 plots and fits $\text{yield} = \beta_0 + \beta_1\,\text{fertilizer} + "
  r"\varepsilon$ by least squares. Both panels come from that fit. What is wrong?",
- ["Nothing is wrong here; the residuals are centred on zero all the way across the fitted range.",
+ ["Nothing is wrong here; the residuals are centered on zero all the way across the fitted range.",
   "The spread of the residuals grows as the fitted yield grows.",
   "The relationship bends, and a straight line cannot represent it.",
   "A small number of plots at the high end are pulling the fitted line upward."],
@@ -184,10 +184,10 @@ QUESTIONS = [
   r"plots removed first."],
  0, "A squared term lets the fitted curve rise, flatten and come back down, which is the shape "
     "the data has. Logging the outcome addresses a growing spread and this is not that. "
-    "Restricting the range or deleting points hides the problem rather than modelling it.",
+    "Restricting the range or deleting points hides the problem rather than modeling it.",
  3, "new"),
 
-(r"A colleague suggests modelling $\log(\text{yield})$ instead of adding a squared term. What "
+(r"A colleague suggests modeling $\log(\text{yield})$ instead of adding a squared term. What "
  r"would settle which of the two to use?",
  ["Whichever model has the higher $R^2$ on these 280 plots.",
   "Whichever model has fewer parameters, since both are attempts at the same thing.",
@@ -361,7 +361,7 @@ QUESTIONS = [
   "Repair cost varies by a percentage of the job rather than by a fixed number of dollars, and "
   "the log turns that multiplicative spread into a constant one.",
   "The second model has more predictors in it, so less variation is left over to show up in the residuals, which is why the band looks tighter.",
-  "The residuals in the right panel were standardised, which rescales the vertical axis."],
+  "The residuals in the right panel were standardized, which rescales the vertical axis."],
  1, "On the raw scale a big job's error is big in dollars and a small job's is small, which is "
     "the fan in the left panel. Taking logs makes a 10\\% miss the same distance everywhere, so "
     "the band evens out. Every interval and p-value from the fit assumes the even version.",

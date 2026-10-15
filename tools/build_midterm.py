@@ -346,7 +346,12 @@ without rerunning anything.}
 
 
 def build_mc_exam(questions, name="Midterm_MC", title="Units 1 through 5", per=2):
-    """The closed-book multiple-choice paper. Entries carry a unit and a kind."""
+    """The question paper, and an instructor key.
+
+    `title` labels the key only. It stays off the student paper, which says
+    nothing about which units it covers or how it is invigilated: this is sat
+    in a testing centre, and the rules there are theirs, not the paper's.
+    """
     from collections import Counter
     check_questions(questions, name)
     meta = [(q[4], q[5]) for q in questions]
@@ -355,13 +360,17 @@ def build_mc_exam(questions, name="Midterm_MC", title="Units 1 through 5", per=2
     total = len(quad) * per
 
     head = r"""
+\thispagestyle{empty}
+\vspace*{2.6in}
 \begin{center}
-{\Large\textbf{Stat 220 Midterm: multiple choice}}\\[4pt]
-{\large %s}\\[8pt]
+{\Huge\textbf{Stat 220 Midterm}}\\[26pt]
+{\Large %d questions}\\[10pt]
+{\Large untimed}
 \end{center}
+\newpage
+\setcounter{page}{1}
 
-%d questions, %d points each, %d points in all. Circle one answer for each.
-Closed book. No computer.
+Circle one answer for each question.
 
 \vspace{6pt}\hrule\vspace{10pt}
 
@@ -369,8 +378,7 @@ Closed book. No computer.
 %s
 \end{enumerate}
 """
-    exam = PREAMBLE + head % (title, len(quad), per, total,
-                              mc_block(quad, False, figures)) + "\n\\end{document}\n"
+    exam = PREAMBLE + head % (len(quad), mc_block(quad, False, figures)) + "\n\\end{document}\n"
     build_pdf(f"{name}_Exam", exam)
 
     units = Counter(u for u, _ in meta)
@@ -381,7 +389,7 @@ Closed book. No computer.
 
     key = PREAMBLE + r"""
 \begin{center}
-{\Large\textbf{Stat 220 Midterm multiple choice: answer key}}\\[4pt]
+{\Large\textbf{Stat 220 Midterm: answer key}}\\[4pt]
 {\large %s}\\[6pt]
 \end{center}
 
@@ -407,7 +415,7 @@ if __name__ == "__main__":
     import exam_content_a, exam_content_b, exam_content_mc, exam_content_mc2
     build_exam(**exam_content_a.EXAM)          # A stays a complete two-part exam
     build_takehome(**exam_content_b.EXAM)      # B is the take-home analysis
-    build_mc_exam(exam_content_mc.QUESTIONS,    # paper 1, released as practice
-                  name="Midterm_MC")
-    build_mc_exam(exam_content_mc2.QUESTIONS,   # paper 2, the live exam
-                  name="Midterm_MC2")
+    build_mc_exam(exam_content_mc.QUESTIONS, name="Midterm_MC",
+                  title="paper 1, released to students as practice")
+    build_mc_exam(exam_content_mc2.QUESTIONS, name="Midterm_MC2",
+                  title="paper 2, the live exam")
