@@ -63,6 +63,23 @@ def balance(questions):
     return out
 
 
+def check_questions(questions, label=""):
+    """Every item needs exactly four options and an answer index inside them.
+
+    A line-wrapped option that loses its implicit concatenation silently
+    becomes two options, and the paper prints (A) through (E) without
+    complaint. This catches it at build time instead.
+    """
+    for i, q in enumerate(questions, 1):
+        opts, ans = q[1], q[2]
+        if len(opts) != 4:
+            raise ValueError(f"{label} question {i}: {len(opts)} options, expected 4")
+        if not 0 <= ans < 4:
+            raise ValueError(f"{label} question {i}: answer index {ans} is out of range")
+        if len(set(opts)) != 4:
+            raise ValueError(f"{label} question {i}: two options are identical")
+
+
 def mc_block(questions, show_answers, figures=None):
     """questions: list of (stem, [options], answer_index, why)
 
@@ -331,6 +348,7 @@ without rerunning anything.}
 def build_mc_exam(questions, name="Midterm_MC", title="Units 1 through 5", per=2):
     """The closed-book multiple-choice paper. Entries carry a unit and a kind."""
     from collections import Counter
+    check_questions(questions, name)
     meta = [(q[4], q[5]) for q in questions]
     figures = {i: q[6] for i, q in enumerate(questions) if len(q) > 6 and q[6]}
     quad = balance([(q[0], q[1], q[2], q[3]) for q in questions])

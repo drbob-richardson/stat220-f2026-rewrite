@@ -65,11 +65,13 @@ def fig_fan_fix():
     a = smf.ols("y ~ x", data=d).fit()
     b = smf.ols("np.log(y) ~ x", data=d).fit()
     fig, axes = plt.subplots(1, 2, figsize=(9.4, 3.2))
-    for ax, f, t, yl in [(axes[0], a, "left: y on x", "residual"),
-                         (axes[1], b, "right: log(y) on x", "residual (log scale)")]:
+    for ax, f, t, yl in [(axes[0], a, "left: cost on job size", "residual (dollars)"),
+                         (axes[1], b, "right: log(cost) on job size",
+                          "residual (log scale)")]:
         ax.scatter(f.fittedvalues, f.resid, s=11, color=GREY, alpha=0.65)
         ax.axhline(0, color=RED, lw=1.4)
-        ax.set_title(t, fontsize=10); ax.set_xlabel("fitted value"); ax.set_ylabel(yl)
+        ax.set_title(t, fontsize=11); ax.set_xlabel("fitted repair cost"); ax.set_ylabel(yl)
+        ax.tick_params(labelsize=9)
     save(fig, "fig_mc_fan_fix.pdf")
 
 
@@ -134,6 +136,88 @@ def fig_tree_steps():
     save(fig, "fig_mc_tree_steps.pdf")
 
 
+def fig_yield_curve():
+    """A scenario with a real bend: fertilizer and crop yield, 280 plots.
+
+    Deliberately not the four-panel diagnostic grid from the Unit 5 slides.
+    Left is the data with the straight line someone actually fitted; right is
+    what that fit left behind.
+    """
+    rng = np.random.default_rng(21)
+    kg = rng.uniform(20, 260, 280)
+    yld = 1.9 + 0.055 * kg - 0.000145 * kg ** 2 + rng.normal(0, 0.42, 280)
+    d = pd.DataFrame({"kg": kg, "yld": yld})
+    f = smf.ols("yld ~ kg", data=d).fit()
+    fig, axes = plt.subplots(1, 2, figsize=(10.6, 3.8))
+    g = np.linspace(20, 260, 200)
+    axes[0].scatter(kg, yld, s=15, color=GREY, alpha=0.7)
+    axes[0].plot(g, f.params["Intercept"] + f.params["kg"] * g, color=RED, lw=2.2)
+    axes[0].set_xlabel("fertilizer applied (kg per hectare)", fontsize=10)
+    axes[0].set_ylabel("yield (tonnes per hectare)", fontsize=10)
+    axes[0].set_title("the data, with the line that was fitted", fontsize=11)
+    axes[1].scatter(f.fittedvalues, f.resid, s=15, color=GREY, alpha=0.7)
+    axes[1].axhline(0, color=RED, lw=1.6)
+    axes[1].set_xlabel("fitted yield", fontsize=10)
+    axes[1].set_ylabel("residual", fontsize=10)
+    axes[1].set_title("what the line left behind", fontsize=11)
+    for ax in axes:
+        ax.tick_params(labelsize=9)
+    save(fig, "fig_mc_yield_curve.pdf")
+    print(f"   slope {f.params['kg']:.4f}, R2 {f.rsquared:.3f}; "
+          f"turning point near {-0.055 / (2 * -0.000145):.0f} kg")
+
+
+def fig_coefplot():
+    """Five coefficients with 95% intervals, two of them straddling zero.
+
+    A picture the course has not shown, so it tests reading intervals rather
+    than recognising a slide.
+    """
+    names = ["floor area (per 100 sq ft)", "staff on duty", "parking spaces",
+             "competitor within 1 mile", "loyalty members (per 100)"]
+    est = np.array([2.80, 1.95, 0.12, -3.40, 0.46])
+    se = np.array([0.42, 0.55, 0.38, 1.05, 0.51])
+    lo, hi = est - 1.96 * se, est + 1.96 * se
+    y = np.arange(len(names))[::-1]
+    fig, ax = plt.subplots(figsize=(7.4, 3.4))
+    ax.axvline(0, color=GREY, ls="--", lw=1.3)
+    ax.hlines(y, lo, hi, color=BLUE, lw=2.4)
+    ax.plot(est, y, "o", color=RED, ms=7)
+    ax.set_yticks(y); ax.set_yticklabels(names, fontsize=10)
+    ax.set_xlabel(r"estimated change in monthly revenue (\$000) per unit, with 95% interval",
+                  fontsize=10)
+    ax.tick_params(axis="x", labelsize=9)
+    save(fig, "fig_mc_coefplot.pdf")
+    for n, e, l, h in zip(names, est, lo, hi):
+        print(f"   {n:<30} {e:+.2f}  [{l:+.2f}, {h:+.2f}]")
+
+
+def fig_threshold():
+    """A pile of recorded times just under a 30 minute service promise.
+
+    Same idea as the carat spike in Unit 5, in a setting the course has not
+    used, so it tests the idea rather than recall of the picture.
+    """
+    rng = np.random.default_rng(31)
+    base = rng.gamma(9.0, 3.1, 2600)
+    # drivers round down anything close to the promise
+    # most drivers close to the promise round down, but not all of them
+    near = np.where((base > 30) & (base < 35))[0]
+    moved = rng.choice(near, int(0.72 * len(near)), replace=False)
+    base[moved] = rng.uniform(27.0, 29.9, len(moved))
+    fig, ax = plt.subplots(figsize=(7.4, 3.3))
+    ax.hist(base[base < 60], bins=80, color=BLUE, alpha=0.8)
+    ax.axvline(30, color=RED, lw=2)
+    ax.annotate("the 30 minute promise", (30.8, ax.get_ylim()[1] * 0.82), color=RED, fontsize=10)
+    ax.set_xlabel("delivery time as recorded by the driver (minutes)", fontsize=10)
+    ax.set_ylabel("deliveries", fontsize=10)
+    ax.tick_params(labelsize=9)
+    save(fig, "fig_mc_threshold.pdf")
+    print(f"   recorded in 27.5-30: {((base >= 27.5) & (base < 30)).sum()}, "
+          f"in 30-32.5: {((base >= 30) & (base < 32.5)).sum()}")
+
+
 if __name__ == "__main__":
     OUT.mkdir(exist_ok=True)
-    fig_resid_four(); fig_fan_fix(); fig_depth(); fig_intervals(); fig_tree_steps()
+    fig_fan_fix(); fig_intervals(); fig_tree_steps()
+    fig_yield_curve(); fig_coefplot(); fig_threshold()
