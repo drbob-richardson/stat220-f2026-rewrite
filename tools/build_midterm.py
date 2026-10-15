@@ -42,21 +42,55 @@ PREAMBLE = r"""\documentclass[11pt]{article}
 """
 
 
-def balance(questions):
-    """Spread the correct answers evenly across A, B, C, D.
+def _looks_patterned(seq):
+    """True if a student could beat the paper by spotting the answer order."""
+    if len(seq) < 8:
+        return False
+    for period in (1, 2, 3, 4, 5):
+        if all(seq[i] == seq[i - period] for i in range(period, len(seq))):
+            return True
+    run = best = 1
+    for i in range(1, len(seq)):
+        run = run + 1 if seq[i] == seq[i - 1] else 1
+        best = max(best, run)
+    return best >= 4
 
-    Each question's correct option is swapped into a target slot, cycling
-    through the four positions. Swapping two independent options changes
-    nothing about the question, and it keeps a reader from noticing that the
-    right answer is usually B.
+
+def balance(questions, seed=0):
+    """Move each correct option to a position drawn from a shuffled, even pool.
+
+    The first version of this walked the positions in order, `i % 4`, which
+    spread the answers perfectly evenly and produced A, B, C, D, A, B, C, D
+    down the whole paper. Even is not the same as unpredictable, and the order
+    is what a student sitting the exam can actually see.
+
+    Positions now come from a near-even pool shuffled with a fixed seed, so a
+    given paper always balances the same way, and the result is rejected and
+    reshuffled if it falls into a cycle or a long run.
     """
+    import random
+
+    fixed = [i for i, q in enumerate(questions)
+             if all(o.startswith("Panel ") for o in q[1])]
+    movable = [i for i in range(len(questions)) if i not in fixed]
+
+    pool = [i % 4 for i in range(len(movable))]
+    rng = random.Random(seed)
+    for _ in range(500):
+        rng.shuffle(pool)
+        targets = dict(zip(movable, pool))
+        letters = ["ABCD"[targets.get(i, questions[i][2])] for i in range(len(questions))]
+        if not _looks_patterned(letters):
+            break
+    else:
+        raise RuntimeError("could not find an unpatterned answer order")
+
     out = []
     for i, (stem, options, ans, why) in enumerate(questions):
-        if all(o.startswith("Panel ") for o in options):
-            # options name panels in a figure; leave them in their natural order
+        if i in fixed:
             out.append((stem, list(options), ans, why))
             continue
-        target = i % 4
+        target = targets[i]
         opts = list(options)
         opts[target], opts[ans] = opts[ans], opts[target]
         out.append((stem, opts, target, why))
@@ -167,7 +201,7 @@ def _may_rebuild(tag):
 
 
 def build_exam(tag, title, blurb, dataset, columns, setup_code, mc, tasks, data_note):
-    mc = balance(mc)
+    mc = balance(mc, seed=sum(ord(c) for c in tag) + 7)
     cols = "\n".join(r"\texttt{%s} & %s \\" % (c, d) for c, d in columns)
     head = r"""
 \begin{center}
@@ -356,7 +390,8 @@ def build_mc_exam(questions, name="Midterm_MC", title="Units 1 through 5", per=2
     check_questions(questions, name)
     meta = [(q[4], q[5]) for q in questions]
     figures = {i: q[6] for i, q in enumerate(questions) if len(q) > 6 and q[6]}
-    quad = balance([(q[0], q[1], q[2], q[3]) for q in questions])
+    quad = balance([(q[0], q[1], q[2], q[3]) for q in questions],
+                   seed=sum(ord(c) for c in name))
     total = len(quad) * per
 
     head = r"""
