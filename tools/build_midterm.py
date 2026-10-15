@@ -364,13 +364,12 @@ def build_mc_exam(questions, name="Midterm_MC", title="Units 1 through 5", per=2
 \vspace*{2.6in}
 \begin{center}
 {\Huge\textbf{Stat 220 Midterm}}\\[26pt]
-{\Large %d questions}\\[10pt]
-{\Large untimed}
+{\Large %d questions}
 \end{center}
 \newpage
 \setcounter{page}{1}
 
-Circle one answer for each question.
+Mark your answers on the bubble sheet.
 
 \vspace{6pt}\hrule\vspace{10pt}
 
