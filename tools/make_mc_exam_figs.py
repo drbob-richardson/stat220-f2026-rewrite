@@ -121,19 +121,26 @@ def fig_intervals():
 
 
 def fig_tree_steps():
-    """What a fitted tree's prediction looks like, and what it does past the edge."""
+    """A fitted tree's step function, in a setting, and what it does past the edge.
+
+    Axis labels carry the scenario so the question does not have to talk about
+    a bare x and y.
+    """
     rng = np.random.default_rng(5)
-    x = rng.uniform(1, 8, 160)
-    y = 5 + 2.2 * x + rng.normal(0, 2.2, 160)
-    t = DecisionTreeRegressor(max_depth=3, random_state=0).fit(x.reshape(-1, 1), y)
+    hours = rng.uniform(1, 8, 160)
+    units = 40 + 23 * hours + rng.normal(0, 17, 160)
+    t = DecisionTreeRegressor(max_depth=3, random_state=0).fit(hours.reshape(-1, 1), units)
     grid = np.linspace(1, 13, 500).reshape(-1, 1)
-    fig, ax = plt.subplots(figsize=(6.8, 3.3))
-    ax.scatter(x, y, s=16, color=GREY, alpha=0.7)
-    ax.plot(grid, t.predict(grid), color=RED, lw=2)
-    ax.axvline(8, color=GREEN, ls="--", lw=1.4)
-    ax.annotate("edge of the data", (8.15, y.min() + 1), color=GREEN, fontsize=9)
-    ax.set_xlabel("x"); ax.set_ylabel("y")
+    fig, ax = plt.subplots(figsize=(7.0, 3.3))
+    ax.scatter(hours, units, s=16, color=GREY, alpha=0.7)
+    ax.plot(grid, t.predict(grid), color=RED, lw=2.2)
+    ax.axvline(8, color=GREEN, ls="--", lw=1.5)
+    ax.annotate("longest shift in the data", (8.2, units.min() + 6), color=GREEN, fontsize=9.5)
+    ax.set_xlabel("length of the shift (hours)", fontsize=10)
+    ax.set_ylabel("units produced", fontsize=10)
+    ax.tick_params(labelsize=9)
     save(fig, "fig_mc_tree_steps.pdf")
+    print(f"   prediction at 8h and beyond: {t.predict([[8.5]])[0]:.0f} units")
 
 
 def fig_yield_curve():

@@ -29,7 +29,7 @@ QUESTIONS = [
 
 (r"A drug trial reports $p = 0.02$. A journalist writes that there is a 2\% chance the drug does "
  r"nothing. What is wrong with that sentence?",
- ["Nothing at all, since that is exactly what a p-value measures.",
+ ["Nothing at all, since that is what a p-value is there to measure.",
   "The p-value is computed assuming the drug does nothing, and reports how surprising the data "
   "would be in that case.",
   "The figure describes one tail of the distribution and should have been doubled first.",
@@ -42,8 +42,8 @@ QUESTIONS = [
  r"same control, each with its own p-value. Thirty-nine come back above 0.05. The fortieth comes "
  r"back at $p = 0.04$ and the team wants to roll that one out. What should you tell them?",
  ["Roll it out: 0.04 is below the usual cutoff, and the other 39 are irrelevant to it.",
-  "Running 40 separate tests on subject lines that do nothing would be expected to turn up about "
-  "two results under 0.05 by chance alone, so this one needs confirming first.",
+  "If none of the 40 lines did anything, about two of them would still come back under 0.05, so "
+  "this one needs confirming before it ships.",
   "Roll it out, provided every one of the 40 experiments was randomised properly.",
   "Do not roll it out, because 40 experiments sharing a single control group is too few for any one of them to detect a difference as small as this, whatever its p-value came out at."],
  1, "At a 0.05 cutoff, each test of a subject line that does nothing has a one in twenty chance "
@@ -66,13 +66,17 @@ QUESTIONS = [
 (r"Two labs test the same drug and both estimate that it lowers blood pressure by about 4 mmHg. "
  r"Lab A has 50 patients and reports $p = 0.07$; Lab B has 5,000 patients and reports "
  r"$p < 0.001$. A colleague says the two studies contradict each other. Do they?",
- ["Yes: one study found an effect and the other failed to find one.",
-  "Yes: the larger study is the reliable one and it overturns the smaller.",
-  "No: both estimate the same 4 mmHg, and they differ only in how precisely they pin it down.",
+ ["Yes: one of them found a real effect and the other failed to find one, so they cannot both "
+  "be describing the same drug.",
+  "Yes: the larger study is the more reliable of the two, so its result overturns whatever the "
+  "smaller one reported.",
+  "No: both landed on the same 4 mmHg, and the gap between the p-values says more about the "
+  "two sample sizes than about the drug.",
   "No, but only if both labs used the same significance cutoff and the same statistical test."],
- 2, "The estimate is the finding and the p-value reports how firmly the data pins it down. Both "
-    "labs landed on 4 mmHg. Lab A's interval is wide enough to include zero and Lab B's is not, "
-    "which is a difference in precision rather than a disagreement about the drug.", 1, "new"),
+ 2, "The estimate is the finding; the p-value reports how firmly the data pins it down. Both "
+    "labs landed on 4 mmHg. With 50 patients that estimate comes with an interval wide enough "
+    "to include zero, and with 5,000 it does not. The p-values differ because the sample sizes "
+    "differ, not because the labs disagree.", 1, "new"),
 
 (r"A company runs an A/B test on a new checkout page with a cutoff of 0.05. The new page is in "
  r"truth slightly better than the old one, but the test returns $p = 0.21$ and the team keeps the "
@@ -91,11 +95,11 @@ QUESTIONS = [
 # =====================================================================
 (r"What makes a model a probability model rather than a non-probability one?",
  ["Its predictions are constrained to lie between 0 and 1.",
-  "It states a distribution for the outcome, which is what standard errors, intervals and AIC "
-  "are then derived from.",
+  "It states a distribution for the outcome, and standard errors, intervals and AIC all follow "
+  "from that.",
   "It is fitted by maximising a likelihood function rather than by minimising a sum of squared errors across the rows.",
   "It requires that the predictors be independent of one another before it can be fitted."],
- 1, "The distributional assumption is the thing that generates uncertainty. Methods without one "
+ 1, "The distributional assumption is where the uncertainty comes from. Methods without one "
     "can predict very well and simply have no standard errors, intervals, p-values or AIC to "
     "offer, because there is no likelihood to compute them from.", 2, "echo"),
 
@@ -106,7 +110,7 @@ QUESTIONS = [
   "A forest states no distribution for the outcome, so there is no p-value for it to report.",
   "Only those variables that appear in a clear majority of the forest's trees have one attached."],
  2, "Importance scores rank how heavily the forest leaned on each column. They are not effects, "
-    "they carry no units, and nothing in them is an estimate of uncertainty. A question that "
+    "they carry no units, and they come with no uncertainty attached. A question that "
     "needs a p-value needs a model built on a probability statement.", 2, "echo"),
 
 (r"Two regressions are fitted to the same 400 rows with the same outcome on the same scale. "
@@ -126,10 +130,11 @@ QUESTIONS = [
  r"none, a few file one or two, and a handful file more. What does the nature of this outcome "
  r"rule out?",
  ["Any model that mixes categorical predictors with numeric ones in the same fit.",
-  "Ordinary linear regression, which will happily predict a negative number of claims and "
-  "assumes a spread that does not grow with the average.",
+  "Ordinary linear regression, which can predict a negative number of claims, or a fraction of "
+  "one such as 0.4, and which assumes a spread that does not grow with the average.",
   "Tree-based methods, which need a continuous outcome and cannot handle whole numbers.",
-  "Any model that reports a coefficient, since counts have to be modelled as rates per unit of exposure and a coefficient cannot be read on a count scale."],
+  "Any model that reports a coefficient at all, since counts have to be modelled as rates per "
+  "unit of exposure, and a coefficient cannot be read on a count scale in any case."],
  1, "A count is a whole number bounded below at zero, and its spread usually rises with its "
     "mean. A straight line will predict $-0.4$ claims for a safe policy without complaint, and "
     "its intervals assume a constant spread the data does not have. Trees handle counts fine.",
@@ -152,12 +157,11 @@ QUESTIONS = [
  r"\varepsilon$ by least squares. Both panels come from that fit. What is wrong?",
  ["Nothing is wrong here; the residuals are centred on zero all the way across the fitted range.",
   "The spread of the residuals grows as the fitted yield grows.",
-  "The relationship bends and a straight line cannot follow it, which the arc in the residuals "
-  "shows.",
+  "The relationship bends, and a straight line cannot represent it.",
   "A small number of plots at the high end are pulling the fitted line upward."],
- 2, "The left panel shows yield rising, flattening and then falling, and the straight line cuts "
-    "through it. The right panel is the same fact stated as residuals: negative at both ends and "
-    "positive in the middle, which is the signature of a curve the line could not follow.",
+ 2, "The left panel shows yield rising, flattening and then falling, with the straight line "
+    "cutting through it. The right panel says the same thing in residuals: negative at both ends "
+    "and positive in the middle. No choice of slope and intercept produces a bend.",
  3, "new", ("fig_mc_yield_curve.pdf", "0.94", 4)),
 
 (r"The co-op wants a prediction of yield for a plot given 240 kg of fertilizer per hectare. What "
@@ -187,10 +191,10 @@ QUESTIONS = [
  r"would settle which of the two to use?",
  ["Whichever model has the higher $R^2$ on these 280 plots.",
   "Whichever model has fewer parameters, since both are attempts at the same thing.",
-  "Fit both and compare the residual plots: the version that leaves no pattern behind is the one "
-  "that matched the shape.",
+  "Fit both and compare the residual plots: whichever leaves no pattern behind is the one that "
+  "got the shape right.",
   "Neither can be chosen from this data, because the two models have different outcomes and so cannot be compared at all."],
- 2, "The residual plot is what diagnosed the problem, so it is what judges the fix. $R^2$ cannot "
+ 2, "The residual plot diagnosed the problem, so the residual plot judges the fix. $R^2$ cannot "
     "settle it here, since the two models have different outcomes and their $R^2$ values are not "
     "comparable. Subject knowledge helps too: fertilizer that eventually harms yield is a peak, "
     "not a flattening.", 5, "echo"),
@@ -297,7 +301,7 @@ QUESTIONS = [
   "The columns should be kept, since the fit to the data improved."],
  1, "In-sample $R^2$ is non-decreasing in the number of predictors, so a rise is not evidence "
     "about anything. AIC charges for the extra parameters, and error on rows the model has not "
-    "seen asks the question that matters.", 4, "echo"),
+    "seen answers the question you actually have.", 4, "echo"),
 
 (r"A lasso fit, with its penalty chosen by cross-validation, sends the coefficient on "
  r"\texttt{store\_size} to exactly zero. What does that establish?",
@@ -321,22 +325,22 @@ QUESTIONS = [
     "$-0.62$ to $+0.86$ and loyalty members from $-0.54$ to $+1.46$. The other three intervals "
     "sit entirely on one side of zero.", 4, "new", ("fig_mc_coefplot.pdf", "0.72", 2)),
 
-(r"The team is deciding whether to pay a premium for sites with more parking. What does this "
- r"model support?",
- ["Parking does not affect revenue, so they should not pay a premium for it.",
-  "Parking adds about \\$120 a month per space, so a small premium for a site with more of them is justified.",
-  "The data cannot resolve what a parking space is worth: anything from a modest loss to a "
-  "modest gain is still on the table.",
-  "Parking should be dropped from the model entirely before any decision about new sites is taken on the basis of it."],
- 2, "An interval straddling zero means the study could not pin the effect down, which is "
-    "different from showing there is none. For a decision with money attached, that is the "
-    "finding to report, together with what it would take to answer the question properly.",
- 4, "new"),
+(r"A site with ten extra parking spaces is on the market at a higher rent. The team wants to "
+ r"know whether the parking is worth paying for. What does this model tell them?",
+ ["Parking makes no difference to revenue, so there is no case for paying more.",
+  "Each extra space is worth about \\$120 a month, which they can set against the extra rent.",
+  "The estimate is too imprecise to price: a small loss and a small gain are both still open.",
+  "Parking should be taken out of the model before the team uses it to judge any site."],
+ 2, "The interval for parking runs from $-0.62$ to $+0.86$ thousand dollars a space, so the study "
+    "could not pin the number down. That is different from showing the effect is zero, and for a "
+    "decision with rent attached it is the finding to report, along with what it would take to "
+    "answer the question properly.", 4, "new"),
 
 (r"In this chain's data, floor area runs from 1,800 to 9,400 square feet and staff on duty runs "
  r"from 3 to 14. A proposed new store would have 2,100 square feet and 13 staff. Both values sit "
  r"inside their own ranges. Is a prediction for it safe?",
- ["Yes: checking that each predictor falls inside its own observed range is exactly what guards against extrapolation, and both of these values pass that check.",
+ ["Yes: checking that each predictor falls inside its own observed range is what guards "
+  "against extrapolation, and both of these values pass that check.",
   "Yes, provided the model's $R^2$ is comfortably high.",
   "Not necessarily: small stores are unlikely to have been staffed that heavily, so that "
   "combination may never have occurred even though each value is ordinary on its own.",
@@ -384,20 +388,22 @@ QUESTIONS = [
   "different population and will distort any model fitted to all of them."],
  2, "A pile just under the promise and a dip just over it is a fact about how the number was "
     "written down, not about how long the trips took. Anything fitted to this column estimates "
-    "recorded time, and the gap between that and real time is widest exactly where the business "
+    "recorded time, and the gap between that and the real time is widest right where the "
     "cares most.", 5, "new", ("fig_mc_threshold.pdf", "0.70", 1)),
 
-(r"This tree was grown on jobs with $x$ between 1 and 8. What does it predict to the right of "
- r"the dashed line?",
- ["It extends the upward trend it found among the largest jobs it saw.",
-  "It returns the average of the training rows in its right-most region, unchanged, however far "
-  "out you go.",
-  "It returns an error, since the value lies outside the range it was grown on.",
-  "It returns the overall average of all the training rows, since no region of the tree matches."],
- 1, "A tree is flat outside its range by construction. The case falls into the right-most leaf "
-    "and receives that leaf's average, so the extra $x$ does nothing at all. A line would at "
-    "least keep going; neither is trustworthy, and the tree gives no sign that it has run out of "
-    "data.", 5, "new", ("fig_mc_tree_steps.pdf", "0.62", 1)),
+(r"A tree predicts units produced from the length of a shift. Every shift in the data ran "
+ r"between 1 and 8 hours. The plant manager asks what an 11 hour shift would produce. What does "
+ r"this tree return?",
+ ["It carries on the upward trend it found among the longest shifts it saw.",
+  "The average of the longest shifts it was trained on, and the same figure again for a 20 hour "
+  "shift.",
+  "An error, because 11 hours lies outside the range the tree was grown on.",
+  "The average across every shift in the data, since no region of the tree matches 11 hours."],
+ 1, "An 11 hour shift falls down the right-most branch into the leaf holding the longest shifts, "
+    "and gets that leaf's average. The extra three hours change nothing, and neither would "
+    "another twelve. A line would at least keep climbing; neither is trustworthy out there, and "
+    "the tree gives no sign it has run out of data.",
+ 5, "new", ("fig_mc_tree_steps.pdf", "0.64", 1)),
 
 (r"What does a single split in a regression tree do?",
  ["It fits a separate straight line on each side of the cut point.",
@@ -430,7 +436,7 @@ QUESTIONS = [
   "Fit the model; plot the bills against the main predictors; check the residuals and repair the shape if it is wrong; report the solar coefficient with its interval, and what it does not settle.",
   "Plot the bills against the main predictors; fit the model; report the solar coefficient with its interval, and what it does not settle; check the residuals and repair the shape if it is wrong."],
  0, "Looking first tells you what shape to fit and what is odd about the data. Checking the "
-    "residuals before reporting is what tells you whether the interval you are about to quote "
-    "means anything. Reporting first and checking later means the number is already out in the "
-    "world when you find out it was wrong.", 5, "new"),
+    "residuals before you report tells you whether the interval you are about to quote means "
+    "anything. Report first and check later and the number is already in someone's hands when "
+    "you find out it was wrong.", 5, "new"),
 ]
