@@ -36,8 +36,8 @@ TASKS = [
 
  # ---------------- Unit 3: look first ----------------
  ('Look at the data first',
-  "Make two plots that bear on the shop's question. Then, in two or three sentences, say what you "
-  'see that a later step will have to account for.',
+  "Make two plots that could be helpful concerning the shop's question. Then, in two or three "
+  'sentences, say if there is anything notable you see that may affect modeling choices.',
   8,
   'Any two sensible plots: days against parts needed, days by supplier, a histogram of days, or '
   'days by bike type. Full credit needs a real observation. The useful ones: repair time is '
@@ -48,9 +48,9 @@ TASKS = [
  # ---------------- Unit 1: the comparison already made ----------------
  ('The comparison the owner already made',
   'The owner compared average repair time under the old and the new supplier, saw almost no '
-  'difference, and is ready to drop the new one. Run that comparison. Report both averages, the '
-  'difference, a test, and a 95\\% interval, then say in two or three sentences what it does and '
-  'does not establish.',
+  'difference, and is ready to drop the new one. Perform a formal statistical test for that '
+  'comparison. Report both averages, the difference, a test, and a 95\\% interval, then say in '
+  'two or three sentences what it does and does not establish.',
   10,
   'About 1.94 days with the old supplier against 2.02 with the new, a difference near $+0.08$ '
   'days with $p$ about 0.39 and a 95\\% interval of roughly $[-0.10, +0.26]$. Full credit says a '
@@ -58,7 +58,7 @@ TASKS = [
   'still leaves a meaningful improvement in either direction on the table.'),
 
  # ---------------- Unit 3: adjust ----------------
- ('Put the obvious predictors in the model',
+ ('Put the named predictors in the model',
   'Now fit a model for repair time that includes the supplier indicator along with '
   '\\texttt{parts\\_needed}, \\texttt{tech\\_years} and \\texttt{bike\\_type}. Report the supplier '
   'coefficient with its interval, interpret it in a sentence that names what is held fixed, and '
@@ -72,16 +72,19 @@ TASKS = [
   'the gain in the raw comparison.'),
 
  # ---------------- Unit 4: the near-duplicate ----------------
- ('A column that adds nothing',
-  'Add \\texttt{parts\\_cost} to the model from Task 4 and look at what happens. Report the '
-  '$R^2$ before and after, and the coefficient on \\texttt{parts\\_needed} and its standard error '
-  'before and after. Explain in two or three sentences what is going on and what you would do.',
+ ('The near-duplicate column',
+  'Add \\texttt{parts\\_cost} to the model from Task 4. Report the coefficient on '
+  '\\texttt{parts\\_needed} and its standard error before and after. Look at the p-value on '
+  '\\texttt{parts\\_cost} as well as the p-value on \\texttt{parts\\_needed} before and after '
+  '\\texttt{parts\\_cost} was added. Explain in two or three sentences what is going on.',
   6,
-  '$R^2$ does not move at all: 0.4548 either way. The coefficient on parts needed goes from '
-  '$+0.467$ to $+0.436$, and its standard error blows up from 0.020 to 0.105, a factor of five. '
-  'The two columns carry nearly the same information ($r = 0.98$), so the fit cannot tell which '
-  'one deserves the credit and the individual estimates become unstable. Drop one. Full credit '
-  'names the near-duplication and uses the standard error, not just the $R^2$, as the evidence.'),
+  'The coefficient on parts needed moves little, $+0.467$ to $+0.436$, but its standard error '
+  'goes from 0.020 to 0.105, a factor of five, and its p-value collapses from $3\\times10^{-90}$ '
+  'to $4\\times10^{-5}$. Parts cost itself comes out at $p = 0.76$, and $R^2$ does not move at '
+  'all: 0.4548 either way. The two columns carry nearly the same information ($r = 0.98$), so the '
+  'fit cannot tell which deserves the credit. Full credit names the near-duplication and uses the '
+  'standard error or the p-values, not the $R^2$, as the evidence. A student who concludes from '
+  '$p = 0.76$ that parts cost does not matter has drawn the wrong lesson.'),
 
  # ---------------- Unit 3: categorical ----------------
  ('The category in the model',
@@ -121,40 +124,54 @@ TASKS = [
   '$R^2$ rose; it barely moves (0.455 to 0.469) and the two are not comparable across different '
   'outcome scales anyway.'),
 
- # ---------------- Unit 5: grow a tree ----------------
- ('Grow a tree and read it',
-  'Fit a decision tree of depth 3 predicting log repair days from parts needed, technician '
-  'experience, bike type and supplier. Print it. Then describe in plain words the kind of repair '
-  'that lands in the slowest leaf and the kind that lands in the fastest, and say what the first '
-  'split is and where it falls.',
-  10,
-  'The first split is \\texttt{parts\\_needed} at 4.5, that is, five parts or more against four '
-  'or fewer. Slowest leaf: five or more parts, electric bike, technician with more than 1.5 '
-  'years. Fastest: two or fewer parts with an experienced technician. Full credit reads the tree '
-  'as rules in words and locates the first cut. Credit a student who remarks that the tree also '
-  'splits on supplier inside the middle branches, which is the effect the regression is '
-  'estimating.'),
+ # ---------------- Unit 4: selection ----------------
+ ('Which columns belong',
+  'Fit a model for log repair days that starts with every predictor the shop records. Then cut it '
+  'down to the columns that are carrying their weight, using a method from this course. Say which '
+  'method you used, report what it kept and what it dropped, and say in two or three sentences '
+  'whether the result changes anything about your answer to Task 4.',
+  8,
+  'The full model has parts needed, parts cost, technician years, bike type, supplier, ticket '
+  'number, shop rating and quarter, and comes to $R^2 = 0.472$, AIC 937. Backward elimination on '
+  'p-values drops parts cost (0.88), then shop rating (0.78), then quarter (0.23), then ticket '
+  'number (0.10), and stops at parts needed, technician years, supplier and bike type: '
+  '$R^2 = 0.469$, AIC 934, supplier $-0.226$. That is the Task 4 model, so the search confirms a '
+  'judgement rather than overturning it, and the supplier estimate is unchanged. '
+  'A lasso with its penalty chosen by cross-validation is equally acceptable and behaves '
+  'differently: only shop rating goes to exactly zero, and the junk columns survive at tiny '
+  'coefficients (ticket number 0.019, quarter 0.012, parts cost 0.014) beside the real ones '
+  '(parts needed 0.36, electric 0.11, supplier $-0.11$, technician years $-0.10$). Give full '
+  'credit for reading the magnitudes. Deduct for reporting the surviving p-values as though the '
+  'model had been chosen in advance, and for dropping bike type because one of its levels was '
+  'insignificant.'),
 
- # ---------------- Unit 5: how deep ----------------
- ('How deep should it go',
-  'Split the rows into a training set and a held-out set. For depths 1 through 12, report the '
-  'error on the rows the tree was fitted on and the error on the rows held back. Say which depth '
-  'you would use and why, and say what the first column alone would have told you.',
-  6,
-  'Error on its own rows falls at every depth, 0.502 down to about 0.358. Held-out error falls to '
-  'about 0.466 at depth 5 and then climbs back to about 0.50 by depth 10. Depth 5 is the answer. '
-  'Full credit says the first column can always be driven down by letting the tree memorise, so '
-  'it cannot choose anything, and that only the held-out column is measuring prediction.'),
+ # ---------------- Unit 5: trees ----------------
+ ('A tree, at a depth you can defend',
+  'Fit a decision tree for log repair days from parts needed, technician experience, bike type '
+  'and supplier. Choose its depth with an appropriate method and say why that method is the right '
+  'one. Then read the fitted tree: describe the kind of repair that lands in the slowest leaf and '
+  'the kind that lands in the fastest, and say what the first split is and where it falls.',
+  8,
+  'Depth has to be chosen on rows the tree was not fitted on, by a held-out split or by '
+  'cross-validation. Error on the fitted rows falls at every depth, 0.502 down to about 0.358, so '
+  'it cannot choose anything; held-out error bottoms at about 0.466 at depth 5 and climbs back to '
+  'about 0.50 by depth 10. Full credit needs a depth, a method, and the reason the fitted-rows '
+  'number cannot be used. Reading the tree: the first split is \\texttt{parts\\_needed} at 4.5, '
+  'five parts or more against four or fewer. Slowest leaf: five or more parts, electric bike, '
+  'technician with more than 1.5 years. Fastest: two or fewer parts with an experienced '
+  'technician. Credit a student who remarks that the tree also splits on supplier inside the '
+  'middle branches.'),
 
  # ---------------- Unit 5: tree as scout ----------------
  ('Put what the tree found into the regression',
-  'The tree cut \\texttt{parts\\_needed} at 4.5, which is not something a smooth model can '
-  'produce. Add an indicator for repairs needing five or more parts to your log model from Task 8. '
-  'Report its coefficient, its p-value, and the AIC before and after. Then fit a third model that '
-  'uses a squared term in \\texttt{parts\\_needed} instead of the indicator, and say which of the '
-  'three you would keep and why. Finally, say what you would ask the shop about this threshold.',
+  'The first split in your tree is a threshold, and a smooth model cannot produce one. Add an '
+  'indicator for it to your log model from Task 8. Report its coefficient, its p-value, and the '
+  'AIC before and after. Then fit a third model that uses a squared term in '
+  '\\texttt{parts\\_needed} instead of the indicator, and say which of the three you would keep '
+  'and why. Finally, say what you would ask the shop about this threshold.',
   10,
-  'The indicator is about $+0.276$, a repair needing five or more parts runs roughly 32\\% longer '
+  'The indicator is \\texttt{parts\\_needed >= 5}, from the root split at 4.5. It comes out at '
+  'about $+0.276$: a repair needing five or more parts runs roughly 32\\% longer '
   'than the smooth trend predicts, $p \\approx 10^{-5}$. AIC improves from about 934 to 916, a '
   'gain of 18. The squared term does not help at all: AIC about 935, no better than the model '
   'without it. Keep the indicator. Full credit explains why: a threshold is a jump, and a '

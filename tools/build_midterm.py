@@ -305,22 +305,25 @@ Two limits on the AI:
 
 \begin{itemize}\itemsep1pt
   \item Do not paste the whole notebook into it.
-  \item Do not hand it a task prompt and ask for the answer. If a prompt is unclear, ask what it
-        means, not what to write.
+  \item Do not give it an entire task prompt and ask for the answer. If a prompt is unclear,
+        you can paste a whole task prompt in to help clarify.
 \end{itemize}
 
 \noindent Everything else is open. Use the generate function in Colab or your editor to help write
-the code, ask about a specific piece of output, or have a piece of your work checked."""
+the code, ask about a specific piece of output, or have a piece of your work checked.
+
+\noindent Use the methods from this course. A technique we have not covered is a sign
+that the AI has been asked for the answer rather than for help."""
 
 AI_POLICY_MD = """**Getting help.** You may use AI, and you may ask the TAs, the professor, and \
 each other. Two limits on the AI:
 
 - Do not paste the whole notebook into it.
-- Do not hand it a task prompt and ask for the answer. If a prompt is unclear, ask what it means, \
-not what to write.
+- Do not give it an entire task prompt and ask for the answer. If a prompt is unclear, you can \
+paste a whole task prompt in to help clarify.
 
 Everything else is open. Use the generate function in Colab or your editor to help write the code, \
-ask about a specific piece of output, or have a piece of your work checked."""
+ask about a specific piece of output, or have a piece of your work checked.\n\nUse the methods from this course. A technique we have not covered is a sign that the AI has been asked for the answer rather than for help."""
 
 
 def build_takehome(tag, title, blurb, dataset, columns, setup_code, tasks, data_note):
@@ -390,8 +393,12 @@ without rerunning anything.}
         f"build on an earlier one, so work them in order.\n\n---\n\n{AI_POLICY_MD}"),
         nbf.v4.new_code_cell(setup_code)]
     for n, (t, prompt, points, _) in enumerate(tasks, 1):
+        # the student notebook carries no task titles. Several of them named the
+        # answer ("A column that adds nothing"), and the rest set an expectation
+        # before the student had read the prompt. The titles stay in the key,
+        # where they are a grader's index.
         cells.append(nbf.v4.new_markdown_cell(
-            f"### Task {n}. {t}  ({points} points)\n\n{_to_markdown(prompt)}"))
+            f"### Task {n}.  ({points} points)\n\n{_to_markdown(prompt)}"))
         cells.append(nbf.v4.new_code_cell(""))
         cells.append(nbf.v4.new_markdown_cell("_Your answer:_\n\n"))
     nb["cells"] = cells
