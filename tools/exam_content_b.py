@@ -148,45 +148,45 @@ TASKS = [
  # ---------------- Unit 5: trees ----------------
  ('A tree, at a depth you can defend',
   'Fit a decision tree for log repair days from parts needed, technician experience, bike type '
-  'and supplier. Choose its depth with an appropriate method and say why that method is the right '
-  'one. Then read the fitted tree: describe the kind of repair that lands in the slowest leaf and '
-  'the kind that lands in the fastest, and say what the first split is and where it falls.',
+  'and supplier. Choose its depth with an appropriate method and say why that method works. For '
+  'this tree, state how many different exact values can be predicted.',
   8,
   'Depth has to be chosen on rows the tree was not fitted on, by a held-out split or by '
   'cross-validation. Error on the fitted rows falls at every depth, 0.502 down to about 0.358, so '
   'it cannot choose anything; held-out error bottoms at about 0.466 at depth 5 and climbs back to '
   'about 0.50 by depth 10. Full credit needs a depth, a method, and the reason the fitted-rows '
-  'number cannot be used. Reading the tree: the first split is \\texttt{parts\\_needed} at 4.5, '
-  'five parts or more against four or fewer. Slowest leaf: five or more parts, electric bike, '
-  'technician with more than 1.5 years. Fastest: two or fewer parts with an experienced '
-  'technician. Credit a student who remarks that the tree also splits on supplier inside the '
-  'middle branches.'),
+  'number cannot be used. The count of distinct predictions is the number of leaves: 8 at depth '
+  '3, 16 at depth 4, 30 at depth 5, 54 at depth 6. Accept the count that matches whatever depth '
+  'the student chose, and accept $2^{\\text{depth}}$ as the ceiling with a note that some '
+  'branches stop early. The point of the question is that a tree returns a short list of values, '
+  'not a continuous prediction.'),
 
  # ---------------- Unit 5: tree as scout ----------------
  ('Put what the tree found into the regression',
-  'The first split in your tree is a threshold, and a smooth model cannot produce one. Add an '
-  'indicator for it to your log model from Task 8. Report its coefficient, its p-value, and the '
-  'AIC before and after. Then fit a third model that uses a squared term in '
-  '\\texttt{parts\\_needed} instead of the indicator, and say which of the three you would keep '
-  'and why. Finally, say what you would ask the shop about this threshold.',
+  'Use the regression tree as a guide to recommend at least two new terms to add to the '
+  'regression model from Task 8 that induce non-linearity. For each new term, check whether it '
+  'improves the model or not.',
   10,
-  'The indicator is \\texttt{parts\\_needed >= 5}, from the root split at 4.5. It comes out at '
-  'about $+0.276$: a repair needing five or more parts runs roughly 32\\% longer '
-  'than the smooth trend predicts, $p \\approx 10^{-5}$. AIC improves from about 934 to 916, a '
-  'gain of 18. The squared term does not help at all: AIC about 935, no better than the model '
-  'without it. Keep the indicator. Full credit explains why: a threshold is a jump, and a '
-  'polynomial is smooth, so a curve cannot reproduce a step. The question to ask the shop is '
-  'whether something changes at five parts, and the answer in this shop is that those repairs '
-  'have to be special-ordered from the warehouse. Credit a student who notes the supplier '
-  'coefficient barely moves ($-0.223$, still about 20\\% faster), so the threshold is a separate '
-  'finding rather than an explanation of the supplier effect.'),
+  'Only one of the plausible candidates actually helps, and that is the finding. Against the Task '
+  '8 model at AIC 934: an indicator for five or more parts, which is the tree\'s first split, '
+  'comes in at $+0.276$, $p \\approx 10^{-5}$, AIC 916, a gain of 18. Everything else a student '
+  'is likely to try leaves the model no better or worse: a squared term in parts needed 934.5, '
+  '$\\log(\\text{parts})$ 932.3 at $p = 0.07$, supplier by parts needed 934.7, electric by parts '
+  'needed 935.3, technician years squared 935.0, supplier by technician years 935.6. '
+  'Full credit needs at least two terms proposed, each one justified by something visible in the '
+  'tree, each one fitted, and a verdict on each from AIC or a held-out comparison. A student who '
+  'proposes two terms and finds one helps and one does not has done the task correctly; do not '
+  'reward only the students who happened to pick the winner. Deduct for proposing terms with no '
+  'link to the tree, and for keeping a term that made the model worse. '
+  'Credit a student who explains why the squared term fails where the indicator works: the tree '
+  'found a jump, and a polynomial is smooth, so a curve cannot reproduce a step.'),
 
  # ---------------- Unit 4: predict one case ----------------
  ('A number for one customer',
   'A customer brings in a commuter bike needing 4 parts, going to a technician with 2 years of '
   'experience, with parts from the new supplier. Predict the turnaround from the model you '
-  'settled on, give the interval you would quote them, and say in one sentence why that interval '
-  'rather than the other.',
+  'settled on from Task 11, give the interval you would quote them, and say in one sentence '
+  'why that interval rather than the other.',
   6,
   'About 1.73 days, with a prediction interval of roughly $[0.75, 4.0]$ days against a confidence '
   'interval of about $[1.61, 1.86]$. A quote is for one repair, so the prediction interval belongs '

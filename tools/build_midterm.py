@@ -390,7 +390,9 @@ without rerunning anything.}
         f"# Stat 220 Midterm {tag}: the take-home analysis\n## {title}\n\n{blurb}\n\n"
         f"**{total} points in all.** Run the setup cell first. Put your work in the cell under "
         "each task and your written answer in the markdown cell that follows it. Several tasks "
-        f"build on an earlier one, so work them in order.\n\n---\n\n{AI_POLICY_MD}"),
+        f"build on an earlier one, so work them in order.\n\n---\n\n{AI_POLICY_MD}"
+        "\n\nAdd text or code boxes as needed, but do not change or modify the numbering "
+        "of the tasks."),
         nbf.v4.new_code_cell(setup_code)]
     for n, (t, prompt, points, _) in enumerate(tasks, 1):
         # the student notebook carries no task titles. Several of them named the
