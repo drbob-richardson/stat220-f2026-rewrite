@@ -59,10 +59,10 @@ TASKS = [
 
  # ---------------- Unit 3: adjust ----------------
  ('Put the obvious predictors in the model',
-  'Now fit a model for repair time that includes the supplier indicator along with the predictors '
-  'that obviously belong. Report the supplier coefficient with its interval, interpret it in a '
-  'sentence that names what is held fixed, and explain in two or three sentences why it differs '
-  'from Task 3.',
+  'Now fit a model for repair time that includes the supplier indicator along with '
+  '\\texttt{parts\\_needed}, \\texttt{tech\\_years} and \\texttt{bike\\_type}. Report the supplier '
+  'coefficient with its interval, interpret it in a sentence that names what is held fixed, and '
+  'explain in two or three sentences why it differs from Task 3.',
   8,
   'With parts needed, technician experience and bike type in the model, the supplier coefficient '
   'is about $-0.43$ days, 95\\% interval roughly $[-0.57, -0.28]$, $p \\approx 10^{-8}$, '
