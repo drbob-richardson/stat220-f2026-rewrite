@@ -299,6 +299,30 @@ answer contains, with the numbers this data actually produces.}
         print(f"wrote Exams/{path.name} ({len(cells)} cells)")
 
 
+AI_POLICY_TEX = r"""\vspace{6pt}
+\textbf{Getting help.} You may use AI, and you may ask the TAs, the professor, and each other.
+Two limits on the AI:
+
+\begin{itemize}\itemsep1pt
+  \item Do not paste the whole notebook into it.
+  \item Do not hand it a task prompt and ask for the answer. If a prompt is unclear, ask what it
+        means, not what to write.
+\end{itemize}
+
+\noindent Everything else is open. Use the generate function in Colab or your editor to help write
+the code, ask about a specific piece of output, or have a piece of your work checked."""
+
+AI_POLICY_MD = """**Getting help.** You may use AI, and you may ask the TAs, the professor, and \
+each other. Two limits on the AI:
+
+- Do not paste the whole notebook into it.
+- Do not hand it a task prompt and ask for the answer. If a prompt is unclear, ask what it means, \
+not what to write.
+
+Everything else is open. Use the generate function in Colab or your editor to help write the code, \
+ask about a specific piece of output, or have a piece of your work checked."""
+
+
 def build_takehome(tag, title, blurb, dataset, columns, setup_code, tasks, data_note):
     """Midterm B: the analysis, on its own. The multiple choice is a separate paper."""
     cols = "\n".join(r"\texttt{%s} & %s \\" % (c, d) for c, d in columns)
@@ -328,11 +352,15 @@ def build_takehome(tag, title, blurb, dataset, columns, setup_code, tasks, data_
 \textbf{%d points in all.} Work the tasks in order; several of them build on an earlier one.
 Show the output you are reading from, and answer in sentences, not in numbers alone.
 
+%s
+
+\vspace{6pt}\hrule\vspace{8pt}
+
 \begin{enumerate}
 %s
 \end{enumerate}
 """
-    exam = PREAMBLE + head % (tag, title, blurb, cols, data_note, total,
+    exam = PREAMBLE + head % (tag, title, blurb, cols, data_note, total, AI_POLICY_TEX,
                               applied_block(tasks, False)) + "\n\\end{document}\n"
     build_pdf(f"Midterm_{tag}_TakeHome", exam)
 
@@ -359,7 +387,7 @@ without rerunning anything.}
         f"# Stat 220 Midterm {tag}: the take-home analysis\n## {title}\n\n{blurb}\n\n"
         f"**{total} points in all.** Run the setup cell first. Put your work in the cell under "
         "each task and your written answer in the markdown cell that follows it. Several tasks "
-        "build on an earlier one, so work them in order."),
+        f"build on an earlier one, so work them in order.\n\n---\n\n{AI_POLICY_MD}"),
         nbf.v4.new_code_cell(setup_code)]
     for n, (t, prompt, points, _) in enumerate(tasks, 1):
         cells.append(nbf.v4.new_markdown_cell(
