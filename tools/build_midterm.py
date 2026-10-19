@@ -481,6 +481,52 @@ been handed before.}
           f"{kinds['echo']} echo / {kinds['new']} new")
 
 
+def build_answer_sheet(questions, name, label, per=2):
+    """A one-page key: the letters only, for marking a stack of bubble sheets.
+
+    The full key carries every explanation, which is what you want when a
+    student queries a question and the last thing you want when you are
+    running down a pile of answer sheets.
+    """
+    quad = balance([(q[0], q[1], q[2], q[3]) for q in questions],
+                   seed=sum(ord(c) for c in name))
+    letters = ["ABCD"[a] for _, _, a, _ in quad]
+
+    rows, per_row = [], 7
+    for start in range(0, len(letters), per_row):
+        chunk = letters[start:start + per_row]
+        rows.append(" & ".join(r"\textbf{%d.}~%s" % (start + i + 1, c)
+                               for i, c in enumerate(chunk))
+                    + r" \\")
+    body = "\n".join(rows)
+    spec = "l" * per_row
+
+    tex = PREAMBLE + r"""
+\thispagestyle{empty}
+\begin{center}
+{\Large\textbf{Stat 220 Midterm: answer key}}\\[3pt]
+{\large %s}\\[14pt]
+\end{center}
+
+\begin{center}\large
+\setlength{\tabcolsep}{14pt}
+\renewcommand{\arraystretch}{1.6}
+\begin{tabular}{%s}
+%s
+\end{tabular}
+\end{center}
+
+\vspace{14pt}
+\begin{center}\small
+%d questions, %d points each, %d points in all.\\
+Answers by position: %s.
+\end{center}
+""" % (label, spec, body, len(letters), per, len(letters) * per,
+       ", ".join(f"{L}: {letters.count(L)}" for L in "ABCD")) + "\n\\end{document}\n"
+    build_pdf(f"{name}_AnswerKey", tex)
+    print(f"   {''.join(letters)}")
+
+
 if __name__ == "__main__":
     OUT.mkdir(exist_ok=True)
     import exam_content_a, exam_content_b, exam_content_mc, exam_content_mc2
@@ -490,3 +536,7 @@ if __name__ == "__main__":
                   title="paper 1, released to students as practice")
     build_mc_exam(exam_content_mc2.QUESTIONS, name="Midterm_MC2",
                   title="paper 2, the live exam")
+    build_answer_sheet(exam_content_mc.QUESTIONS, "Midterm_MC",
+                       "paper 1, the one released to students as practice")
+    build_answer_sheet(exam_content_mc2.QUESTIONS, "Midterm_MC2",
+                       "paper 2, the live exam")
