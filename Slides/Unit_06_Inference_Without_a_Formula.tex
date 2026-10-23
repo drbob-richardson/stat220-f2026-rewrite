@@ -109,8 +109,8 @@ AIC & nothing, there is no likelihood \\
 \end{center}
 \vspace{0.2em}
 \begin{principle}{what this unit is for}
-None of those absences is permanent. Every one of them can be rebuilt by resampling, and an
-importance score fills part of the first gap. They are just not free.
+None of those gaps is permanent. Resampling rebuilds the middle three, and an importance score
+covers part of the first. What they cost is compute time rather than a new assumption.
 \end{principle}
 \end{frame}
 
@@ -133,14 +133,14 @@ we are of any of it.
 \end{tabular}
 \end{center}
 \vspace{0.2em}
-The last row is the instrument. A column that cannot matter will tell us which importance methods
-can be believed.
+That last column is the test. A column that cannot possibly matter tells you which importance
+methods can be believed.
 \end{frame}
 
 % ======================================================================
 \section{Importance}
 % ======================================================================
-\begin{frame}{What importance is trying to be}
+\begin{frame}{What an importance score is}
 \begin{itemize}
   \item A forest has no coefficient for \texttt{Size}, so there is no sentence of the form
         ``a square foot is worth this much''.
@@ -166,7 +166,7 @@ by how much this particular fitted model used them.
 \end{itemize}
 \end{frame}
 
-\begin{frame}{The test for a flaw like that}
+\begin{frame}{How to catch it}
 \begin{itemize}
   \item Add a column of random six-digit numbers to the listings. It has nothing to do with rent.
         We know this, because we generated it.
@@ -224,6 +224,29 @@ one that runs by default and costs nothing.
 Shuffling a column that was doing nothing changes nothing, so the score lands at zero and can
 even come out slightly negative. Shuffling \texttt{Size} costs the forest 0.350.
 \end{principle}
+\end{frame}
+
+\begin{frame}{Which one to run}
+\begin{center}\footnotesize
+\begin{tabular}{L{0.30\textwidth} L{0.58\textwidth}}
+\toprule
+\textbf{Situation} & \textbf{What to do} \\
+\midrule
+reporting to anyone & permutation importance, on held-out rows \\
+an id, timestamp or postcode is in the data &
+permutation importance, and do not quote the default at all \\
+a quick look while building &
+the default is free and fine, just keep it out of the write-up \\
+columns that are near-copies &
+neither is reliable, they split the credit. Drop one first \\
+you need a direction or a size &
+neither. Fit a regression, or read a partial dependence curve \\
+\bottomrule
+\end{tabular}
+\end{center}
+\begin{practice}{one line of code}
+\texttt{permutation\_importance(model, X\_test, y\_test, n\_repeats=10)}
+\end{practice}
 \end{frame}
 
 \begin{frame}{Quick check: reading an importance table}
@@ -290,6 +313,30 @@ output of a forest, the gap between two groups. The recipe does not care.
 \end{practice}
 \end{frame}
 
+\begin{frame}{The settings, and what they are worth arguing about}
+\begin{center}\small
+\begin{tabular}{L{0.26\textwidth} L{0.62\textwidth}}
+\toprule
+\textbf{Choice} & \textbf{What to use} \\
+\midrule
+how many resamples &
+a couple of hundred while you are working, one or two thousand for anything you report \\
+resample size &
+the same as the original. Not a round number, not a fraction of it \\
+which percentiles &
+2.5 and 97.5 for a 95\% interval. 5 and 95 if you want 90\% \\
+a random seed &
+set one, so the interval you quote is the interval you can reproduce \\
+\bottomrule
+\end{tabular}
+\end{center}
+\vspace{0.2em}
+\begin{practice}{how much the count matters}
+On the Mumbai and Delhi gap, 50 resamples moved the reported endpoints by about Rs 1,000 from
+run to run. At 200 they stopped moving. Past a thousand you are buying nothing.
+\end{practice}
+\end{frame}
+
 \begin{frame}{In code}
 \begin{center}\small
 \begin{tabular}{L{0.92\textwidth}}
@@ -303,8 +350,8 @@ output of a forest, the gap between two groups. The recipe does not care.
 \end{tabular}
 \end{center}
 \vspace{0.3em}
-Five lines, and the third one is the whole method. Everything specific to your problem lives
-inside \texttt{whatever\_you\_want}.
+Five lines, and the third one is the whole method. Everything specific to your problem goes
+inside \texttt{whatever\_you\_want}, and nothing else changes.
 \end{frame}
 
 \begin{frame}{Does it actually work?}
@@ -379,6 +426,28 @@ looks like a finding.
 \end{trap}
 \end{frame}
 
+\begin{frame}{What to resample, case by case}
+\begin{center}\footnotesize
+\begin{tabular}{L{0.33\textwidth} L{0.55\textwidth}}
+\toprule
+\textbf{What you are estimating} & \textbf{What one resample is} \\
+\midrule
+a mean, a median, a percentile & the rows \\
+a gap between two groups & each group separately, each keeping its own size \\
+a regression coefficient & the rows, then refit the whole model \\
+anything scored on held-out rows & the training rows only, test set untouched \\
+whether model A beats model B & the rows, then refit \emph{both} and keep the difference \\
+rows that come in clusters & the clusters, not the rows inside them \\
+\bottomrule
+\end{tabular}
+\end{center}
+\vspace{0.2em}
+\begin{principle}{the rule underneath the table}
+Resample whatever you would have had to collect again. If a second sample would have meant 4,743
+new listings, resample listings. If it would have meant 60 new buildings, resample buildings.
+\end{principle}
+\end{frame}
+
 \begin{frame}{Your turn \#1}
 \begin{yourturn}{what would you resample?}
 For each one, say what a single resample consists of and what you compute on it:
@@ -434,26 +503,27 @@ whether the sample was the right one to take.
 \end{itemize}
 \end{frame}
 
-% ======================================================================
-\section{LLM check}
-% ======================================================================
-\begin{frame}{LLM check: mistake or not?}
-\begin{llmcheck}{we asked about an importance ranking}
-\textbf{We told it:} ``My random forest says \texttt{customer\_id} is the third most important
-variable. What does that tell me about customer id?''\\[4pt]
-\textbf{It answered:} ``That is a strong signal that customer id carries real information about
-the outcome. It may be encoding something like signup order or region, so it is worth
-investigating as a genuine predictor.''
-\end{llmcheck}
-\vspace{0.2em}
-\centering\small Mistake, or no mistake? Decide before we click.
-\onslide<2->{%
-\begin{trap}{verdict: mistake}
-It might be encoding signup order. But the first thing to suspect about an identifier scoring
-highly on the default importance is the method, not the column, because an id has a distinct
-value for every row and that alone wins splits. Rerun it with permutation importance before
-investigating anything.
-\end{trap}}
+\begin{frame}{Saying it out loud}
+The same finding, three ways. Only the last is usable.
+\begin{center}\small
+\begin{tabular}{L{0.16\textwidth} L{0.72\textwidth}}
+\toprule
+\textbf{Too raw} & ``Permutation importance for Mumbai was 0.699 with a bootstrap CI of
+$[0.643, 0.745]$.'' \\
+\midrule
+\textbf{Too loose} & ``The model says location is the big one.'' \\
+\midrule
+\textbf{Right} & ``Of everything we recorded, whether the flat is in Mumbai is what the model
+leans on hardest, and resampling 40 times never changed that. Size is second. The random id we
+added as a check came out at zero, which is how we know the ranking is worth reading. None of
+this says how much rent goes up, only what the model uses.'' \\
+\bottomrule
+\end{tabular}
+\end{center}
+\begin{practice}{the four parts}
+What it leaned on, how steady that was, what the noise column did, and the line saying this is
+not an effect size.
+\end{practice}
 \end{frame}
 
 % ======================================================================
@@ -513,7 +583,7 @@ Check an importance method & add a random column and refit \\
 \begin{frame}{Where we go next}
 \begin{itemize}
   \item Every interval so far has come from one of two places: a formula that assumed a
-        distribution, or resampling that assumed nothing much.
+        distribution, or resampling that assumed almost nothing.
   \item \textbf{Unit 7} starts on where the formulas come from: probability, and what chance alone
         produces.
   \item The bootstrap returns there with a reason attached, rather than as a recipe that happens

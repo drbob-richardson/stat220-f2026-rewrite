@@ -18,7 +18,7 @@ nb = CodeNB(6, "Inference Without a Formula",
             "Get a ranking out of a forest, find out the default ranking is wrong, and build "
             "intervals for things no formula covers. Short cells, meant to be run one at a time.")
 
-nb.section("Setup", "The last column is added here and means nothing. It is the instrument.")
+nb.section("Setup", "The last column is added here and means nothing. That is the point of it.")
 nb.code(f"""import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -136,6 +136,23 @@ print(f"id_number, resampling before the split: [{lo:+.3f}, {hi:+.3f}]")""")
 nb.md("The same column of random digits now has an interval sitting well above zero. Resampling "
       "first puts the same listing in the training set and the test set, the forest remembers it, "
       "and shuffling any column appears to hurt. Nothing errors.")
+
+nb.section("11. The whole method, as something you can reuse",
+           "Everything above is this function with a different third argument.")
+nb.code("""def bootstrap_interval(data, statistic, n=2000, level=95, seed=0):
+    \"\"\"Resample `data` with replacement, apply `statistic`, return the interval.\"\"\"
+    r = np.random.default_rng(seed)
+    kept = [statistic(data.iloc[r.integers(0, len(data), len(data))]) for _ in range(n)]
+    edge = (100 - level) / 2
+    return np.percentile(kept, [edge, 100 - edge])
+
+
+print("median rent      :", bootstrap_interval(rents, lambda s: s.Rent.median()).round(0))
+print("mean rent        :", bootstrap_interval(rents, lambda s: s.Rent.mean()).round(0))
+print("90th percentile  :", bootstrap_interval(rents, lambda s: s.Rent.quantile(0.9)).round(0))
+print("share over 50k   :", bootstrap_interval(rents, lambda s: (s.Rent > 50000).mean()).round(4))""")
+nb.md("Four quantities, four intervals, one function. Three of the four have no standard error "
+      "formula you could have looked up.")
 
 nb.write("Code_Unit06_Inference_Without_a_Formula.ipynb")
 
