@@ -107,9 +107,6 @@ AIC & nothing, there is no likelihood \\
 \bottomrule
 \end{tabular}
 \end{center}
-\vspace{0.2em}
-None of those gaps is permanent. Resampling rebuilds the middle three, and an importance score
-covers part of the first. What they cost is compute time rather than a new assumption.
 \end{frame}
 
 \begin{frame}{The data for this unit}
@@ -130,9 +127,6 @@ we are of any of it.
 \bottomrule
 \end{tabular}
 \end{center}
-\vspace{0.2em}
-That last column is the test. A column that cannot possibly matter tells you which importance
-methods can be believed.
 \end{frame}
 
 % ======================================================================
@@ -164,7 +158,7 @@ by how much this particular fitted model used them.
 \end{itemize}
 \end{frame}
 
-\begin{frame}{The formula, and a tree to try it on}
+\begin{frame}{How the default is computed}
 Every split cuts the spread inside a node. Weight that cut by how many rows reached the node:
 \[
   \text{importance}(j) \;=\; \frac{1}{N}\sum_{\text{nodes splitting on } j}
@@ -175,7 +169,7 @@ Every split cuts the spread inside a node. Weight that cut by how many rows reac
 \includegraphics[width=0.97\textwidth]{fig_u6_small_tree.pdf}
 \end{frame}
 
-\begin{frame}{The same tree, by hand}
+\begin{frame}{Working it through}
 \begin{center}\scriptsize
 \begin{tabular}{L{0.22\textwidth} L{0.44\textwidth} r}
 \toprule
@@ -212,7 +206,7 @@ any feature selection routine, and any claim that a model found something.
 \end{practice}
 \end{frame}
 
-\begin{frame}{Permutation importance, and why it is harder to fool}
+\begin{frame}{Permutation importance}
 \begin{enumerate}
   \item Fit the model. Measure how well it predicts on rows it was not fitted on.
   \item Take one column and shuffle it, breaking any relationship it had with the outcome while
@@ -227,7 +221,7 @@ even come out slightly negative. Shuffling \texttt{Size} costs the forest 0.350.
 \end{principle}
 \end{frame}
 
-\begin{frame}{Two methods, two different answers}
+\begin{frame}{Where the two methods disagree}
 \centering
 \includegraphics[width=\textwidth]{fig_u6_two_importances.pdf}
 \vspace{0.2em}
@@ -238,7 +232,7 @@ ranks bathrooms first, the right ranks Mumbai first by a wide margin.
 \end{minipage}
 \end{frame}
 
-\begin{frame}{The same five columns, ranked both ways}
+\begin{frame}{Both rankings side by side}
 \begin{center}\small
 \begin{tabular}{lcc}
 \toprule
@@ -273,7 +267,7 @@ the default is free and fine, just keep it out of the write-up \\
 columns that are near-copies &
 neither is reliable, they split the credit. Drop one first \\
 you need a direction or a size &
-neither. Fit a regression, or read a partial dependence curve \\
+neither. Importance has no units and no sign. Fit a regression \\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -303,7 +297,7 @@ direction. Nothing here says roof material raises anything.
 % ======================================================================
 \section{The bootstrap}
 % ======================================================================
-\begin{frame}{The question an importance score cannot answer}
+\begin{frame}{Is that difference real?}
 \begin{itemize}
   \item The random column scored $-0.002$ and bedrooms scored $0.038$. Is that a real difference,
         or would another sample of listings have put them the other way round?
@@ -346,7 +340,7 @@ output of a forest, the gap between two groups. The recipe does not care.
 \end{practice}
 \end{frame}
 
-\begin{frame}{The settings, and what they are worth arguing about}
+\begin{frame}{Settings that matter}
 \begin{center}\small
 \begin{tabular}{L{0.26\textwidth} L{0.62\textwidth}}
 \toprule
@@ -392,9 +386,10 @@ inside \texttt{whatever\_you\_want}, and nothing else changes.
 \includegraphics[width=0.84\textwidth]{fig_u6_bootstrap.pdf}
 \vspace{0.1em}
 \begin{minipage}{0.94\textwidth}\small
-The elasticity of rent with respect to size, computed 600 times on 600 resamples. The formula
-gives $[0.237, 0.289]$ and the middle 95\% of the resamples is $[0.234, 0.291]$. Where a formula
-exists, resampling reproduces it.
+A regression coefficient, on purpose: it is the one case with something to check against. The
+elasticity of rent on size, refitted over 600 resamples. The formula gives $[0.237, 0.289]$, the
+middle 95\% of the resamples gives $[0.234, 0.291]$. \textbf{Nothing in that loop was specific to
+regression.} Put a forest inside it instead and keep whatever you wanted from the forest.
 \end{minipage}
 \end{frame}
 
@@ -459,7 +454,7 @@ looks like a finding.
 \end{trap}
 \end{frame}
 
-\begin{frame}{What to resample, case by case}
+\begin{frame}{What counts as one resample}
 \begin{center}\footnotesize
 \begin{tabular}{L{0.33\textwidth} L{0.55\textwidth}}
 \toprule
@@ -524,39 +519,29 @@ whether the sample was the right one to take.
 \end{principle}
 \end{frame}
 
-\begin{frame}{Two things a forest gives you free}
-\begin{itemize}
-  \item \textbf{Out-of-bag error.} Each tree is fitted on its own bootstrap resample, so about a
-        third of the rows are left out of each tree. Score every row using only the trees that did
-        not see it and you have a held-out estimate without holding anything out. Here OOB says
-        $R^2 = 0.781$ and a real test set says $0.771$.
-  \item \textbf{A partial dependence curve.} Sweep one column across its range, holding the others
-        as they are, and plot what the forest predicts. It gives a shape rather than a
-        coefficient, and it is the closest a forest comes to answering ``how much''.
-\end{itemize}
-\end{frame}
-
-\begin{frame}{Saying it out loud}
-The same finding, three ways. Only the last is usable.
+\begin{frame}{Writing up an importance result}
+Three blanks. Fill them and you are done.
 \begin{center}\small
-\begin{tabular}{L{0.16\textwidth} L{0.72\textwidth}}
+\begin{tabular}{L{0.18\textwidth} L{0.70\textwidth}}
 \toprule
-\textbf{Too raw} & ``Permutation importance for Mumbai was 0.699 with a bootstrap CI of
-$[0.643, 0.745]$.'' \\
+\textbf{What it uses} & Of what we recorded, \underline{\hspace{1.6cm}} is what the model leans
+on hardest, then \underline{\hspace{1.6cm}}. \\
 \midrule
-\textbf{Too loose} & ``The model says location is the big one.'' \\
+\textbf{How steady} & Across \underline{\hspace{0.9cm}} resamples that ordering
+\underline{\hspace{1.6cm}} (held, or moved around). \\
 \midrule
-\textbf{Right} & ``Of everything we recorded, whether the flat is in Mumbai is what the model
-leans on hardest, and resampling 40 times never changed that. Size is second. The random id we
-added as a check came out at zero, which is how we know the ranking is worth reading. None of
-this says how much rent goes up, only what the model uses.'' \\
+\textbf{The caveat} & This says what the model uses, not how much rent changes. \\
 \bottomrule
 \end{tabular}
 \end{center}
-\begin{practice}{the four parts}
-What it leaned on, how steady that was, what the noise column did, and the line saying this is
-not an effect size.
-\end{practice}
+\vspace{0.3em}
+Filled in for the rent model: \emph{``Of what we recorded, whether the flat is in Mumbai is what
+the model leans on hardest, then size. Across 40 resamples that ordering held. This says what the
+model uses, not how much rent changes.''}
+\vspace{0.2em}
+\begin{trap}{the line people drop}
+The third one. It is the only sentence stopping a reader from treating 0.699 as an effect.
+\end{trap}
 \end{frame}
 
 % ======================================================================
@@ -572,7 +557,7 @@ not an effect size.
         take percentiles.
   \item \textbf{Resample whatever the quantity was computed from}, and leave any train/test split
         where it is.
-  \item \textbf{Want an honest error for a forest?} Out-of-bag, or a test set.
+  \item \textbf{Want an honest error?} Hold rows back, as in Unit 4.
   \item \textbf{Report the estimate from the data} and the interval from the resamples.
   \item \textbf{Say what the interval does not cover:} bias, dependence, and whether the sample
         was the right one.
@@ -601,8 +586,8 @@ not an effect size.
 \toprule
 \textbf{You should be able to} & \textbf{What you would reach for} \\
 \midrule
-Fit a forest and get its held-out error &
-\texttt{RandomForestRegressor(oob\_score=True)} \\
+Fit a forest and score it on held-out rows &
+\texttt{RandomForestRegressor().fit(X, y)} \newline \texttt{forest.score(X\_test, y\_test)} \\
 Get the default importance & \texttt{forest.feature\_importances\_} \\
 Get permutation importance & \texttt{permutation\_importance(forest, X\_test, y\_test)} \\
 Draw one resample & \texttt{df.sample(len(df), replace=True)} \\

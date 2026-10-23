@@ -39,12 +39,10 @@ X = pd.get_dummies(rents[cols], drop_first=True)
 y = np.log(rents.Rent)
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=0)
 
-forest = RandomForestRegressor(n_estimators=300, random_state=0, oob_score=True,
-                               n_jobs=-1).fit(X_train, y_train)
-print("held-out R2:", round(forest.score(X_test, y_test), 3))
-print("out-of-bag R2:", round(forest.oob_score_, 3))""")
-nb.md("The out-of-bag number comes free: every tree is fitted on its own resample, so each row "
-      "can be scored by the trees that never saw it.")
+forest = RandomForestRegressor(n_estimators=300, random_state=0, n_jobs=-1).fit(X_train, y_train)
+print("forest, held-out R2:", round(forest.score(X_test, y_test), 3))""")
+nb.md("It predicts well. What it will not do is tell you which columns that came from, which is "
+      "the rest of this notebook.")
 
 nb.section("2. The importance the software gives you by default")
 nb.code("""impurity = pd.Series(forest.feature_importances_, index=X.columns)
@@ -184,19 +182,25 @@ PREDICTORS = ["stops", "packages", "miles", "downtown", "rain",
 routes.head()""")
 
 # ---------------- P1 ----------------
-hw.problem(1, """Fit a forest to the routes and find out how well it does.""")
-hw.given("a", "Report the held-out $R^2$ and the out-of-bag $R^2$. Say in one sentence what the "
-              "out-of-bag number is and why it costs nothing to compute.",
+hw.problem(1, """Fit a forest to the routes, and a regression beside it, and find out which
+predicts better.""")
+hw.given("a", "Report the held-out $R^2$ for both.",
 '''X = routes[PREDICTORS]
 y = routes["minutes"]
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=0)
 
-forest = RandomForestRegressor(n_estimators=300, random_state=0, oob_score=True,
+forest = RandomForestRegressor(n_estimators=300, random_state=0,
                                n_jobs=-1).fit(X_train, y_train)
-print("held-out R2:", round(forest.score(X_test, y_test), 3))
-print("out-of-bag R2:", round(forest.oob_score_, 3))''')
-hw.part("b", "The two numbers are close. Say what it would mean if the out-of-bag number were "
-             "much higher than the held-out one.", kind="markdown")
+line = smf.ols("minutes ~ " + " + ".join(PREDICTORS),
+               data=routes.loc[X_train.index]).fit()
+pred = line.predict(routes.loc[X_test.index])
+line_r2 = 1 - ((y_test - pred) ** 2).sum() / ((y_test - y_test.mean()) ** 2).sum()
+
+print("forest     held-out R2:", round(forest.score(X_test, y_test), 3))
+print("regression held-out R2:", round(line_r2, 3))''')
+hw.part("b", "One of the two can hand you a coefficient with an interval and the other cannot. "
+             "Say which, and say what you would have to do to get something comparable out of "
+             "the one that cannot.", kind="markdown")
 
 # ---------------- P2 ----------------
 hw.problem(2, """Now ask which columns it is using. Run both importance methods and compare them.""")
