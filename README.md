@@ -20,7 +20,8 @@ The reasoning behind this order is in `../Course_Rewrite/ALTERNATIVE_ORDER_model
 
 | # | Unit | Pages |
 |---|------|-------|
-| 6 | Probability: Randomness, Conditioning, and Bayes | 40 |
+| 6 | Inference Without a Formula | 33 |
+| (6) | Probability: Randomness, Conditioning, and Bayes | 40 |
 | 7 | Random Variables and Distributions | 23 |
 | 8 | The Normal Distribution and the CLT | 40 |
 | 9 | Estimation, Likelihood, and the Bootstrap | 38 |
@@ -29,6 +30,33 @@ The reasoning behind this order is in `../Course_Rewrite/ALTERNATIVE_ORDER_model
 
 Plus `Review_Capstone_Putting_It_Together` (39 frames), which is no longer a unit. It is material
 for the two review/exam days and the flex days, along with the scenario cards.
+
+## Unit 6 is new, and the old Part II has not been renumbered
+
+**Unit 6: Inference Without a Formula** was written after Unit 5 and takes its
+number. It is the unit that closes the gap Unit 5 left open: a tree found a
+threshold there and could not report it, so a regression had to. This one gets
+importance scores, intervals and honest error out of a model that has no
+coefficients and no likelihood.
+
+It runs 33 pages, deliberately shorter than the Part I units, and covers
+impurity against permutation importance, the bootstrap, intervals for
+quantities with no formula, and what resampling cannot repair. It runs on
+`data/rent.csv`, the listings the Unit 5 homework used, plus one column of
+random digits added to catch an importance method that cannot be trusted. The
+default importance ranks that random column fourth of eleven.
+
+**The numbering is not resolved.** `Unit_06_Probability` still exists and still
+calls itself Unit 6. Nothing has been renumbered, because shifting probability
+to 7 cascades through six decks, their companions, their homework and their
+cross-references, and that is a decision about the shape of the course rather
+than a build step. `tools/renumber.py` exists for when it is made.
+
+**It also overlaps Unit 9.** `Unit_09_Estimation_and_the_Bootstrap` has seven
+bootstrap frames. Unit 6 approaches the bootstrap from the side of models that
+have no formula at all, and Unit 9 from estimation and likelihood, but the
+recipe is taught twice. If Part II gets rewritten the way Part I was, that is
+the seam to cut along.
 
 ## What actually changed
 
