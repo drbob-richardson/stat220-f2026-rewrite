@@ -161,10 +161,10 @@ nb.write("Code_Unit06_Inference_Without_a_Formula.ipynb")
 # HOMEWORK
 # =====================================================================
 hw = HW(6, "Inference Without a Formula",
-        f"""`delivery_routes.csv` is the 500 routes from the Unit 4 homework. `minutes` is how long
-a route took. Five columns describe the route: `stops`, `packages`, `miles`, `downtown`, `rain`.
-Three more are recorded and have nothing to do with the outcome: `van_age_years`,
-`dispatcher_rating`, `month`.
+        f"""`delivery_routes.csv` is the 500 routes from the Unit 4 homework. `minutes` is how
+long a route took. Five columns describe the route: `stops`, `packages`, `miles`, `downtown` and
+`rain`. Three more get recorded and have nothing to do with how long anything takes:
+`van_age_years`, `dispatcher_rating` and `month`. You will need that last fact.
 
 Run the next two cells first.""")
 
@@ -184,7 +184,7 @@ PREDICTORS = ["stops", "packages", "miles", "downtown", "rain",
 routes.head()""")
 
 # ---------------- P1 ----------------
-hw.problem(1, """*A forest on the routes.* Fit one, and find out how well it does.""")
+hw.problem(1, """Fit a forest to the routes and find out how well it does.""")
 hw.given("a", "Report the held-out $R^2$ and the out-of-bag $R^2$. Say in one sentence what the "
               "out-of-bag number is and why it costs nothing to compute.",
 '''X = routes[PREDICTORS]
@@ -199,7 +199,7 @@ hw.part("b", "The two numbers are close. Say what it would mean if the out-of-ba
              "much higher than the held-out one.", kind="markdown")
 
 # ---------------- P2 ----------------
-hw.problem(2, """*Which columns is it using?* Compare the two importance methods.""")
+hw.problem(2, """Now ask which columns it is using. Run both importance methods and compare them.""")
 hw.given("a", "Report both rankings in one table.",
 '''impurity = pd.Series(forest.feature_importances_, index=PREDICTORS)
 perm = permutation_importance(forest, X_test, y_test, n_repeats=10, random_state=0, n_jobs=-1)
@@ -213,7 +213,7 @@ hw.part("b", "Both methods put `month` above `downtown` and `rain`. Two of those
              "real predictor can finish below a column that means nothing.", kind="markdown")
 
 # ---------------- P3 ----------------
-hw.problem(3, """*Is the ranking an answer?* Fit a regression on the same eight columns.""")
+hw.problem(3, """A ranking is not the same as an effect. Fit a regression on the same eight columns and see what it says instead.""")
 hw.given("a", "Report the coefficient and p-value for `downtown`, `rain` and `month`.",
 '''fit = smf.ols("minutes ~ " + " + ".join(PREDICTORS), data=routes).fit()
 for c in ["downtown", "rain", "month"]:
@@ -223,9 +223,9 @@ hw.part("b", "The forest ranked `month` above `rain`. The regression says someth
              "one answers the question 'does rain add time to a route'.", kind="markdown")
 
 # ---------------- P4 ----------------
-hw.problem(4, """*An interval on an importance score.* A ranking does not say whether a column is
-distinguishable from one that means nothing. Resampling does. Resample the training rows only, and
-score against the test set you already have.""")
+hw.problem(4, """A ranking does not tell you whether a column is doing anything at all, or
+whether it just happened to land above one that is doing nothing. Resampling does. Resample the
+training rows only, and score against the test set you already have.""")
 hw.given("a", "Report the point estimate and a 95% bootstrap interval for each column, and say "
               "which ones you cannot separate from zero.",
 '''rng = np.random.default_rng(6)
@@ -251,7 +251,7 @@ hw.part("b", "In problem 3 the regression found `rain` real, with about seven ex
         kind="markdown")
 
 # ---------------- P5 ----------------
-hw.problem(5, """*What can and cannot be said.* No computer needed.""")
+hw.problem(5, """No computer for this one. Three colleagues, three claims.""")
 hw.part("a", "A colleague fits a forest to customer data and reports that `account_number` is the "
              "second most important variable, using the default importance. Write the two or "
              "three sentences you would say in response.", kind="markdown")

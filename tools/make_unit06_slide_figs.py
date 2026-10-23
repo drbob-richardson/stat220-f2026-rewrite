@@ -139,7 +139,27 @@ def fig_importance_ci():
         print(f"   {c:<14} {base[c]:+.4f}  [{lo:+.4f}, {hi:+.4f}]")
 
 
+def fig_small_tree():
+    """A depth-2 tree with n and MSE in every node, so the arithmetic on the
+    next slide can be followed without taking anything on trust."""
+    from sklearn.tree import DecisionTreeRegressor, plot_tree
+    d = load()
+    X = pd.get_dummies(d[["Size", "Bathroom", "City"]], drop_first=True)
+    y = np.log(d.Rent)
+    t = DecisionTreeRegressor(max_depth=2, random_state=0).fit(X, y)
+    fig, ax = plt.subplots(figsize=(10.4, 3.9))
+    plot_tree(t, feature_names=[c.replace("City_", "city is ") for c in X.columns],
+              filled=True, impurity=True, precision=3, fontsize=9, ax=ax,
+              label="all", proportion=False)
+    for txt in ax.texts:
+        lines = [l.replace("squared_error", "MSE").replace("samples", "n")
+                 .replace("value = ", "mean log rent = ") for l in txt.get_text().split("\n")]
+        txt.set_text("\n".join(lines))
+    save(fig, "fig_u6_small_tree.pdf")
+
+
 if __name__ == "__main__":
+    fig_small_tree()
     fig_two_importances()
     fig_bootstrap()
     fig_importance_ci()

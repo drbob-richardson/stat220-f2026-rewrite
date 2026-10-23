@@ -108,10 +108,8 @@ AIC & nothing, there is no likelihood \\
 \end{tabular}
 \end{center}
 \vspace{0.2em}
-\begin{principle}{what this unit is for}
 None of those gaps is permanent. Resampling rebuilds the middle three, and an importance score
 covers part of the first. What they cost is compute time rather than a new assumption.
-\end{principle}
 \end{frame}
 
 \begin{frame}{The data for this unit}
@@ -166,6 +164,41 @@ by how much this particular fitted model used them.
 \end{itemize}
 \end{frame}
 
+\begin{frame}{The formula, and a tree to try it on}
+Every split cuts the spread inside a node. Weight that cut by how many rows reached the node:
+\[
+  \text{importance}(j) \;=\; \frac{1}{N}\sum_{\text{nodes splitting on } j}
+  \Big( n_t\,\text{MSE}_t \;-\; n_L\,\text{MSE}_L \;-\; n_R\,\text{MSE}_R \Big)
+\]
+\vspace{-0.4em}
+\centering
+\includegraphics[width=0.97\textwidth]{fig_u6_small_tree.pdf}
+\end{frame}
+
+\begin{frame}{The same tree, by hand}
+\begin{center}\scriptsize
+\begin{tabular}{L{0.22\textwidth} L{0.44\textwidth} r}
+\toprule
+\textbf{Split on} & \textbf{Arithmetic} & \textbf{Decrease} \\
+\midrule
+bathrooms, at the root &
+$(4743)(0.877) - (3762)(0.500) - (981)(0.892)$, over 4743 & 0.296 \\
+Mumbai, left branch &
+$(3762)(0.500) - (3093)(0.287) - (669)(0.409)$, over 4743 & 0.151 \\
+Mumbai, right branch &
+$(981)(0.892) - (678)(0.599) - (303)(0.453)$, over 4743 & 0.070 \\
+\bottomrule
+\end{tabular}
+\end{center}
+Bathrooms gets 0.296. Mumbai splits twice and collects $0.151 + 0.070 = 0.221$. Over the total
+0.517 that is \textbf{0.573} and \textbf{0.427}, which is what
+\texttt{.feature\_importances\_} prints.
+\begin{trap}{where the bias enters}
+Nothing in that sum asks whether a column deserved its splits. A column with a distinct value in
+every row is offered a cut point between every pair, so it wins more nodes.
+\end{trap}
+\end{frame}
+
 \begin{frame}{How to catch it}
 \begin{itemize}
   \item Add a column of random six-digit numbers to the listings. It has nothing to do with rent.
@@ -177,6 +210,21 @@ by how much this particular fitted model used them.
 A column you know to be noise, added on purpose, is the cheapest audit of any importance method,
 any feature selection routine, and any claim that a model found something.
 \end{practice}
+\end{frame}
+
+\begin{frame}{Permutation importance, and why it is harder to fool}
+\begin{enumerate}
+  \item Fit the model. Measure how well it predicts on rows it was not fitted on.
+  \item Take one column and shuffle it, breaking any relationship it had with the outcome while
+        leaving everything else alone.
+  \item Measure again. The drop in performance is that column's importance.
+  \item Put the column back and do the next one.
+\end{enumerate}
+\vspace{0.2em}
+\begin{principle}{why the random column scores zero}
+Shuffling a column that was doing nothing changes nothing, so the score lands at zero and can
+even come out slightly negative. Shuffling \texttt{Size} costs the forest 0.350.
+\end{principle}
 \end{frame}
 
 \begin{frame}{Two methods, two different answers}
@@ -209,21 +257,6 @@ bedrooms & 0.070 \quad(5th) & 0.038 \quad(4th) \\
 Nine percent of the credit went to a column of random digits, and the method that did it is the
 one that runs by default and costs nothing.
 \end{trap}
-\end{frame}
-
-\begin{frame}{Permutation importance, and why it is harder to fool}
-\begin{enumerate}
-  \item Fit the model. Measure how well it predicts on rows it was not fitted on.
-  \item Take one column and shuffle it, breaking any relationship it had with the outcome while
-        leaving everything else alone.
-  \item Measure again. The drop in performance is that column's importance.
-  \item Put the column back and do the next one.
-\end{enumerate}
-\vspace{0.2em}
-\begin{principle}{why the random column scores zero}
-Shuffling a column that was doing nothing changes nothing, so the score lands at zero and can
-even come out slightly negative. Shuffling \texttt{Size} costs the forest 0.350.
-\end{principle}
 \end{frame}
 
 \begin{frame}{Which one to run}
